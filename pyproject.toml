@@ -17,7 +17,7 @@ flake8 = "^3.9.2"
 [tool.black]
 exclude = '''
 (
-    rehome/storage/|
+    data/|
     rehome/migrations/
 )
 '''

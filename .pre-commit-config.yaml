@@ -5,7 +5,7 @@ repos:
       - id: black
         exclude: |
           (?x)(
-              ^rehome/storage/|
+              ^data/|
               ^rehome/db/migrations/
           )
         args:
@@ -16,6 +16,6 @@ repos:
       - id: flake8
         exclude: |
           (?x)(
-              ^rehome/storage/|
+              ^data/|
               ^rehome/db/migrations/
           )
