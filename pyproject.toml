@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "rehome"
+version = "0.1.0"
+description = ""
+authors = ["Lee Watson <rev@revthefox.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "^2.0.1"
+python-dotenv = "^0.18.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.6b0"
+pre-commit = "^2.13.0"
+flake8 = "^3.9.2"
+
+[tool.black]
+exclude = '''
+(
+    rehome/storage/|
+    rehome/migrations/
+)
+'''
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
