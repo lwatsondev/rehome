@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="Lee Watson <rev@revthefox.co.uk>">
+    <meta name="theme-color" content="#E85B92"/>
+    {% if description %}
+            <meta name="description" content="{{ description }}">
+    {% else %}
+            <meta name="description" content="My personal site. No guarantee of coherence.">
+    {% endif %}
+    <title>~/{{ tab_title if tab_title else "index" }}</title>
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}"/>
+    {% block stylesheets_pre %}{% endblock %}
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css" integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for("static", filename="css/main.css") }}">
+    {% block stylesheets_post %}{% endblock %}
+</head>
+<body>
+    <div class="text-center vertical-center">
+        {% if title %}
+            <h5 class="content-title">{{ title }}</h5>
+        {% else %}
+            <h5 class="content-title">Hello there!</h5>
+        {% endif %}
+
+        <div class="inline-menu">
+        <a href="https://github.com/TheReverend403" target="_blank">GitHub</a>
+        <p> - </p>
+        <a href="https://t.me/TheReverend403" target="_blank">Telegram</a>
+    </div>
+	<div class="content-body text-left">
+	<hr>
+		{% block content %}{% endblock %}
+	<hr>
+	</div>
+    <blockquote>
+    <p><i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is perfect.</i> - Linus Torvalds</p>
+    </blockquote>
+</div>
+
+</body>
+    {% block scripts_pre %}{% endblock %}
+    {% block scripts_post %}{% endblock %}
+</html>

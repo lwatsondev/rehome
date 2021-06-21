@@ -14,4 +14,13 @@ def create_app():
     app = Flask(
         "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
     )
+
+    register_blueprints(app)
     return app
+
+
+def register_blueprints(app):
+    from rehome import views
+
+    views.register_blueprints(app)
+    app.logger.debug("Blueprints registered.")
