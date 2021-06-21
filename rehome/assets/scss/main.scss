@@ -8,16 +8,14 @@
     --accent-color: #ba2d65;
     --border-color: #cccccc;
     --image-border-color: #ff5995;
-}
 
-/*@media (prefers-color-scheme: dark) {*/
-/*    :root {*/
-/*        --primary-bg-color: #292929;*/
-/*        --primary-text-color: #ffffff;*/
-/*        --secondary-text-color: #868686;*/
-/*        --border-color: #444;*/
-/*    }*/
-/*}*/
+    //@media (prefers-color-scheme: dark) {
+    //    --primary-bg-color: #121212;
+    //    --primary-text-color: #ffffff;
+    //    --secondary-text-color: #868686;
+    //    --border-color: #444;
+    //}
+}
 
 html {
     background: var(--primary-bg-color);
@@ -41,6 +39,7 @@ hr.divider {
 
 a {
     text-decoration: none;
+    background-color: transparent;
 
     &:visited {
         color: var(--primary-color);
@@ -54,6 +53,10 @@ a {
     &:link {
         color: var(--primary-color);
     }
+}
+
+.pure-menu-link:hover {
+    background-color: transparent;
 }
 
 .content-title {
@@ -84,6 +87,7 @@ a {
 
 .profile-links {
     color: var(--secondary-text-color);
+
     &:before {
         content: "[";
     }
@@ -108,6 +112,11 @@ a {
     border-width: 1px;
     border-color: var(--image-border-color);
     border-style: solid;
+
+    //@media (prefers-color-scheme: dark) {
+    //    border-width: 0;
+    //    border-style: none;
+    //}
 
     &:hover {
         transition: all 250ms ease;
