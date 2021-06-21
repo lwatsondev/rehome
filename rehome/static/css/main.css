@@ -72,10 +72,6 @@ a:hover {
     text-align: center;
 }
 
-.profile-links {
-    font-size: 1em;
-}
-
 .profile-links:before {
     content: "[";
 }
