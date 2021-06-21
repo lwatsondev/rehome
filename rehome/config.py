@@ -32,6 +32,9 @@ class ConfigFile(object):
         shutil.copy2(self._default_file_path, self._file_path)
         print(f"Copied {default_relative_path} to {relative_path}")
 
+    def write(self):
+        self._file_path.write_text(yaml.safe_dump(self._container.to_dict()))
+
     def load(self, exit_on_error=False) -> Dotty:
         for file in [self._default_file_path, self._file_path]:
             try:
@@ -52,6 +55,7 @@ class Config(object):
     def __init__(self):
         config_file = ConfigFile()
         config_file.save_default()
-        config_dict = config_file.load(exit_on_error=True)
+        config = config_file.load(exit_on_error=True)
+        config_file.write()
 
-        self.SOCIAL_LINKS = config_dict.get("social_links")
+        self.SOCIAL_LINKS = config.get("social_links")

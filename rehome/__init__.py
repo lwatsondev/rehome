@@ -28,4 +28,4 @@ def register_blueprints(app):
 
 
 def setup_logging():
-    dictConfig(dict(ConfigFile("logging.yml").load()))
+    dictConfig(ConfigFile("logging.yml").load().to_dict())
