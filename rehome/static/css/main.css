@@ -4,10 +4,19 @@
     --primary-bg-color: #eeeeee;
     --primary-text-color: #000000;
     --secondary-text-color: #757575;
-    --error-text-color: red;
     --primary-color: #ff5995;
     --accent-color: #ba2d65;
+    --border-color: #cccccc;
 }
+
+/*@media (prefers-color-scheme: dark) {*/
+/*    :root {*/
+/*        --primary-bg-color: #292929;*/
+/*        --primary-text-color: #ffffff;*/
+/*        --secondary-text-color: #868686;*/
+/*        --border-color: #444;*/
+/*    }*/
+/*}*/
 
 html {
     background: var(--primary-bg-color);
@@ -25,7 +34,7 @@ hr {
     display: block;
     height: 1px;
     border: 0;
-    border-top: 1px solid #CCC;
+    border-top: 1px solid var(--border-color);
     margin: 1em;
 }
 
