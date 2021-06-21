@@ -1,15 +1,24 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700);
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital@0;1&display=swap');
+
+:root {
+    --primary-bg-color: #eeeeee;
+    --primary-text-color: #000000;
+    --secondary-text-color: #757575;
+    --error-text-color: red;
+    --primary-color: #ff5995;
+    --accent-color: #ba2d65;
+}
 
 html {
-    background: #EEE;
+    background: var(--primary-bg-color);
     line-height: 1.2;
     font-size: 1.2em;
-    color: #444
+    color: var(--primary-text-color);
 }
 
 html, button, input, select, textarea,
 .pure-g [class *= "pure-u"] {
-    font-family: "Open Sans", sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 hr {
@@ -17,55 +26,38 @@ hr {
     height: 1px;
     border: 0;
     border-top: 1px solid #CCC;
-    margin: 1em 0;
-    padding: 0
+    margin: 1em;
+}
+
+a {
+    text-decoration: none;
 }
 
 a:link {
-    color: #E85B92
+    color: var(--primary-color);
 }
 
 a:visited {
-    color: #F181AC
+    color: var(--primary-color);
 }
 
-a:active {
-    color: #F181AC
+a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
 }
 
 .content-title {
-    font-weight: bold
+    font-weight: bold;
+    font-size: 1.1em;
 }
 
-.content-body > * {
-    text-align: center
+.content-body {
+    text-align: center;
 }
 
-blockquote {
+.footer-quote {
+    color: var(--secondary-text-color);
     font-size: 0.9em;
-    margin: 10px;
-    padding: 10px;
-    color: #888;
-}
-
-blockquote:before {
-    content: '>';
-}
-
-blockquote > * {
-    display: inline;
-}
-
-.inline-menu:before {
-    content: '[ '
-}
-
-.inline-menu:after {
-    content: ' ]'
-}
-
-.inline-menu > * {
-    display: inline
 }
 
 .vertical-center {
@@ -73,14 +65,35 @@ blockquote > * {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: inline
+    display: inline;
 }
 
 .text-center {
-    text-align: center
+    text-align: center;
 }
 
-.text-left {
-    text-align: left
+.profile-links {
+    font-size: 1em;
 }
 
+.profile-links:before {
+    content: "[";
+}
+
+.profile-links:after {
+    content: "]";
+}
+
+.profile-links-item {
+    padding: .2em .2em;
+}
+
+.img-avatar {
+    max-width: 10em;
+    margin: auto;
+    padding-bottom: 1em;
+}
+
+.img-avatar > * > img {
+    border-radius: 50%;
+}

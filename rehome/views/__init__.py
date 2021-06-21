@@ -13,10 +13,10 @@ def page_not_found(error):
         render_template(
             "errors/404.html",
             error=error,
-            title="ERROR",
-            content_title="The page you are trying to reach does not exist.",
-            description="My personal 404 page. No guarantee of page.",
-            tab_title="404",
+            title=f"{error.code} {error.name}",
+            content_title=error.description,
+            description=f"My personal {error.code} page. No guarantee of page.",
+            tab_title=f"error/{error.code}",
         ),
-        404,
+        error.code,
     )

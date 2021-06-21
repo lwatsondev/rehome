@@ -20,22 +20,41 @@
 <body>
 <div class="pure-g">
     <div class="pure-u-1-3">
-        <div class="text-center vertical-center">
-            <h4 class="content-title">{{ title if title else "Hello there!" }}</h4>
-            <div class="inline-menu">
-                <a href="https://github.com/TheReverend403" target="_blank">GitHub</a>
-                <p> - </p>
-                <a href="https://t.me/TheReverend403" target="_blank">Telegram</a>
+        <div class="vertical-center">
+            <div class="img-avatar">
+                <a href="{{ url_for("pages.index") }}"><img class="pure-img"
+                                                            src="{{ url_for("static", filename="img/avatar.jpg") }}"></a>
             </div>
-            <div class="content-body text-left">
-                <hr>
+            <div class="pure-menu pure-menu-horizontal text-center">
+                <ul class="pure-menu-list profile-links">
+                    <li class="pure-menu-item">
+                        <a href="https://github.com/TheReverend403" target="_blank"
+                           class="pure-menu-link profile-links-item">GitHub</a>
+                    </li>
+                    <li class="pure-menu-item">-</li>
+                    <li class="pure-menu-item">
+                        <a href="https://t.me/TheReverend403" target="_blank" class="pure-menu-link profile-links-item">Telegram</a>
+                    </li>
+                </ul>
+            </div>
+            <hr>
+            {% if title %}
+                <div class="content-title text-center">
+                    <h4>{{ title }}</h4>
+                </div>
+            {% endif %}
+            <div class="content-body text-center">
                 {% block content %}{% endblock %}
-                <hr>
             </div>
-            <blockquote>
-                <p><i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is perfect.</i>
-                    - Linus Torvalds</p>
-            </blockquote>
+            <hr>
+            <div class="footer-quote text-center">
+                <blockquote>
+                    <p>&gt; <i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is
+                        perfect.</i>
+                        - Linus Torvalds</p>
+                </blockquote>
+            </div>
+
         </div>
     </div>
 </div>
