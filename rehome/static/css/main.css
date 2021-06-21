@@ -1,11 +1,15 @@
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700);
 
-body {
-    font-family: "Open Sans", sans-serif;
+html {
     background: #EEE;
     line-height: 1.2;
     font-size: 1.2em;
     color: #444
+}
+
+html, button, input, select, textarea,
+.pure-g [class *= "pure-u"] {
+    font-family: "Open Sans", sans-serif;
 }
 
 hr {
@@ -29,45 +33,27 @@ a:active {
     color: #F181AC
 }
 
-small {
-    font-size: .6em;
-    color: #888
-}
-
 .content-title {
     font-weight: bold
 }
 
 .content-body > * {
-    font-size: .9em;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
     text-align: center
 }
 
 blockquote {
+    font-size: 0.9em;
     margin: 10px;
-    padding: 10px
+    padding: 10px;
+    color: #888;
 }
 
 blockquote:before {
-    color: #888;
     content: '>';
-    font-size: 1.2em;
-    line-height: 0.1em;
-    margin-right: 0.25em;
-    vertical-align: -0.12em
 }
 
 blockquote > * {
     display: inline;
-    font-size: .8em;
-    color: #888
-}
-
-.inline-menu {
-    font-size: .8em
 }
 
 .inline-menu:before {
