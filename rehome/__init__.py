@@ -13,6 +13,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 
 def create_app():
+    create_data_directories()
     setup_logging()
     app = Flask(
         "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
@@ -27,6 +28,11 @@ def register_blueprints(app):
 
     views.register_blueprints(app)
     app.logger.debug("Blueprints registered.")
+
+
+def create_data_directories():
+    for directory in [CONFIG_DIR, DATA_DIR]:
+        directory.mkdir(exist_ok=True)
 
 
 def setup_logging(file: Path = CONFIG_DIR / "logging.yml"):
