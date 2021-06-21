@@ -6,11 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="Lee Watson <rev@revthefox.co.uk>">
     <meta name="theme-color" content="#E85B92"/>
-    {% if description %}
-            <meta name="description" content="{{ description }}">
-    {% else %}
-            <meta name="description" content="My personal site. No guarantee of coherence.">
-    {% endif %}
+    <meta name="description" content="{{ description if description else "My personal site. No guarantee of coherence."}}">
+
     <title>~/{{ tab_title if tab_title else "index" }}</title>
     <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}"/>
     {% block stylesheets_pre %}{% endblock %}
@@ -20,27 +17,21 @@
 </head>
 <body>
     <div class="text-center vertical-center">
-        {% if title %}
-            <h5 class="content-title">{{ title }}</h5>
-        {% else %}
-            <h5 class="content-title">Hello there!</h5>
-        {% endif %}
-
+        <h5 class="content-title">{{ title if title else "Hello there!" }}</h5>
         <div class="inline-menu">
-        <a href="https://github.com/TheReverend403" target="_blank">GitHub</a>
-        <p> - </p>
-        <a href="https://t.me/TheReverend403" target="_blank">Telegram</a>
+            <a href="https://github.com/TheReverend403" target="_blank">GitHub</a>
+            <p> - </p>
+            <a href="https://t.me/TheReverend403" target="_blank">Telegram</a>
+        </div>
+        <div class="content-body text-left">
+            <hr>
+                {% block content %}{% endblock %}
+            <hr>
+        </div>
+        <blockquote>
+        <p><i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is perfect.</i> - Linus Torvalds</p>
+        </blockquote>
     </div>
-	<div class="content-body text-left">
-	<hr>
-		{% block content %}{% endblock %}
-	<hr>
-	</div>
-    <blockquote>
-    <p><i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is perfect.</i> - Linus Torvalds</p>
-    </blockquote>
-</div>
-
 </body>
     {% block scripts_pre %}{% endblock %}
     {% block scripts_post %}{% endblock %}
