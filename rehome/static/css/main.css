@@ -112,6 +112,6 @@ a:hover {
 }
 
 .img-avatar > * > img:hover {
-    transition: all 1s ease;
+    transition: all 250ms ease;
     filter: brightness(90%);
 }
