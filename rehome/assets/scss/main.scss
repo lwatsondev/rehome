@@ -34,7 +34,6 @@ hr.divider {
     height: 1px;
     border: 0;
     border-top: 1px solid var(--border-color);
-    margin: 1em;
 }
 
 a {
@@ -51,16 +50,21 @@ a {
     }
 }
 
-.content-title {
-    font-weight: bold;
-    font-size: 1.1em;
-}
+.content {
+    margin: 1em;
 
-.content-body {
-    text-align: center;
+    &-title {
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+
+    &-body {
+        text-align: center;
+    }
 }
 
 .footer-quote {
+    margin: 1em;
     color: var(--secondary-text-color);
     font-size: 0.9em;
 }
@@ -78,6 +82,8 @@ a {
 }
 
 .profile-links {
+    margin: 1em;
+
     &:before, &:after {
         color: var(--secondary-text-color);
     }
@@ -89,31 +95,26 @@ a {
     &:after {
         content: "]";
     }
-}
 
-.profile-links-item {
-    padding: .2em .2em;
+    &-item {
+        padding: .2em .2em;
 
-    &:hover {
-        background: none;
+        &:hover {
+            background: none;
+        }
     }
 }
 
-.img-avatar {
+.img-avatar-container {
     max-width: 10em;
-    margin: auto;
-    padding: 1em;
+    margin: auto auto 1em;
 }
 
-.img-avatar > * > img {
+.img-avatar {
     border-radius: 50%;
     border-width: 1px;
     border-color: var(--image-border-color);
     border-style: solid;
-
-    //@media (prefers-color-scheme: dark) {
-    //    border-color: var(--primary-bg-color)
-    //}
 
     &:hover {
         transition: all 250ms ease;
