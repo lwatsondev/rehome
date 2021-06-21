@@ -1,1 +1,100 @@
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700);body{font-family:"Open Sans",sans-serif;background:#EEE;line-height:1.2;font-size:1.2em;color:#444}hr{display:block;height:1px;border:0;border-top:1px solid #CCC;margin:1em 0;padding:0}a:link{color:#E85B92}a:visited{color:#F181AC}a:active{color:#F181AC}small{font-size:.6em;color:#888}.content-title{font-weight:bold}.content-body>*{font-size:.9em;max-width:600px;margin-left:auto;margin-right:auto;text-align:center}blockquote{margin:10px;padding:10px}blockquote:before{color:#888;content:'>';font-size:1.2em;line-height:0.1em;margin-right:0.25em;vertical-align:-0.12em}blockquote>*{display:inline;font-size:.8em;color:#888}.inline-menu{font-size:.8em}.inline-menu:before{content:'[ '}.inline-menu:after{content:' ]'}.inline-menu>*{display:inline}.vertical-center{position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);display:inline}.text-center{text-align:center}.text-left{text-align:left}
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700);
+
+body {
+    font-family: "Open Sans", sans-serif;
+    background: #EEE;
+    line-height: 1.2;
+    font-size: 1.2em;
+    color: #444
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #CCC;
+    margin: 1em 0;
+    padding: 0
+}
+
+a:link {
+    color: #E85B92
+}
+
+a:visited {
+    color: #F181AC
+}
+
+a:active {
+    color: #F181AC
+}
+
+small {
+    font-size: .6em;
+    color: #888
+}
+
+.content-title {
+    font-weight: bold
+}
+
+.content-body > * {
+    font-size: .9em;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center
+}
+
+blockquote {
+    margin: 10px;
+    padding: 10px
+}
+
+blockquote:before {
+    color: #888;
+    content: '>';
+    font-size: 1.2em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.12em
+}
+
+blockquote > * {
+    display: inline;
+    font-size: .8em;
+    color: #888
+}
+
+.inline-menu {
+    font-size: .8em
+}
+
+.inline-menu:before {
+    content: '[ '
+}
+
+.inline-menu:after {
+    content: ' ]'
+}
+
+.inline-menu > * {
+    display: inline
+}
+
+.vertical-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline
+}
+
+.text-center {
+    text-align: center
+}
+
+.text-left {
+    text-align: left
+}
+
