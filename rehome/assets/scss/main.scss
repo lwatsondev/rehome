@@ -40,7 +40,7 @@ a {
     text-decoration: none;
     color: var(--primary-color);
 
-    &:visited {
+    &:visited, &:link {
         color: var(--primary-color);
     }
 
