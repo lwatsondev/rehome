@@ -51,3 +51,4 @@ node_modules/
 
 data/
 config/
+!rehome/resources/*

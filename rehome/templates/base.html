@@ -27,14 +27,15 @@
             </div>
             <div class="pure-menu pure-menu-horizontal text-center">
                 <ul class="pure-menu-list profile-links">
-                    <li class="pure-menu-item">
-                        <a href="https://github.com/TheReverend403" target="_blank"
-                           class="pure-menu-link profile-links-item">GitHub</a>
-                    </li>
-                    <li class="pure-menu-item">-</li>
-                    <li class="pure-menu-item">
-                        <a href="https://t.me/TheReverend403" target="_blank" class="pure-menu-link profile-links-item">Telegram</a>
-                    </li>
+                    {% for name, url in config.SOCIAL_LINKS.items() %}
+                        <li class="pure-menu-item">
+                            <a href="{{ url }}" target="_blank"
+                               class="pure-menu-link profile-links-item">{{ name }}</a>
+                        </li>
+                        {% if not loop.last %}
+                            <li class="pure-menu-item">-</li>
+                        {% endif %}
+                    {% endfor %}
                 </ul>
             </div>
             <hr>
