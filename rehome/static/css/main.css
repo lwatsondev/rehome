@@ -91,7 +91,7 @@ a:hover {
 .img-avatar {
     max-width: 10em;
     margin: auto;
-    padding-bottom: 1em;
+    padding: 1em;
 }
 
 .img-avatar > * > img {
