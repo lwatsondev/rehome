@@ -39,7 +39,6 @@ hr.divider {
 
 a {
     text-decoration: none;
-    background-color: transparent;
 
     &:visited {
         color: var(--primary-color);
@@ -53,10 +52,6 @@ a {
     &:link {
         color: var(--primary-color);
     }
-}
-
-.pure-menu-link:hover {
-    background-color: transparent;
 }
 
 .content-title {
@@ -99,6 +94,10 @@ a {
 
 .profile-links-item {
     padding: .2em .2em;
+
+    &:hover {
+        background: none;
+    }
 }
 
 .img-avatar {
@@ -114,8 +113,7 @@ a {
     border-style: solid;
 
     //@media (prefers-color-scheme: dark) {
-    //    border-width: 0;
-    //    border-style: none;
+    //    border-color: var(--primary-bg-color)
     //}
 
     &:hover {
