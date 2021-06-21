@@ -2,8 +2,8 @@ from logging.config import dictConfig
 
 from flask import Flask
 
-from config import Config, ConfigFile
-from paths import (
+from rehome.config import Config, ConfigFile
+from rehome.paths import (
     STATIC_DIR,
     TEMPLATE_DIR,
 )

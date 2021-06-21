@@ -7,7 +7,7 @@ import yaml
 from dotty_dict import Dotty, dotty
 from yaml import YAMLError
 
-from paths import CONFIG_DIR, RESOURCE_DIR
+from rehome.paths import CONFIG_DIR, RESOURCE_DIR
 
 
 class ConfigFile(object):
