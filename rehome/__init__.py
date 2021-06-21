@@ -44,7 +44,7 @@ def register_assets(app):
     with app.app_context():
         assets.directory = STATIC_DIR
         assets.append_path(ASSETS_DIR)
-        assets.auto_build = False
+        assets.auto_build = app.debug or app.testing
 
     assets.from_yaml(str(ASSETS_DIR / "assets.yml"))
     app.logger.debug("Assets registered.")
