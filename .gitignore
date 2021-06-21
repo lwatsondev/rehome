@@ -52,3 +52,5 @@ node_modules/
 data/
 config/
 !rehome/resources/*
+rehome/static/*
+!rehome/static/img

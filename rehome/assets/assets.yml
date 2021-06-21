@@ -1,0 +1,5 @@
+css-app:
+    filters: cssmin
+    output: css/main-%(version)s.css
+    contents:
+        - css/main.css
