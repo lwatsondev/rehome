@@ -38,7 +38,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <hr>
+            <hr class="divider">
             {% if title %}
                 <div class="content-title text-center">
                     <h4>{{ title }}</h4>
@@ -47,7 +47,7 @@
             <div class="content-body text-center">
                 {% block content %}{% endblock %}
             </div>
-            <hr>
+            <hr class="divider">
             <div class="footer-quote text-center">
                 <blockquote>
                     <p>&gt; <i>"Regression testing"? What's that? If it compiles, it is good; if it boots up, it is
@@ -55,7 +55,6 @@
                         - Linus Torvalds</p>
                 </blockquote>
             </div>
-
         </div>
     </div>
 </div>

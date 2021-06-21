@@ -31,7 +31,7 @@ html, button, input, select, textarea,
     font-family: 'Roboto', sans-serif;
 }
 
-hr {
+hr.divider {
     display: block;
     height: 1px;
     border: 0;
@@ -41,19 +41,19 @@ hr {
 
 a {
     text-decoration: none;
-}
 
-a:link {
-    color: var(--primary-color);
-}
+    &:visited {
+        color: var(--primary-color);
+    }
 
-a:visited {
-    color: var(--primary-color);
-}
+    &:hover {
+        color: var(--accent-color);
+        text-decoration: underline;
+    }
 
-a:hover {
-    color: var(--accent-color);
-    text-decoration: underline;
+    &:link {
+        color: var(--primary-color);
+    }
 }
 
 .content-title {
@@ -84,14 +84,13 @@ a:hover {
 
 .profile-links {
     color: var(--secondary-text-color);
-}
+    &:before {
+        content: "[";
+    }
 
-.profile-links:before {
-    content: "[";
-}
-
-.profile-links:after {
-    content: "]";
+    &:after {
+        content: "]";
+    }
 }
 
 .profile-links-item {
@@ -109,9 +108,9 @@ a:hover {
     border-width: 1px;
     border-color: var(--image-border-color);
     border-style: solid;
-}
 
-.img-avatar > * > img:hover {
-    transition: all 250ms ease;
-    filter: brightness(90%);
+    &:hover {
+        transition: all 250ms ease;
+        filter: brightness(90%);
+    }
 }
