@@ -2,4 +2,5 @@ css-app:
     filters: cssmin
     output: css/main-%(version)s.css
     contents:
+        - ../../node_modules/purecss/build/pure.css
         - css/main.css

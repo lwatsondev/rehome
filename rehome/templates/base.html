@@ -12,8 +12,6 @@
     <title>~/{{ tab_title if tab_title else "index" }}</title>
     <link rel="shortcut icon" type="image/png" href="{{ url_for("static", filename="img/favicon.png") }}"/>
     {% block stylesheets_pre %}{% endblock %}
-    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
-          integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5" crossorigin="anonymous">
     {% assets "css-app" %}
         <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
