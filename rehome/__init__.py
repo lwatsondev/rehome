@@ -1,5 +1,7 @@
+from logging.config import dictConfig
 from pathlib import Path
 
+import yaml
 from flask import Flask
 
 BASE_DIR = Path(__file__).parent.absolute()
@@ -11,6 +13,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 
 
 def create_app():
+    setup_logging()
     app = Flask(
         "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
     )
@@ -24,3 +27,10 @@ def register_blueprints(app):
 
     views.register_blueprints(app)
     app.logger.debug("Blueprints registered.")
+
+
+def setup_logging(file: Path = CONFIG_DIR / "logging.yml"):
+    try:
+        dictConfig(yaml.safe_load(file.read_text()))
+    except (FileNotFoundError, TypeError):
+        setup_logging(ASSETS_DIR / "config" / "logging.yml")
