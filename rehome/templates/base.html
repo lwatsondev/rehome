@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="Lee Watson <rev@revthefox.co.uk>">
-    <meta name="theme-color" content="#E85B92"/>
+    <meta name="theme-color" content="#ff5995"/>
     <meta name="description"
           content="{{ description if description else "My personal site. No guarantee of coherence." }}">
 
@@ -22,8 +22,8 @@
     <div class="pure-u-1-3">
         <div class="vertical-center">
             <div class="img-avatar">
-                <a href="{{ url_for("pages.index") }}"><img class="pure-img"
-                                                            src="{{ url_for("static", filename="img/avatar.jpg") }}"></a>
+                <a href="{{ url_for("pages.index") }}">
+                    <img class="pure-img" src="{{ url_for("static", filename="img/avatar.jpg") }}" alt="avatar"></a>
             </div>
             <div class="pure-menu pure-menu-horizontal text-center">
                 <ul class="pure-menu-list profile-links">
