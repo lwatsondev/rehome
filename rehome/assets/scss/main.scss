@@ -4,16 +4,17 @@
     --primary-bg-color: #eeeeee;
     --primary-text-color: #000000;
     --secondary-text-color: #757575;
+    --nav-border-color: #757575;
     --primary-color: #f92672;
     --accent-color: #ba2d65;
-    --border-color: #b5b5b5;
+    --border-color: #cccccc;
 
     @media (prefers-color-scheme: dark) {
         --primary-bg-color: #0d0d0d;
         --primary-text-color: #ffffff;
         --primary-color: #8c54fe;
         --accent-color: #5425ca;
-        --border-color: #333333;
+        --border-color: #252525;
     }
 }
 
@@ -34,6 +35,7 @@ hr.divider {
     height: 1px;
     border: 0;
     border-top: 1px solid var(--border-color);
+    margin: 0;
 }
 
 a {
@@ -54,8 +56,7 @@ a {
     margin: 1em;
 
     &-title {
-        font-weight: bold;
-        font-size: 1.1em;
+        text-align: center;
     }
 
     &-body {
@@ -66,7 +67,7 @@ a {
 .footer-quote {
     margin: 1em;
     color: var(--secondary-text-color);
-    font-size: 0.9em;
+    font-size: 0.8em;
 }
 
 .vertical-center {
@@ -83,7 +84,7 @@ a {
 
 .profile-links {
     margin: 1em;
-    color: var(--secondary-text-color);
+    color: var(--nav-border-color);
 
     &:before {
         content: "[";
@@ -94,7 +95,7 @@ a {
     }
 
     &-item {
-        padding: .2em .2em;
+        padding: .2em;
 
         &:hover {
             background: none;
@@ -104,7 +105,7 @@ a {
 
 .img-avatar-container {
     max-width: 10em;
-    margin: auto auto 1em;
+    margin: auto;
 }
 
 .img-avatar {

@@ -28,7 +28,7 @@
                 </a>
             </div>
 
-            <div class="pure-menu pure-menu-horizontal text-center">
+            <nav class="pure-menu pure-menu-horizontal text-center">
                 <ul class="pure-menu-list profile-links">
                     {% for name, url in config.SOCIAL_LINKS.items() %}
                         <li class="pure-menu-item">
@@ -40,15 +40,15 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-            </div>
+            </nav>
             <hr class="divider">
             <div class="content">
                 {% if title %}
-                    <div class="content-title text-center">
-                        <h4>{{ title }}</h4>
+                    <div class="content-title">
+                        <h3>{{ title }}</h3>
                     </div>
                 {% endif %}
-                <div class="content-body text-center">
+                <div class="content-body">
                     {% block content %}{% endblock %}
                 </div>
             </div>
