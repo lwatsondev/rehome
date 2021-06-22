@@ -6,14 +6,14 @@
     --secondary-text-color: #757575;
     --nav-border-color: #757575;
     --primary-color: #f92672;
-    --accent-color: #ba2d65;
+    --accent-color: #c00047;
     --border-color: #cccccc;
 
     @media (prefers-color-scheme: dark) {
         --primary-bg-color: #0d0d0d;
         --primary-text-color: #ffffff;
-        --primary-color: #8c54fe;
-        --accent-color: #5425ca;
+        --primary-color: #9e6ffe;
+        --accent-color: #6a42ca;
         --border-color: #252525;
     }
 }
@@ -112,7 +112,7 @@ a {
 .img-avatar {
     border-radius: 50%;
     border-width: 2px;
-    border-color: var(--accent-color);
+    border-color: var(--primary-color);
     border-style: solid;
 
     &:hover {
