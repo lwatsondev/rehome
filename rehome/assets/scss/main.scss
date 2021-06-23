@@ -30,14 +30,6 @@ html, button, input, select, textarea,
     font-family: "Roboto", sans-serif;
 }
 
-hr.divider {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid var(--border-color);
-    margin: 0;
-}
-
 a {
     text-decoration: none;
     color: var(--primary-color);
@@ -52,7 +44,8 @@ a {
 }
 
 .content {
-    margin: 1em;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 
     &-title {
         text-align: center;
