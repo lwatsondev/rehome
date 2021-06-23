@@ -95,17 +95,12 @@ a {
     }
 }
 
-.img-avatar-container {
+.img-avatar {
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
     max-width: 10em;
     margin: auto;
     background: transparent;
-}
-
-.img-avatar {
-    border-radius: 50%;
-    border-width: 2px;
-    border-color: var(--primary-color);
-    border-style: solid;
 
     &:hover {
         transition: all 250ms ease;
