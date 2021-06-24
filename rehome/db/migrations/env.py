@@ -1,9 +1,12 @@
+import os
+import sys
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
+sys.path.insert(0, os.getcwd())
 from rehome import create_app
 
 

@@ -2,7 +2,7 @@ from logging.config import dictConfig
 
 from flask import Flask
 
-from rehome.extensions import assets
+from rehome.extensions import assets, db
 from rehome.config import Config, ConfigFile
 from rehome.paths import (
     ASSETS_DIR,
@@ -33,6 +33,7 @@ def register_blueprints(app):
 
 def register_extensions(app):
     assets.init_app(app)
+    db.init_app(app)
     app.logger.debug("Extensions registered.")
 
 

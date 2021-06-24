@@ -55,3 +55,5 @@ class Config(object):
         config = config_file.load(exit_on_error=True)
 
         self.SOCIAL_LINKS = config.get("social_links")
+        self.SQLALCHEMY_DATABASE_URI = config.get("database")
+        self.SQLALCHEMY_TRACK_MODIFICATIONS = False
