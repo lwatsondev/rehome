@@ -8,15 +8,16 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f92672">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#9e6ffe">
     <meta name="description"
-          content="{{ description if description else "My personal site. No guarantee of coherence." }}">
+          content="{% block description %}My personal site. No guarantee of coherence.{% endblock %}">
 
-    <title>~/{{ tab_title if tab_title else "index" }}</title>
+    <title>~/{% block title %}index{% endblock %}</title>
     <link rel="shortcut icon" type="image/png" href="{{ url_for("static", filename="img/favicon.png") }}"/>
-    {% block stylesheets_pre %}{% endblock %}
-    {% assets "css-app" %}
-        <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
-    {% block stylesheets_post %}{% endblock %}
+    {% block stylesheets %}
+        {% assets "css-app" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
+    {% endblock %}
+
 </head>
 <body>
 {# https://stackoverflow.com/questions/21147149/flash-of-unstyled-content-fouc-in-firefox-only-is-ff-slow-renderer #}
@@ -44,11 +45,9 @@
                 </ul>
             </nav>
             <div class="content">
-                {% if title %}
-                    <div class="content-title">
-                        <h3>{{ title }}</h3>
-                    </div>
-                {% endif %}
+                <div class="content-title">
+                    <h3>{% block content_title %}{% endblock %}</h3>
+                </div>
                 <div class="content-body">
                     {% block content %}{% endblock %}
                 </div>
@@ -65,6 +64,5 @@
 </div>
 
 </body>
-{% block scripts_pre %}{% endblock %}
-{% block scripts_post %}{% endblock %}
+{% block scripts %}{% endblock %}
 </html>
