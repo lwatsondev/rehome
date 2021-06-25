@@ -2,13 +2,9 @@ from logging.config import dictConfig
 
 from flask import Flask
 
-from rehome.extensions import assets, db
 from rehome.config import Config, ConfigFile
-from rehome.paths import (
-    ASSETS_DIR,
-    STATIC_DIR,
-    TEMPLATE_DIR,
-)
+from rehome.extensions import assets, db
+from rehome.paths import ASSETS_DIR, STATIC_DIR, TEMPLATE_DIR
 
 
 def create_app():

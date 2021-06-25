@@ -3,19 +3,17 @@ repos:
     rev: '21.6b0'
     hooks:
       - id: black
-        exclude: |
-          (?x)(
-              ^data/|
-              ^rehome/db/migrations/
-          )
-        args:
-          - '--check'
+        exclude: '^(data/)'
+        args: ['--check']
+
   - repo: https://gitlab.com/pycqa/flake8
     rev: '3.9.2'
     hooks:
       - id: flake8
-        exclude: |
-          (?x)(
-              ^data/|
-              ^rehome/db/migrations/
-          )
+        exclude: '^(data/)'
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.9.1
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--check-only']

@@ -3,12 +3,10 @@ import sys
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 sys.path.insert(0, os.getcwd())
-from rehome import create_app
-
+from rehome import create_app  # noqa: E402
 
 # There's no access to current_app here so we must create our own app.
 app = create_app()
@@ -77,7 +75,7 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            process_revision_directives=process_revision_directives
+            process_revision_directives=process_revision_directives,
         )
 
         with context.begin_transaction():
