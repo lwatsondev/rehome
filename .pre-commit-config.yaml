@@ -16,4 +16,4 @@ repos:
     rev: 5.9.1
     hooks:
       - id: isort
-        args: ['--profile', 'black', '--check-only']
+        args: ['--profile', 'black', '--check-only', '--extend-skip', 'data/', '--src-path', 'rehome']
