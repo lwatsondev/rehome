@@ -249,7 +249,7 @@ license = ["editdistance-s"]
 name = "isort"
 version = "5.9.1"
 description = "A Python utility / library to sort Python imports."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6.1,<4.0"
 
@@ -592,7 +592,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "78bebf109376e7b741f26654ce92b715c45dc253b5a0f95f6bfd428ded125583"
+content-hash = "660082456711ca62acf1e8e03081fbf609c4c63704f5545038a26029f0836a95"
 
 [metadata.files]
 alembic = [

@@ -16,7 +16,6 @@ cssmin = "^0.2.0"
 libsass = "^0.21.0"
 Flask-DB = "^0.3.2"
 SQLAlchemy = {extras = ["postgresql"], version = "^1.4.19"}
-isort = "^5.9.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.6b0"
