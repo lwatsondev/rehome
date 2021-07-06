@@ -35,7 +35,7 @@
 
             <nav class="pure-menu pure-menu-horizontal text-center">
                 <ul class="pure-menu-list profile-links">
-                    {% for name, url in config.SOCIAL_LINKS.items() %}
+                    {% for name, url in profile_links.items() %}
                         <li class="pure-menu-item">
                             <a href="{{ url }}" target="_blank"
                                class="pure-menu-link profile-links-item">{{ name }}</a>

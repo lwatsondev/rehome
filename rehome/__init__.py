@@ -1,10 +1,11 @@
 from logging.config import dictConfig
+from pathlib import Path
 
 from flask import Flask
+from ruamel import yaml
 
-from rehome.config import Config, ConfigFile
-from rehome.extensions import assets, db
-from rehome.paths import ASSETS_DIR, STATIC_DIR, TEMPLATE_DIR
+from rehome.extensions import assets, db, dynaconf
+from rehome.paths import ASSETS_DIR, RESOURCE_DIR, STATIC_DIR, TEMPLATE_DIR
 
 
 def create_app():
@@ -12,8 +13,6 @@ def create_app():
     app = Flask(
         "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
     )
-    app.config.from_object(Config())
-
     register_extensions(app)
     register_blueprints(app)
     register_assets(app)
@@ -28,13 +27,22 @@ def register_blueprints(app):
 
 
 def register_extensions(app):
+    dynaconf.init_app(app)
+    app.config.update(
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SESSION_COOKIE_SECURE=not app.debug,
+        SESSION_USE_SIGNER=True,
+    )
+
     assets.init_app(app)
     db.init_app(app)
     app.logger.debug("Extensions registered.")
 
 
 def setup_logging():
-    dictConfig(ConfigFile("logging.yml").load().to_dict())
+    dictConfig(
+        yaml.safe_load(Path(RESOURCE_DIR / "config" / "logging.yml").read_text())
+    )
 
 
 def register_assets(app):
