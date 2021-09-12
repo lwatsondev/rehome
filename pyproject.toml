@@ -7,7 +7,7 @@ authors = ["Lee Watson <rev@revthefox.co.uk>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 Flask = "^2.0.1"
-python-dotenv = "^0.18.0"
+python-dotenv = "^0.19.0"
 gunicorn = { version = "^20.1.0", extras = ["gevent"] }
 Flask-Assets = "^2.0"
 cssmin = "^0.2.0"
