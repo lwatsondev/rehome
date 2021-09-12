@@ -11,7 +11,6 @@ repos:
     hooks:
       - id: black
         exclude: '^(data/)'
-        args: ['--check']
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: '3.9.2'
@@ -29,4 +28,4 @@ repos:
     rev: 5.9.1
     hooks:
       - id: isort
-        args: ['--profile', 'black', '--check-only', '--extend-skip', 'data/', '--src-path', 'rehome']
+        args: ['--profile', 'black', '--extend-skip', 'data/', '--src-path', 'rehome']
