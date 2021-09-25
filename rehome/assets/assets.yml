@@ -1,6 +1,6 @@
 css-app:
-    filters: libsass,cssmin
-    output: css/main-%(version)s.css
-    contents:
-        - ../../node_modules/purecss/build/pure.css
-        - scss/main.scss
+  filters: libsass,cssmin
+  output: css/main-%(version)s.css
+  contents:
+    - ../../node_modules/purecss/build/pure.css
+    - scss/main.scss

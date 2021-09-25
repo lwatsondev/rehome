@@ -2,13 +2,13 @@
 # https://docs.python.org/3.7/library/logging.config.html#logging-config-dictschema
 version: 1
 root:
-    level: INFO
-    handlers: [console]
+  level: INFO
+  handlers: [console]
 formatters:
-    console:
-        format: '[%(levelname)-5s] %(message)s'
+  console:
+    format: "[%(levelname)-5s] %(message)s"
 handlers:
-    console:
-        class: logging.StreamHandler
-        formatter: console
-        stream: ext://sys.stdout
+  console:
+    class: logging.StreamHandler
+    formatter: console
+    stream: ext://sys.stdout
