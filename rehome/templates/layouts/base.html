@@ -33,19 +33,21 @@
                 </a>
             </div>
 
-            <nav class="pure-menu pure-menu-horizontal text-center">
-                <ul class="pure-menu-list profile-links">
-                    {% for name, url in profile_links.items() %}
-                        <li class="pure-menu-item">
-                            <a href="{{ url }}" target="_blank"
-                               class="pure-menu-link profile-links-item">{{ name }}</a>
-                        </li>
-                        {% if not loop.last %}
-                            <li class="pure-menu-item">-</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            </nav>
+            {% if profile_links %}
+                <nav class="pure-menu pure-menu-horizontal text-center">
+                    <ul class="pure-menu-list profile-links">
+                        {% for name, url in profile_links.items() %}
+                            <li class="pure-menu-item">
+                                <a href="{{ url }}" target="_blank"
+                                   class="pure-menu-link profile-links-item">{{ name }}</a>
+                            </li>
+                            {% if not loop.last %}
+                                <li class="pure-menu-item">-</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </nav>
+            {% endif %}
             <div class="content">
                 <div class="content-title">
                     <h3>{% block content_title %}{% endblock %}</h3>
