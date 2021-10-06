@@ -1,8 +1,10 @@
 from logging.config import dictConfig
 from pathlib import Path
 
+import sentry_sdk
 from flask import Flask
 from ruamel import yaml
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from rehome.extensions import assets, db, dynaconf
 from rehome.paths import ASSETS_DIR, RESOURCE_DIR, STATIC_DIR, TEMPLATE_DIR
@@ -13,9 +15,18 @@ def create_app():
     app = Flask(
         "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
     )
+
     register_extensions(app)
     register_blueprints(app)
     register_assets(app)
+
+    if dsn := app.config.get("sentry_dsn") and not (app.debug or app.testing):
+        sentry_sdk.init(
+            dsn=dsn,
+            environment=app.env,
+            integrations=[FlaskIntegration()],
+        )
+
     return app
 
 

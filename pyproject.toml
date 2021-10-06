@@ -15,6 +15,7 @@ libsass = "^0.21.0"
 Flask-DB = "^0.3.2"
 SQLAlchemy = {extras = ["postgresql"], version = "^1.4.19"}
 dynaconf = {extras = ["yaml"], version = "^3.1.4"}
+sentry-sdk = {extras = ["flask"], version = "^1.4.3"}
 
 [tool.poetry.dev-dependencies]
 black = "^21.9b0"
