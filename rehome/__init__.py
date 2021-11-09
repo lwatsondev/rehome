@@ -20,7 +20,7 @@ def create_app():
     register_blueprints(app)
     register_assets(app)
 
-    if dsn := app.config.get("sentry_dsn") and not (app.debug or app.testing):
+    if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
             dsn=dsn,
             environment=app.env,
