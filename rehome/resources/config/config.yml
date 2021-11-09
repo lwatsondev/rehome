@@ -1,9 +1,10 @@
 rehome:
   profile:
     external:
-      GitHub: https://github.com/TheReverend403
-      Telegram: https://t.me/TheReverend403
-      Steam: https://steamcommunity.com/id/thereverend403
+      default:
+        GitHub: https://github.com/TheReverend403
+        Telegram: https://t.me/TheReverend403
+        Steam: https://steamcommunity.com/id/thereverend403
 
 sqlalchemy_database_uri: postgresql://rehome:password@/rehome?host=/run/postgresql
 sentry_dsn: ""
