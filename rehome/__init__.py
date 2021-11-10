@@ -20,13 +20,6 @@ def create_app():
     register_blueprints(app)
     register_assets(app)
 
-    if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
-        sentry_sdk.init(
-            dsn=dsn,
-            environment=app.env,
-            integrations=[FlaskIntegration()],
-        )
-
     return app
 
 
@@ -37,6 +30,18 @@ def register_blueprints(app):
     app.logger.debug("Blueprints registered.")
 
 
+def init_sentry(app):
+    if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
+        app.logger.info("Sentry enabled.")
+        sentry_sdk.init(
+            dsn=dsn,
+            environment=app.env,
+            integrations=[FlaskIntegration()],
+        )
+    else:
+        app.logger.debug("Sentry disabled.")
+
+
 def register_extensions(app):
     dynaconf.init_app(app)
     app.config.update(
@@ -44,6 +49,7 @@ def register_extensions(app):
         SESSION_COOKIE_SECURE=not app.debug,
         SESSION_USE_SIGNER=True,
     )
+    init_sentry(app)
 
     assets.init_app(app)
     db.init_app(app)
