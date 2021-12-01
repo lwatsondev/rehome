@@ -50,7 +50,7 @@ venv.bak/
 node_modules/
 
 data/
-config/
+config/*.yml
 !rehome/resources/*
 rehome/static/*
 !rehome/static/img
