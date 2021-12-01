@@ -54,3 +54,4 @@ config/
 !rehome/resources/*
 rehome/static/*
 !rehome/static/img
+docker-compose.*.yml
