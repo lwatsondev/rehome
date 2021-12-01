@@ -49,6 +49,7 @@ def register_extensions(app):
         SESSION_COOKIE_SECURE=not app.debug,
         SESSION_USE_SIGNER=True,
     )
+
     init_sentry(app)
 
     assets.init_app(app)
