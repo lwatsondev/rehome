@@ -1,57 +1,19 @@
-*.egg-info
-.idea
-.vscode
+*
 
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+!*/
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+!.git*
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+!.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
 
-# Translations
-*.mo
-*.pot
+!/.editorconfig
+!/.pre-commit-config.yaml
 
-# Flask stuff:
-instance/
-.webassets-cache
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv/
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-node_modules/
-
-data/
-config/*.yml
-!rehome/resources/*
-rehome/static/*
-!rehome/static/img
-docker-compose.*.yml
+!/.github/**
+!/rehome/**
+!/docker/**

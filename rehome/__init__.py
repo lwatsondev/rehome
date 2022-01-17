@@ -1,20 +1,22 @@
-from logging.config import dictConfig
-from pathlib import Path
+import os
 
 import sentry_sdk
 from flask import Flask
-from ruamel import yaml
 from sentry_sdk.integrations.flask import FlaskIntegration
+from webassets import Bundle
 
 from rehome.extensions import assets, db, dynaconf
-from rehome.paths import ASSETS_DIR, RESOURCE_DIR, STATIC_DIR, TEMPLATE_DIR
+from rehome.paths import ASSETS_DIR, TEMPLATE_DIR
 
 
 def create_app():
-    setup_logging()
     app = Flask(
-        "rehome", static_folder=str(STATIC_DIR), template_folder=str(TEMPLATE_DIR)
+        "rehome",
+        static_folder=os.getenv("FLASK_STATIC_DIR", "static"),
+        template_folder=str(TEMPLATE_DIR),
     )
+
+    load_configuration(app)
 
     register_extensions(app)
     register_blueprints(app)
@@ -42,32 +44,37 @@ def init_sentry(app):
         app.logger.debug("Sentry disabled.")
 
 
-def register_extensions(app):
+def load_configuration(app):
     dynaconf.init_app(app)
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SESSION_COOKIE_SECURE=not app.debug,
         SESSION_USE_SIGNER=True,
     )
 
-    init_sentry(app)
 
+def register_extensions(app):
+    init_sentry(app)
     assets.init_app(app)
     db.init_app(app)
     app.logger.debug("Extensions registered.")
 
 
-def setup_logging():
-    dictConfig(
-        yaml.safe_load(Path(RESOURCE_DIR / "config" / "logging.yml").read_text())
-    )
-
-
 def register_assets(app):
     with app.app_context():
-        assets.directory = STATIC_DIR
+        assets.directory = app.static_folder
         assets.append_path(ASSETS_DIR)
-        assets.auto_build = app.debug or app.testing
 
-    assets.from_yaml(str(ASSETS_DIR / "assets.yml"))
+    node_modules = os.getenv("NODE_MODULES", "../../node_modules")
+    bundles = {
+        "css-app": Bundle(
+            f"{node_modules}/purecss/build/pure.css",
+            "scss/main.scss",
+            filters="libsass,cssmin",
+            output="css/main-%(version)s.css",
+        )
+    }
+
+    for name, bundle in bundles.items():
+        assets.register(name, bundle)
+
     app.logger.debug("Assets registered.")
