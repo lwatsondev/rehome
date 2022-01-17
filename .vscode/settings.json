@@ -1,0 +1,17 @@
+{
+    "python.pythonPath": ".venv/bin/python",
+    "python.linting.flake8Enabled": true,
+    "python.linting.ignorePatterns": [
+        "**/site-packages/**/*.py",
+        ".vscode/*.py",
+        "rehome/db/migrations",
+        ".git/",
+        "**/__pycache__",
+        "data"
+    ],
+    "python.linting.banditEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--exclude data/"
+    ]
+}
