@@ -1,6 +1,6 @@
 #!/bin/sh
 
 echo "Updating assets"
-runuser -p -u rehome -- rsync -rau /app/rehome/assets/img/ "$FLASK_STATIC_DIR/img/"
-runuser -p -u rehome -- flask assets clean || true
-runuser -p -u rehome -- flask assets build
+runuser -u rehome -- rsync -rau /app/rehome/assets/img/ "$FLASK_STATIC_DIR/img/"
+runuser -u rehome -- flask assets clean || true
+runuser -u rehome -- flask assets build
