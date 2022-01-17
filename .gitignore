@@ -12,6 +12,5 @@
 !/.editorconfig
 !/.pre-commit-config.yaml
 
-!/.github/**
-!/rehome/**
-!/docker/**
+!/rehome
+!/docker
