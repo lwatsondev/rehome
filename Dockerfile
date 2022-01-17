@@ -1,9 +1,9 @@
-ARG PYTHON_VERSION=3.9-slim
-ARG NODE_VERSION=17-bullseye-slim
+ARG PYTHON_VERSION=3.9
+ARG NODE_VERSION=17
 ARG POETRY_VERSION=1.1.12
 
 ## Base
-FROM python:$PYTHON_VERSION as python-base
+FROM python:${PYTHON_VERSION}-slim as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -43,7 +43,7 @@ RUN poetry install --no-dev
 
 
 ## JS builder
-FROM node:$NODE_VERSION as node-builder-base
+FROM node:${NODE_VERSION}-bullseye-slim as node-builder-base
 
 ENV NODE_MODULES="/opt/node"
 WORKDIR $NODE_MODULES
@@ -83,7 +83,7 @@ ENV FLASK_APP="rehome"
 ENV FLASK_ENV="production"
 ENV FLASK_STATIC_DIR="/static"
 ENV FLASK_DATA_DIR="/data"
-ENV PYTHONPATH="/app:$VENV_PATH/lib/python3.9/site-packages"
+ENV PYTHONPATH="/app:$VENV_PATH/lib/python$PYTHON_VERSION/site-packages"
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
