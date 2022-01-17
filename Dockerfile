@@ -1,12 +1,16 @@
+ARG PYTHON_VERSION=3.9-slim
+ARG NODE_VERSION=17-bullseye-slim
+ARG POETRY_VERSION=1.1.12
+
 ## Base
-FROM python:3.9-slim as python-base
+FROM python:$PYTHON_VERSION as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.1.12 \
+    POETRY_VERSION=$POETRY_VERSION \
     POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
@@ -39,7 +43,7 @@ RUN poetry install --no-dev
 
 
 ## JS builder
-FROM node:17-buster-slim as node-builder-base
+FROM node:$NODE_VERSION as node-builder-base
 
 ENV NODE_MODULES="/opt/node"
 WORKDIR $NODE_MODULES
