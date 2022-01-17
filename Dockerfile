@@ -83,7 +83,6 @@ ENV FLASK_APP="rehome"
 ENV FLASK_ENV="production"
 ENV FLASK_STATIC_DIR="/static"
 ENV FLASK_DATA_DIR="/data"
-ENV PYTHONPATH="/app:$VENV_PATH/lib/python$PYTHON_VERSION/site-packages"
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
