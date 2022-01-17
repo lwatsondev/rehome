@@ -88,4 +88,4 @@ VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
 
 ENTRYPOINT ["/usr/bin/entrypointd.sh"]
-CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --workers $GUNICORN_WORKERS --worker-class gevent --bind 0.0.0.0:5000"]
+CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --workers $GUNICORN_WORKERS --worker-class gevent --bind 0.0.0.0:5000 $GUNICORN_OPTS"]

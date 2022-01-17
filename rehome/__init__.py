@@ -17,7 +17,6 @@ def create_app():
     )
 
     load_configuration(app)
-
     register_extensions(app)
     register_blueprints(app)
     register_assets(app)
