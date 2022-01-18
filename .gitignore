@@ -1,6 +1,11 @@
-docker-compose.*
-/static
 /config
+/data
+/static
+
+/.vscode
+/.idea
+
+/docker-compose.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
