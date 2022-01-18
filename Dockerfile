@@ -78,13 +78,13 @@ WORKDIR /app
 COPY --chown=${APP_USER}:${APP_USER} ./rehome ./rehome
 COPY --chown=${APP_USER}:${APP_USER} ./alembic.ini .
 
-ENV GUNICORN_WORKERS=1
-ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml"
-ENV FLASK_APP="rehome"
-ENV FLASK_ENV="production"
-ENV FLASK_STATIC_DIR="/static"
-ENV FLASK_DATA_DIR="/data"
-ENV APP_USER=${APP_USER}
+ENV GUNICORN_WORKERS=1 \
+    SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
+    FLASK_APP="rehome" \
+    FLASK_ENV="production" \
+    FLASK_STATIC_DIR="/static" \
+    FLASK_DATA_DIR="/data" \
+    APP_USER=${APP_USER}
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
