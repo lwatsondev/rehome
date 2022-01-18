@@ -61,21 +61,22 @@ COPY docker/entrypoint.d/ /etc/entrypoint.d/
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         util-linux \
-        libpq5 \
-        rsync
+        libpq5
 
 RUN rm -rf /var/lib/apt/lists/*
 
 COPY --from=python-builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY --from=node-builder-base $NODE_MODULES/node_modules $NODE_MODULES/
 
-RUN addgroup --gid 1000 --system rehome && \
-    adduser --uid 1000 --system --gid 1000 --no-create-home rehome
+ARG APP_USER=app
+
+RUN addgroup --gid 1000 --system ${APP_USER} && \
+    adduser --uid 1000 --system --gid 1000 --no-create-home ${APP_USER}
 
 WORKDIR /app
 
-COPY --chown=rehome:rehome ./rehome ./rehome
-COPY --chown=rehome:rehome ./alembic.ini .
+COPY --chown=${APP_USER}:${APP_USER} ./rehome ./rehome
+COPY --chown=${APP_USER}:${APP_USER} ./alembic.ini .
 
 ENV GUNICORN_WORKERS=1
 ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml"
@@ -83,6 +84,7 @@ ENV FLASK_APP="rehome"
 ENV FLASK_ENV="production"
 ENV FLASK_STATIC_DIR="/static"
 ENV FLASK_DATA_DIR="/data"
+ENV APP_USER=${APP_USER}
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000

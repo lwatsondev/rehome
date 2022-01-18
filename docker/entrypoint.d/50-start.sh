@@ -1,4 +1,2 @@
 #!/bin/sh
-
-echo "Starting app"
-exec runuser -u rehome -- "$@"
+exec runuser -u "$APP_USER" -- "$@"

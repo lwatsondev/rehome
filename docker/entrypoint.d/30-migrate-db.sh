@@ -1,4 +1,2 @@
 #!/bin/sh
-
-echo "Running database migrations"
-runuser -u rehome -- flask db migrate
+runuser -u "$APP_USER" -- flask db migrate
