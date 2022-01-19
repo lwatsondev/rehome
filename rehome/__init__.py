@@ -1,19 +1,17 @@
-import os
-
 import sentry_sdk
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
 from webassets import Bundle
 
+from rehome import paths
 from rehome.extensions import assets, db, dynaconf
-from rehome.paths import ASSETS_DIR, TEMPLATE_DIR
 
 
 def create_app():
     app = Flask(
         "rehome",
-        static_folder=os.getenv("FLASK_STATIC_DIR", "static"),
-        template_folder=str(TEMPLATE_DIR),
+        static_folder=paths.STATIC,
+        template_folder=str(paths.TEMPLATES),
     )
 
     load_configuration(app)
@@ -59,19 +57,18 @@ def register_extensions(app):
 
 
 def register_assets(app):
-    with app.app_context():
-        assets.directory = app.static_folder
-        assets.append_path(ASSETS_DIR)
-
-    node_modules = os.getenv("NODE_MODULES", "../../node_modules")
     bundles = {
         "css-app": Bundle(
-            f"{node_modules}/purecss/build/pure.css",
+            f"{paths.NODE_MODULES}/purecss/build/pure.css",
             "scss/main.scss",
             filters="libsass,cssmin",
             output="css/main-%(version)s.css",
         )
     }
+
+    with app.app_context():
+        assets.directory = app.static_folder
+        assets.append_path(paths.ASSETS)
 
     for name, bundle in bundles.items():
         assets.register(name, bundle)

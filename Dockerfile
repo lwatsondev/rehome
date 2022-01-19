@@ -79,12 +79,13 @@ WORKDIR /app
 COPY --chown=${APP_USER}:${APP_USER} ./rehome ./rehome
 COPY --chown=${APP_USER}:${APP_USER} ./alembic.ini .
 
-ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
+ENV APP_USER=${APP_USER} \
+    SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
     FLASK_APP="rehome" \
     FLASK_ENV="production" \
-    FLASK_STATIC_DIR="/static" \
-    FLASK_DATA_DIR="/data" \
-    APP_USER=${APP_USER}
+    PATHS_STATIC="/static" \
+    PATHS_DATA="/data" \
+    PATHS_NODE_MODULES=$NODE_MODULES
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
