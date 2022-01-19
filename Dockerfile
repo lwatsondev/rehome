@@ -79,8 +79,7 @@ WORKDIR /app
 COPY --chown=${APP_USER}:${APP_USER} ./rehome ./rehome
 COPY --chown=${APP_USER}:${APP_USER} ./alembic.ini .
 
-ENV GUNICORN_WORKERS=1 \
-    SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
+ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
     FLASK_APP="rehome" \
     FLASK_ENV="production" \
     FLASK_STATIC_DIR="/static" \
@@ -91,4 +90,4 @@ VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
 
 ENTRYPOINT ["/usr/bin/entrypointd.sh"]
-CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --workers $GUNICORN_WORKERS --worker-class gevent --bind 0.0.0.0:5000 $GUNICORN_OPTS"]
+CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --worker-class gevent --bind 0.0.0.0:5000 $GUNICORN_OPTS"]
