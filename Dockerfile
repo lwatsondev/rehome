@@ -61,7 +61,8 @@ COPY docker/entrypoint.d/ /etc/entrypoint.d/
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         util-linux \
-        libpq5
+        libpq5 \
+        rsync
 
 RUN rm -rf /var/lib/apt/lists/*
 
