@@ -60,10 +60,10 @@ COPY docker/entrypoint.d/ /etc/entrypoint.d/
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-        util-linux \
-        libpq5
+        libpq5 \
+        curl
 
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=python-builder-base $PYSETUP_PATH $PYSETUP_PATH
 COPY --from=node-builder-base $NODE_MODULES/node_modules $NODE_MODULES/
@@ -80,6 +80,8 @@ COPY --chown=${APP_USER}:${APP_USER} ./alembic.ini .
 
 ENV APP_USER=${APP_USER} \
     SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
+    GUNICORN_HOST="0.0.0.0" \
+    GUNICORN_PORT=5000
     FLASK_APP="rehome" \
     FLASK_ENV="production" \
     PATHS_STATIC="/static" \
@@ -89,5 +91,6 @@ ENV APP_USER=${APP_USER} \
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
 
+HEALTHCHECK --interval=10s --timeout=5s CMD ["/usr/bin/healthcheckd.sh"]
 ENTRYPOINT ["/usr/bin/entrypointd.sh"]
-CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --worker-class gevent --bind 0.0.0.0:5000 $GUNICORN_OPTS"]
+CMD ["sh", "-c", "gunicorn 'rehome:create_app()' --worker-class gevent --bind $GUNICORN_HOST:$GUNICORN_PORT $GUNICORN_OPTS"]
