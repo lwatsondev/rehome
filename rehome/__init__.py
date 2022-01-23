@@ -2,6 +2,7 @@ import sentry_sdk
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
 from webassets import Bundle
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import paths
 from rehome.extensions import assets, db, dynaconf
@@ -11,13 +12,16 @@ def create_app():
     app = Flask(
         "rehome",
         static_folder=paths.STATIC,
-        template_folder=str(paths.TEMPLATES),
+        template_folder=paths.TEMPLATES,
     )
 
     load_configuration(app)
     register_extensions(app)
     register_blueprints(app)
     register_assets(app)
+
+    if not app.debug and not app.testing:
+        ProxyFix(app)
 
     return app
 
