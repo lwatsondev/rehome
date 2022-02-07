@@ -3,15 +3,15 @@ from pathlib import Path
 
 from dynaconf import Dynaconf
 
-BASE = Path(__file__).parent.absolute()
-ASSETS = BASE / "assets"
-TEMPLATES = BASE / "templates"
-RESOURCES = BASE / "resources"
+_env_paths = Dynaconf(envvar_prefix="PATHS")
 
-_paths_from_env = Dynaconf(envvar_prefix="PATHS")
-NODE_MODULES = Path(_paths_from_env.get("NODE_MODULES", BASE.parent / "node_modules"))
-STATIC = Path(_paths_from_env.get("STATIC", BASE.parent / "static"))
-DATA = Path(_paths_from_env.get("DATA", BASE.parent / "data"))
+BASE = Path(__file__).parent.absolute()
+ASSETS = Path(_env_paths.get("ASSETS", BASE / "assets"))
+TEMPLATES = Path(_env_paths.get("TEMPLATES", BASE / "templates"))
+RESOURCES = Path(_env_paths.get("RESOURCES", BASE / "resources"))
+STATIC = Path(_env_paths.get("STATIC", BASE.parent / "static"))
+DATA = Path(_env_paths.get("DATA", BASE.parent / "data"))
+NODE_MODULES = Path(_env_paths.get("NODE_MODULES", BASE.parent / "node_modules"))
 
 for path in [STATIC, DATA]:
     path.mkdir(exist_ok=True)
