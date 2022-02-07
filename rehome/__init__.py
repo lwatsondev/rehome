@@ -1,6 +1,7 @@
 import sentry_sdk
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -39,7 +40,7 @@ def init_sentry(app):
         sentry_sdk.init(
             dsn=dsn,
             environment=app.env,
-            integrations=[FlaskIntegration()],
+            integrations=[FlaskIntegration(), SqlalchemyIntegration()],
         )
     else:
         app.logger.debug("Sentry disabled.")
@@ -57,6 +58,12 @@ def register_extensions(app):
     init_sentry(app)
     assets.init_app(app)
     db.init_app(app)
+
+    from rehome.extensions import debugbar
+
+    if app.debug and debugbar is not None:
+        debugbar.init_app(app)
+
     app.logger.debug("Extensions registered.")
 
 

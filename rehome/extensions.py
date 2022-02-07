@@ -10,3 +10,13 @@ dynaconf = FlaskDynaconf(
 )
 assets = Environment()
 db = SQLAlchemy()
+debugbar = None
+
+try:
+    import flask_debugtoolbar  # noqa: F401
+except ImportError:
+    pass
+else:
+    from flask_debugtoolbar import DebugToolbarExtension
+
+    debugbar = DebugToolbarExtension()
