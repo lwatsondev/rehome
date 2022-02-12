@@ -92,6 +92,7 @@ def register_assets(app):
 
     with app.app_context():
         assets.directory = app.static_folder
+        assets.auto_build = app.debug or app.testing
         assets.append_path(paths.ASSETS)
 
     for name, bundle in bundles.items():
