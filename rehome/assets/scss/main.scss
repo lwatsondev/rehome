@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital@0;1&display=swap");
+@import "includes/fonts";
 
 :root {
     --primary-bg-color: #eeeeee;
@@ -25,8 +25,12 @@ html {
     color: var(--primary-text-color);
 }
 
-html, button, input, select, textarea,
-.pure-g [class *= "pure-u"] {
+html,
+button,
+input,
+select,
+textarea,
+.pure-g [class*="pure-u"] {
     font-family: "Roboto", sans-serif;
 }
 
@@ -34,7 +38,8 @@ a {
     text-decoration: none;
     color: var(--primary-color);
 
-    &:visited, &:link {
+    &:visited,
+    &:link {
         color: var(--primary-color);
     }
 
@@ -87,7 +92,7 @@ a {
     }
 
     &-item {
-        padding: .2em;
+        padding: 0.2em;
 
         &:hover {
             background: none;

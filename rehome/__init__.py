@@ -1,3 +1,5 @@
+from distutils.dir_util import copy_tree
+
 import sentry_sdk
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -16,6 +18,9 @@ def create_app():
         template_folder=paths.TEMPLATES,
     )
 
+    for path in [paths.STATIC, paths.DATA]:
+        path.mkdir(exist_ok=True)
+
     load_configuration(app)
     register_extensions(app)
     register_blueprints(app)
@@ -28,25 +33,31 @@ def create_app():
 
 
 def register_blueprints(app):
+    app.logger.debug("register_blueprints")
+
     from rehome import views
 
     views.register_blueprints(app)
-    app.logger.debug("Blueprints registered.")
 
 
 def init_sentry(app):
+    app.logger.debug("init_sentry")
+
+    sentry_status = "DISABLED"
     if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
-        app.logger.info("Sentry enabled.")
+        sentry_status = "ENABLED"
         sentry_sdk.init(
             dsn=dsn,
             environment=app.env,
             integrations=[FlaskIntegration(), SqlalchemyIntegration()],
         )
     else:
-        app.logger.debug("Sentry disabled.")
+        app.logger.info(f"Sentry is {sentry_status}")
 
 
 def load_configuration(app):
+    app.logger.debug("load_configuration")
+
     dynaconf.init_app(app)
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
@@ -55,6 +66,8 @@ def load_configuration(app):
 
 
 def register_extensions(app):
+    app.logger.debug("register_extensions")
+
     init_sentry(app)
     assets.init_app(app)
     db.init_app(app)
@@ -64,10 +77,10 @@ def register_extensions(app):
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
 
-    app.logger.debug("Extensions registered.")
-
 
 def register_assets(app):
+    app.logger.debug("register_assets")
+
     bundles = {
         "css-app": Bundle(
             f"{paths.NODE_MODULES}/purecss/build/pure.css",
@@ -84,4 +97,8 @@ def register_assets(app):
     for name, bundle in bundles.items():
         assets.register(name, bundle)
 
-    app.logger.debug("Assets registered.")
+    precompiled_assets = ["img", "fonts"]
+    for asset_type in precompiled_assets:
+        copy_tree(
+            str(paths.ASSETS / asset_type), str(paths.STATIC / asset_type), update=1
+        )

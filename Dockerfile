@@ -85,7 +85,7 @@ FROM python-base as development
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-    libpq5
+        libpq5
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -118,8 +118,8 @@ FROM python-base as production
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-    libpq5 \
-    curl
+        libpq5 \
+        curl
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
