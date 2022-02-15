@@ -18,22 +18,19 @@ dynaconf = { extras = ["yaml"], version = "^3.1.4" }
 sentry-sdk = { extras = ["flask"], version = "^1.5.0" }
 
 [tool.poetry.dev-dependencies]
-black = "^21.12b0"
+black = "^22.1.0"
 pre-commit = "^2.16.0"
 flake8 = "^4.0.1"
 isort = "^5.9.1"
-flake8-bandit = "^2.1.2"
-flake8-bugbear = "^22.1.0"
 Flask-DebugToolbar = "^0.11.0"
 
 [tool.black]
-exclude = '^(data/)'
+extend_exclude = 'data/'
 
 [tool.isort]
 profile = "black"
 src_paths = ["rehome"]
 extend_skip = ["data/"]
-
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
