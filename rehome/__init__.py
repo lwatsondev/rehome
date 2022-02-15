@@ -8,7 +8,7 @@ from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import paths
-from rehome.extensions import assets, db, dynaconf
+from rehome.extensions import assets, db, debugbar, dynaconf
 
 
 def create_app():
@@ -43,16 +43,13 @@ def register_blueprints(app):
 def init_sentry(app):
     app.logger.debug("init_sentry")
 
-    sentry_status = "DISABLED"
     if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
-        sentry_status = "ENABLED"
         sentry_sdk.init(
             dsn=dsn,
             environment=app.env,
             integrations=[FlaskIntegration(), SqlalchemyIntegration()],
         )
-    else:
-        app.logger.info(f"Sentry is {sentry_status}")
+        app.logger.info("Sentry is enabled")
 
 
 def load_configuration(app):
@@ -71,8 +68,6 @@ def register_extensions(app):
     init_sentry(app)
     assets.init_app(app)
     db.init_app(app)
-
-    from rehome.extensions import debugbar
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
