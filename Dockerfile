@@ -33,7 +33,6 @@ RUN apt-get update && \
 ARG ARG_S6_OVERLAY_VERSION
 ARG ARG_S6_DOWNLOAD_PATH
 
-#https://github.com/just-containers/s6-overlay/releases/download/v3.1.1.2/s6-overlay-x86_64.tar.xz
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${ARG_S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${ARG_S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz /tmp
 RUN mkdir -p "${ARG_S6_DOWNLOAD_PATH}" && \
