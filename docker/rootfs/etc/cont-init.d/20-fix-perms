@@ -1,4 +1,4 @@
 #!/command/with-contenv sh
-set -e
+set -eu
 
 chown -R "$PUID:$PGID" /data /static
