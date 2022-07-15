@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "rehome"
-version = "0.4.1"
+version = "0.5.0"
 description = "A very minimal CMS"
 authors = ["Lee Watson <me@lwatson.dev>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 Flask = "^2.1.0"
 python-dotenv = "^0.20.0"
 gunicorn = { version = "^20.1.0", extras = ["gevent"] }
