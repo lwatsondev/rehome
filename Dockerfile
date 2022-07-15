@@ -138,3 +138,5 @@ ENV FLASK_ENV="development"
 FROM flask-base as production
 
 ENV FLASK_ENV="production"
+
+HEALTHCHECK --interval=10s --timeout=5s CMD ["/bin/healthcheck"]
