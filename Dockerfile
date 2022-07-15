@@ -132,7 +132,8 @@ COPY --from=python-builder-base ${ARG_PYSETUP_PATH} ${ARG_PYSETUP_PATH}
 
 RUN poetry install
 
-ENV FLASK_ENV="development"
+ENV FLASK_ENV="development" \
+    GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file rehome/assets"
 
 ## Production image
 FROM flask-base as production
