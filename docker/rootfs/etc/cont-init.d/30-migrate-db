@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/command/with-contenv sh
 set -e
 
 cd /app || exit 1
 
-s6-setuidgid "$APP_USER" flask db migrate
+s6-setuidgid "$PUID:$PGID" flask db migrate

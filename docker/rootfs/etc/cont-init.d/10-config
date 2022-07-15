@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/command/with-contenv sh
 set -e
 
 if ! test -f "$SETTINGS_FILE_FOR_DYNACONF"; then

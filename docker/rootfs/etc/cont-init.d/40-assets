@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/command/with-contenv sh
 set -e
 
 cd /app || exit 1
 
 if test -d "$PATHS_STATIC/.webassets-cache"; then
-    s6-setuidgid "$APP_USER" flask assets clean
+    s6-setuidgid "$PUID:$PGID" flask assets clean
 fi
 
-s6-setuidgid "$APP_USER" flask assets build
+s6-setuidgid "$PUID:$PGID" flask assets build
