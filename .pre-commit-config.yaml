@@ -39,3 +39,10 @@ repos:
           - data/
           - --src-path
           - rehome
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.37.2
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py310-plus
