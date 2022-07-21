@@ -197,11 +197,11 @@ SQLAlchemy-Utils = "*"
 
 [[package]]
 name = "flask-debugtoolbar"
-version = "0.11.0"
+version = "0.13.1"
 description = "A toolbar overlay for debugging Flask applications."
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7"
 
 [package.dependencies]
 Blinker = "*"
@@ -305,11 +305,11 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "jinja2"
-version = "3.0.3"
+version = "3.1.2"
 description = "A very fast and expressive template engine."
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 MarkupSafe = ">=2.0"
@@ -699,7 +699,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "a9ba87c47abce0af010abd3d2174a1465a2e17264e739ea8c8b61cbf35e2acce"
+content-hash = "a3e3a9e9889f1f7ac05f3de47ee1307ce0c1e20aeec3bba8625f0ce1e463449f"
 
 [metadata.files]
 alembic = []
@@ -835,10 +835,7 @@ flask-assets = [
 flask-db = [
     {file = "Flask-DB-0.3.2.tar.gz", hash = "sha256:bf2c9e161fb415129c1ef251852ba26f84a7a53601ec100609d82a231e34fd12"},
 ]
-flask-debugtoolbar = [
-    {file = "Flask-DebugToolbar-0.11.0.tar.gz", hash = "sha256:3c4e79d354ede014e6657c545a536d4fb273cc89e3fd6b4835b02e346dd3aab4"},
-    {file = "Flask_DebugToolbar-0.11.0-py2.py3-none-any.whl", hash = "sha256:0e9a80d4c599233c68376e81cc99976200b5ac5248cfb24f18935cc5b69ac5b3"},
-]
+flask-debugtoolbar = []
 flask-sqlalchemy = [
     {file = "Flask-SQLAlchemy-2.5.1.tar.gz", hash = "sha256:2bda44b43e7cacb15d4e05ff3cc1f8bc97936cc464623424102bfc2c35e95912"},
     {file = "Flask_SQLAlchemy-2.5.1-py2.py3-none-any.whl", hash = "sha256:f12c3d4cc5cc7fdcc148b9527ea05671718c3ea45d50c7e732cceb33f574b390"},
@@ -948,7 +945,10 @@ itsdangerous = [
     {file = "itsdangerous-2.1.2-py3-none-any.whl", hash = "sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44"},
     {file = "itsdangerous-2.1.2.tar.gz", hash = "sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a"},
 ]
-jinja2 = []
+jinja2 = [
+    {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
+    {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
+]
 libsass = [
     {file = "libsass-0.21.0-cp27-cp27m-macosx_10_14_x86_64.whl", hash = "sha256:06c8776417fe930714bdc930a3d7e795ae3d72be6ac883ff72a1b8f7c49e5ffb"},
     {file = "libsass-0.21.0-cp27-cp27m-win32.whl", hash = "sha256:a005f298f64624f313a3ac618ab03f844c71d84ae4f4a4aec4b68d2a4ffe75eb"},
