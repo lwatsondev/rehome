@@ -12,7 +12,7 @@ from rehome import paths
 from rehome.extensions import assets, db, debugbar, dynaconf
 
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(
         "rehome",
         static_folder=paths.STATIC,
@@ -34,7 +34,7 @@ def create_app():
     return app
 
 
-def register_blueprints(app):
+def register_blueprints(app: Flask):
     app.logger.debug("register_blueprints")
 
     from rehome import views
@@ -42,7 +42,7 @@ def register_blueprints(app):
     views.register_blueprints(app)
 
 
-def init_sentry(app):
+def init_sentry(app: Flask):
     app.logger.debug("init_sentry")
 
     if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
@@ -54,7 +54,7 @@ def init_sentry(app):
         app.logger.info("Sentry is enabled")
 
 
-def load_configuration(app):
+def load_configuration(app: Flask):
     app.logger.debug("load_configuration")
 
     dynaconf.init_app(app)
@@ -64,7 +64,7 @@ def load_configuration(app):
     )
 
 
-def register_extensions(app):
+def register_extensions(app: Flask):
     app.logger.debug("register_extensions")
 
     init_sentry(app)
@@ -75,7 +75,7 @@ def register_extensions(app):
         debugbar.init_app(app)
 
 
-def register_assets(app):
+def register_assets(app: Flask):
     app.logger.debug("register_assets")
 
     bundles = {
@@ -102,7 +102,7 @@ def register_assets(app):
         )
 
 
-def register_context_processors(app):
+def register_context_processors(app: Flask):
     app.logger.debug("register_context_processors")
 
     @app.context_processor
