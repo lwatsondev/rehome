@@ -6,7 +6,7 @@ ARG ARG_S6_DOWNLOAD_PATH="/opt/s6"
 ARG ARG_NODE_MODULES="/opt/node"
 ARG ARG_POETRY_HOME="/opt/poetry"
 ARG ARG_PYSETUP_PATH="/opt/pysetup"
-ARG ARG_VENV_PATH="/opt/pysetup/.venv"
+ARG ARG_VENV_PATH="${ARG_PYSETUP_PATH}/.venv"
 
 ## Base
 FROM python:${ARG_PYTHON_VERSION}-slim as python-base
