@@ -1,6 +1,6 @@
 ARG ARG_PYTHON_VERSION=3.10
 ARG ARG_NODE_VERSION=17
-ARG ARG_POETRY_VERSION=1.1.14
+ARG ARG_POETRY_VERSION=1.2.1
 ARG ARG_S6_OVERLAY_VERSION=3.1.1.2
 ARG ARG_S6_DOWNLOAD_PATH="/opt/s6"
 ARG ARG_NODE_MODULES="/opt/node"
@@ -64,7 +64,7 @@ RUN curl -sSL https://install.python-poetry.org | python -
 WORKDIR ${ARG_PYSETUP_PATH}
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --no-dev
+RUN poetry install --only main
 
 
 ## JS builder
@@ -131,12 +131,10 @@ COPY --from=python-builder-base ${ARG_PYSETUP_PATH} ${ARG_PYSETUP_PATH}
 
 RUN poetry install
 
-ENV FLASK_ENV="development" \
+ENV FLASK_DEBUG=1 \
     GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file $FLASK_APP/assets"
 
 ## Production image
 FROM flask-base as production
-
-ENV FLASK_ENV="production"
 
 HEALTHCHECK --interval=10s --timeout=5s CMD ["/bin/healthcheck"]
