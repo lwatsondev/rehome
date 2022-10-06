@@ -48,7 +48,7 @@ def init_sentry(app: Flask):
     if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
             dsn=dsn,
-            environment=app.env,
+            environment="production",
             integrations=[FlaskIntegration(), SqlalchemyIntegration()],
         )
         app.logger.info("Sentry is enabled")
