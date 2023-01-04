@@ -8,7 +8,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import paths
+from rehome import debug, paths
 from rehome.extensions import assets, db, debugbar, dynaconf
 
 
@@ -34,17 +34,15 @@ def create_app() -> Flask:
     return app
 
 
+@debug.log_func
 def register_blueprints(app: Flask):
-    app.logger.debug("register_blueprints")
-
     from rehome import views
 
     views.register_blueprints(app)
 
 
+@debug.log_func
 def init_sentry(app: Flask):
-    app.logger.debug("init_sentry")
-
     if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
             dsn=dsn,
@@ -54,9 +52,8 @@ def init_sentry(app: Flask):
         app.logger.info("Sentry is enabled")
 
 
+@debug.log_func
 def load_configuration(app: Flask):
-    app.logger.debug("load_configuration")
-
     dynaconf.init_app(app)
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
@@ -64,9 +61,8 @@ def load_configuration(app: Flask):
     )
 
 
+@debug.log_func
 def register_extensions(app: Flask):
-    app.logger.debug("register_extensions")
-
     init_sentry(app)
     assets.init_app(app)
     db.init_app(app)
@@ -75,9 +71,8 @@ def register_extensions(app: Flask):
         debugbar.init_app(app)
 
 
+@debug.log_func
 def register_assets(app: Flask):
-    app.logger.debug("register_assets")
-
     bundles = {
         "css-app": Bundle(
             f"{paths.NODE_MODULES}/purecss/build/pure.css",
@@ -102,9 +97,8 @@ def register_assets(app: Flask):
         )
 
 
+@debug.log_func
 def register_context_processors(app: Flask):
-    app.logger.debug("register_context_processors")
-
     @app.context_processor
     def inject_menu():
         http_host = urlparse(request.base_url).hostname.replace(".", "_")
