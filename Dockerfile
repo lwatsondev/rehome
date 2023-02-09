@@ -12,6 +12,7 @@ ARG ARG_VENV_PATH="${ARG_PYSETUP_PATH}/.venv"
 FROM python:${ARG_PYTHON_VERSION}-slim as python-base
 
 ARG ARG_POETRY_HOME
+ARG ARG_POETRY_VERSION
 ARG ARG_VENV_PATH
 
 ENV PYTHONUNBUFFERED=1 \
@@ -20,6 +21,9 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
     POETRY_HOME=${ARG_POETRY_HOME} \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VERSION=${ARG_POETRY_VERSION} \
     PATH="${ARG_VENV_PATH}/bin:${ARG_POETRY_HOME}/bin:$PATH"
 
 
@@ -51,12 +55,7 @@ RUN apt-get update && \
         libpq-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ARG ARG_POETRY_VERSION
 ARG ARG_PYSETUP_PATH
-
-ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION=${ARG_POETRY_VERSION}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -sSL https://install.python-poetry.org | python -
@@ -128,9 +127,6 @@ WORKDIR ${ARG_PYSETUP_PATH}
 
 COPY --from=python-builder-base ${ARG_POETRY_HOME} ${ARG_POETRY_HOME}
 COPY --from=python-builder-base ${ARG_PYSETUP_PATH} ${ARG_PYSETUP_PATH}
-
-ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1
 
 RUN poetry install
 
