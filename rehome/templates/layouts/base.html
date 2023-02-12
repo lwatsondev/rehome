@@ -11,7 +11,7 @@
           content="{% block description %}My personal site. No guarantee of coherence.{% endblock %}">
 
     <title>~/{% block title %}index{% endblock %}</title>
-    <link rel="shortcut icon" type="image/png" href="{{ url_for("static", filename="img/favicon.png") }}"/>
+    <link rel="icon" href="{{ url_for("static", filename="img/favicon.svg") }}"/>
     {% block stylesheets %}
         {% assets "css-app" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">
