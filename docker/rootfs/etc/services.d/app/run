@@ -1,7 +1,0 @@
-#!/command/with-contenv sh
-set -eu
-
-cd /app || exit 1
-
-# shellcheck disable=SC2086
-s6-setuidgid "$PUID:$PGID" gunicorn "$FLASK_APP:create_app()" --worker-class gevent --bind "$GUNICORN_HOST:$GUNICORN_PORT" $GUNICORN_OPTS
