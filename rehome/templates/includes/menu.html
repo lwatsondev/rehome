@@ -1,10 +1,10 @@
 {% if menu %}
     <nav class="pure-menu pure-menu-horizontal text-center">
-        <ul class="pure-menu-list profile-links">
+        <ul class="pure-menu-list social-links">
             {% for name, url in menu.items() %}
                 <li class="pure-menu-item">
                     <a href="{{ url }}" target="_blank"
-                       class="pure-menu-link profile-links-item">{{ name }}</a>
+                       class="pure-menu-link social-links-item">{{ name }}</a>
                 </li>
                 {% if not loop.last %}
                     <li class="pure-menu-item">-</li>

@@ -78,7 +78,7 @@ a {
     text-align: center;
 }
 
-.profile-links {
+.social-links {
     margin: 1em;
     color: var(--nav-border-color);
 
@@ -99,12 +99,9 @@ a {
     }
 }
 
-.avatar-container {
+img.avatar-img {
     max-width: 10em;
     margin: auto;
-}
-
-.img-rounded {
     border: 2px solid var(--primary-color);
     border-radius: 50%;
 
