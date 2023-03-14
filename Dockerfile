@@ -1,28 +1,28 @@
-ARG ARG_PYTHON_VERSION=3.11
-ARG ARG_NODE_VERSION=18
-ARG ARG_POETRY_VERSION=1.4.0
-ARG ARG_NODE_MODULES="/opt/node"
-ARG ARG_POETRY_HOME="/opt/poetry"
-ARG ARG_PYSETUP_PATH="/opt/pysetup"
-ARG ARG_VENV_PATH="${ARG_PYSETUP_PATH}/.venv"
+ARG PYTHON_VERSION=3.11
+ARG NODE_VERSION=18
+ARG POETRY_VERSION=1.4.0
+ARG NODE_MODULES="/opt/node"
+ARG POETRY_HOME="/opt/poetry"
+ARG PYSETUP_PATH="/opt/pysetup"
+ARG VENV_PATH="${PYSETUP_PATH}/.venv"
 
 ## Base
-FROM python:${ARG_PYTHON_VERSION}-slim as python-base
+FROM python:${PYTHON_VERSION}-slim as python-base
 
-ARG ARG_POETRY_HOME
-ARG ARG_POETRY_VERSION
-ARG ARG_VENV_PATH
+ARG POETRY_HOME
+ARG POETRY_VERSION
+ARG VENV_PATH
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_HOME=${ARG_POETRY_HOME} \
+    POETRY_HOME=${POETRY_HOME} \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
-    POETRY_VERSION=${ARG_POETRY_VERSION} \
-    PATH="${ARG_VENV_PATH}/bin:${ARG_POETRY_HOME}/bin:$PATH"
+    POETRY_VERSION=${POETRY_VERSION} \
+    PATH="${VENV_PATH}/bin:${POETRY_HOME}/bin:$PATH"
 
 
 ## Python builder
@@ -36,22 +36,22 @@ RUN apt-get update && \
         libpq-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ARG ARG_PYSETUP_PATH
+ARG PYSETUP_PATH
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -sSL https://install.python-poetry.org | python -
 
-WORKDIR ${ARG_PYSETUP_PATH}
+WORKDIR ${PYSETUP_PATH}
 
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --only main
 
 
 ## JS builder
-FROM node:${ARG_NODE_VERSION}-bullseye-slim as node-builder-base
+FROM node:${NODE_VERSION}-bullseye-slim as node-builder-base
 
-ARG ARG_NODE_MODULES
-WORKDIR ${ARG_NODE_MODULES}
+ARG NODE_MODULES
+WORKDIR ${NODE_MODULES}
 
 COPY yarn.lock package.json ./
 RUN yarn install
@@ -65,11 +65,11 @@ RUN apt-get update && \
         curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ARG ARG_VENV_PATH
-ARG ARG_NODE_MODULES
+ARG VENV_PATH
+ARG NODE_MODULES
 
-COPY --from=node-builder-base ${ARG_NODE_MODULES}/node_modules ${ARG_NODE_MODULES}/
-COPY --from=python-builder-base ${ARG_VENV_PATH} ${ARG_VENV_PATH}
+COPY --from=node-builder-base ${NODE_MODULES}/node_modules ${NODE_MODULES}/
+COPY --from=python-builder-base ${VENV_PATH} ${VENV_PATH}
 
 COPY docker/rootfs /
 
@@ -84,8 +84,8 @@ ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
     FLASK_APP="rehome" \
     PATHS_STATIC="/static" \
     PATHS_DATA="/data" \
-    PATHS_NODE_MODULES=${ARG_NODE_MODULES} \
-    NODE_MODULES=${ARG_NODE_MODULES}
+    PATHS_NODE_MODULES=${NODE_MODULES} \
+    NODE_MODULES=${NODE_MODULES}
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
@@ -96,13 +96,13 @@ ENTRYPOINT ["/docker-init.sh"]
 ## Dev image
 FROM flask-base as development
 
-ARG ARG_PYSETUP_PATH
-ARG ARG_POETRY_HOME
+ARG PYSETUP_PATH
+ARG POETRY_HOME
 
-WORKDIR ${ARG_PYSETUP_PATH}
+WORKDIR ${PYSETUP_PATH}
 
-COPY --from=python-builder-base ${ARG_POETRY_HOME} ${ARG_POETRY_HOME}
-COPY --from=python-builder-base ${ARG_PYSETUP_PATH} ${ARG_PYSETUP_PATH}
+COPY --from=python-builder-base ${POETRY_HOME} ${POETRY_HOME}
+COPY --from=python-builder-base ${PYSETUP_PATH} ${PYSETUP_PATH}
 
 RUN poetry install
 
