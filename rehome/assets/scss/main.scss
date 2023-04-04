@@ -79,16 +79,9 @@ a {
 }
 
 .social-links {
-    margin: 1em;
+    margin: 1em auto;
     color: var(--nav-border-color);
-
-    &:before {
-        content: "[";
-    }
-
-    &:after {
-        content: "]";
-    }
+    max-width: fit-content;
 
     &-item {
         padding: 0.2em;
@@ -100,7 +93,7 @@ a {
 }
 
 img.avatar-img {
-    max-width: 10em;
+    max-width: 25%;
     margin: auto;
     border: 2px solid var(--primary-color);
     border-radius: 50%;
