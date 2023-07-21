@@ -1,3 +1,4 @@
+ARG DEBIAN_VERSION=bookworm
 ARG PYTHON_VERSION=3.11
 ARG NODE_VERSION=18
 ARG POETRY_VERSION=1.5.1
@@ -7,7 +8,7 @@ ARG PYSETUP_PATH="/opt/pysetup"
 ARG VENV_PATH="${PYSETUP_PATH}/.venv"
 
 ## Base
-FROM python:${PYTHON_VERSION}-slim as python-base
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} as python-base
 
 ARG POETRY_HOME
 ARG POETRY_VERSION
@@ -48,7 +49,7 @@ RUN poetry install --only main
 
 
 ## JS builder
-FROM node:${NODE_VERSION}-bullseye-slim as node-builder-base
+FROM node:${NODE_VERSION}-${DEBIAN_VERSION}-slim as node-builder-base
 
 ARG NODE_MODULES
 WORKDIR ${NODE_MODULES}
