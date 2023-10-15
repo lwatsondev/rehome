@@ -25,7 +25,13 @@ Flask-DebugToolbar = "^0.13.0"
 ruff = "^0.0.292"
 
 [tool.black]
-extend-exclude = "^/data"
+force-exclude = '''
+(
+    data/
+    | rehome/db/migrations/
+)
+'''
+
 
 [tool.ruff]
 target-version = "py311"
