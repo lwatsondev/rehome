@@ -17,7 +17,7 @@ repos:
 
       - id: ruff
         name: ruff
-        entry: poetry run ruff --exit-non-zero-on-fix
+        entry: poetry run ruff --fix --exit-non-zero-on-fix
         language: system
         types: [python]
 

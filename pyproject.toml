@@ -32,10 +32,8 @@ force-exclude = '''
 )
 '''
 
-
 [tool.ruff]
 target-version = "py311"
-fix = true
 force-exclude = true
 
 extend-select = [
