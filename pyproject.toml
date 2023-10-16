@@ -22,7 +22,7 @@ flask-assets = "^2.0"
 black = "^23.0.0"
 pre-commit = "^3.0.0"
 Flask-DebugToolbar = "^0.13.0"
-ruff = "^0.0.292"
+ruff = "^0.1.0"
 pre-commit-hooks = "^4.5.0"
 
 [tool.black]
@@ -36,11 +36,12 @@ force-exclude = '''
 target-version = "py311"
 force-exclude = true
 
-extend-select = [
+select = [
     "B", "I", "UP", "C90", "W",
     "YTT", "PTH", "A", "RET", "SIM",
     "FIX", "ARG", "ERA", "Q", "T20",
-    "RUF", "S", "RSE", "BLE", "N"
+    "RUF", "S", "RSE", "BLE", "N",
+    "E", "F",
 ]
 
 extend-exclude = [
