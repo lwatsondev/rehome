@@ -1,7 +1,7 @@
 ARG DEBIAN_VERSION=bookworm
 ARG PYTHON_VERSION=3.11
 ARG NODE_VERSION=18
-ARG POETRY_VERSION=1.5.1
+ARG POETRY_VERSION=""
 ARG NODE_MODULES="/opt/node"
 ARG POETRY_HOME="/opt/poetry"
 ARG PYSETUP_PATH="/opt/pysetup"
@@ -31,21 +31,23 @@ FROM python-base as python-builder-base
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        curl \
-        build-essential \
-        libffi-dev \
-        libpq-dev \
+    curl \
+    build-essential \
+    libffi-dev \
+    libpq-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ARG PYSETUP_PATH
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl -sSL https://install.python-poetry.org | python -
+RUN --mount=type=cache,target=/root/.cache \
+    curl -sSL https://install.python-poetry.org | python3 -
 
 WORKDIR ${PYSETUP_PATH}
 
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --only main
+RUN --mount=type=cache,target=/root/.cache \
+    poetry install --only main
 
 
 ## JS builder
@@ -55,15 +57,16 @@ ARG NODE_MODULES
 WORKDIR ${NODE_MODULES}
 
 COPY yarn.lock package.json ./
-RUN yarn install
+RUN --mount=type=cache,target=/root/.cache \
+    yarn install
 
 ## Base image
 FROM python-base as flask-base
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        libpq5 \
-        curl && \
+    libpq5 \
+    curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ARG VENV_PATH
@@ -105,7 +108,8 @@ WORKDIR ${PYSETUP_PATH}
 COPY --from=python-builder-base ${POETRY_HOME} ${POETRY_HOME}
 COPY --from=python-builder-base ${PYSETUP_PATH} ${PYSETUP_PATH}
 
-RUN poetry install
+RUN --mount=type=cache,target=/root/.cache \
+    poetry install
 
 ENV FLASK_DEBUG=1 \
     GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file $FLASK_APP/assets"
