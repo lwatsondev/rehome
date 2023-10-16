@@ -23,6 +23,7 @@ black = "^23.0.0"
 pre-commit = "^3.0.0"
 Flask-DebugToolbar = "^0.13.0"
 ruff = "^0.0.292"
+pre-commit-hooks = "^4.5.0"
 
 [tool.black]
 force-exclude = '''
