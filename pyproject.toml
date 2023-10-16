@@ -28,7 +28,6 @@ ruff = "^0.0.292"
 force-exclude = '''
 (
     data/
-    | rehome/db/migrations/
 )
 '''
 
@@ -45,8 +44,10 @@ extend-select = [
 
 extend-exclude = [
     "data/",
-    "rehome/db/migrations/"
 ]
+
+[tool.ruff.extend-per-file-ignores]
+"rehome/db/migrations/seeds.py" = ["ERA001"]
 
 [build-system]
 requires = ["poetry-core>=1.3.0"]

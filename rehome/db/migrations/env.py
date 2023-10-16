@@ -1,11 +1,11 @@
-import os
 import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-sys.path.insert(0, os.getcwd())
+sys.path.insert(0, str(Path.cwd()))
 from rehome import create_app  # noqa: E402
 
 # There's no access to current_app here so we must create our own app.
@@ -22,9 +22,6 @@ fileConfig(config.config_file_name)
 # Sets up metadata for autogenerate support,
 config.set_main_option("sqlalchemy.url", db_uri)
 target_metadata = db.metadata
-
-# Configure anything else you deem important, example:
-# my_important_option = config.get_main_option("my_important_option")
 
 
 def run_migrations_offline():
@@ -56,10 +53,11 @@ def run_migrations_online():
     In this scenario we need to create an Engine and associate a connection
     with the context.
     """
+
     # If you use Alembic revision's --autogenerate flag this function will
     # prevent Alembic from creating an empty migration file if nothing changed.
     # Source: https://alembic.sqlalchemy.org/en/latest/cookbook.html
-    def process_revision_directives(context, revision, directives):
+    def process_revision_directives(context, revision, directives):  # noqa: ARG001
         if config.cmd_opts.autogenerate:
             script = directives[0]
             if script.upgrade_ops.is_empty():
