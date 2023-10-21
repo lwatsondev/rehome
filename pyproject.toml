@@ -19,18 +19,10 @@ gevent = "^23.9.0"
 flask-assets = "^2.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.0.0"
 pre-commit = "^3.0.0"
 Flask-DebugToolbar = "^0.13.0"
 ruff = "^0.1.0"
 pre-commit-hooks = "^4.5.0"
-
-[tool.black]
-force-exclude = '''
-(
-    data/
-)
-'''
 
 [tool.ruff]
 target-version = "py311"
