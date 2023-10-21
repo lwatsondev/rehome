@@ -57,7 +57,7 @@ def run_migrations_online():
     # If you use Alembic revision's --autogenerate flag this function will
     # prevent Alembic from creating an empty migration file if nothing changed.
     # Source: https://alembic.sqlalchemy.org/en/latest/cookbook.html
-    def process_revision_directives(context, revision, directives):  # noqa: ARG001
+    def process_revision_directives(context, revision, directives):
         if config.cmd_opts.autogenerate:
             script = directives[0]
             if script.upgrade_ops.is_empty():
