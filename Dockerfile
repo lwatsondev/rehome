@@ -29,13 +29,14 @@ ENV PYTHONUNBUFFERED=1 \
 ## Python builder
 FROM python-base as python-builder-base
 
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && \
     apt-get install --no-install-recommends -y \
     curl \
     build-essential \
     libffi-dev \
     libpq-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 ARG PYSETUP_PATH
 
@@ -63,11 +64,12 @@ RUN --mount=type=cache,target=/root/.cache \
 ## Base image
 FROM python-base as flask-base
 
-RUN apt-get update && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && \
     apt-get install --no-install-recommends -y \
     libpq5 \
     curl && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 ARG VENV_PATH
 ARG NODE_MODULES
