@@ -29,7 +29,7 @@ ENV PYTHONUNBUFFERED=1 \
 ## Python builder
 FROM python-base as python-builder-base
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
     apt-get install --no-install-recommends -y \
     curl \
@@ -64,7 +64,7 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 ## Base image
 FROM python-base as flask-base
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
     apt-get install --no-install-recommends -y \
     libpq5 \
