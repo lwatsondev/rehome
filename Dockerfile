@@ -58,7 +58,7 @@ ARG NODE_MODULES
 WORKDIR ${NODE_MODULES}
 
 COPY yarn.lock package.json ./
-RUN --mount=type=cache,target=/root/.cache \
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
     yarn install
 
 ## Base image
