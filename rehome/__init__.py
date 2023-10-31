@@ -1,7 +1,7 @@
-from distutils.dir_util import copy_tree
 from urllib.parse import urlparse
 
 import sentry_sdk
+from distutils.dir_util import copy_tree
 from flask import Flask, request
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
