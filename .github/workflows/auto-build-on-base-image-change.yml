@@ -29,7 +29,7 @@ jobs:
 
       - name: Check for base image updates
         id: updatecheck
-        uses: lucacome/docker-image-update-checker@v1
+        uses: mkumatag/container-image-updater-action@v1
         with:
           base-image: python:latest
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${GITHUB_REF##*/}
