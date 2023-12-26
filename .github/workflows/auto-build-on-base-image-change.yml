@@ -25,7 +25,7 @@ jobs:
         uses: mkumatag/container-image-updater-action@v1
         with:
           base-image: python:latest
-          image: $${{ env.REGISTRY }}/{{ env.IMAGE_NAME }}:${{ github.branch }}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref##*/ }}
           image-reg-username: ${{ github.actor }}
           image-reg-password: ${{ secrets.GITHUB_TOKEN }}
 
