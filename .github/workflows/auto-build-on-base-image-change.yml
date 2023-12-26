@@ -1,4 +1,4 @@
-name: Create and publish a Docker image on base image updates
+name: Check for base image updates and rebuild Docker image
 
 on:
   schedule:
@@ -22,12 +22,14 @@ jobs:
 
       - name: Check for base image updates
         id: updatecheck
-        uses: lucacome/docker-image-update-checker@v1
+        uses: mkumatag/container-image-updater-action@v1
         with:
-          base-image: library/python:latest
-          image: ${{ env.IMAGE_NAME }}:main
+          base-image: python:latest
+          image: $${{ env.REGISTRY }}/{{ env.IMAGE_NAME }}:${{ github.branch }}
+          image-reg-username: ${{ github.actor }}
+          image-reg-password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to the Container registry
+      - name: Log in to the container registry
         uses: docker/login-action@v3
         if: steps.updatecheck.outputs.needs-updating == 'true'
         with:
