@@ -47,8 +47,8 @@ RUN --mount=type=cache,target=/root/.cache \
 WORKDIR ${PYSETUP_PATH}
 
 COPY poetry.lock pyproject.toml ./
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install --only main
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    poetry install --no-root --only main
 
 
 ## JS builder
@@ -110,8 +110,8 @@ WORKDIR ${PYSETUP_PATH}
 COPY --from=python-builder-base ${POETRY_HOME} ${POETRY_HOME}
 COPY --from=python-builder-base ${PYSETUP_PATH} ${PYSETUP_PATH}
 
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    poetry install --no-root
 
 ENV FLASK_DEBUG=1 \
     GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file $FLASK_APP/assets"
