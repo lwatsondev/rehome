@@ -6,7 +6,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 sys.path.insert(0, str(Path.cwd()))
-from rehome import create_app  # noqa: E402
+from rehome import create_app
 
 # There's no access to current_app here so we must create our own app.
 app = create_app()
