@@ -13,7 +13,7 @@ cssmin = "^0.2.0"
 libsass = "^0.22.0"
 Flask-DB = "^0.4.0"
 SQLAlchemy = { extras = ["postgresql"], version = "^2.0.0" }
-dynaconf = { extras = ["yaml"], version = "^3.1.4" }
+dynaconf = { extras = ["yaml"], version = "^3.2.4" }
 sentry-sdk = { extras = ["flask"], version = "^1.5.0" }
 gevent = "^23.9.0"
 flask-assets = "^2.0"
