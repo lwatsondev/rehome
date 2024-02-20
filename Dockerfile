@@ -98,7 +98,7 @@ ENV SETTINGS_FILE_FOR_DYNACONF="/config/settings.yml" \
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
 
-ENTRYPOINT ["/docker-init.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 
 ## Dev image
