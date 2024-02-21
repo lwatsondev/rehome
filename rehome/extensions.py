@@ -2,10 +2,18 @@ from dynaconf import Dynaconf, FlaskDynaconf
 from flask_assets import Environment
 from flask_sqlalchemy import SQLAlchemy
 
+from rehome import paths
+
 dynaconf = FlaskDynaconf(
     dynaconf_instance=Dynaconf(
         environments=False,
-        envvar_prefix="FLASK",
+        envvar_prefix="CFG",
+        root_path=paths.CONFIG_ROOT,
+        settings_files=[
+            "*.toml",
+            "*.yml",
+            "*.yaml",
+        ],
     ),
 )
 assets = Environment()

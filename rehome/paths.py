@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dynaconf import Dynaconf
@@ -11,3 +12,4 @@ RESOURCES = Path(_env_paths.get("RESOURCES", BASE / "resources"))
 STATIC = Path(_env_paths.get("STATIC", BASE.parent / "static"))
 DATA = Path(_env_paths.get("DATA", BASE.parent / "data"))
 NODE_MODULES = Path(_env_paths.get("NODE_MODULES", BASE.parent / "node_modules"))
+CONFIG_ROOT = os.getenv("ROOT_PATH_FOR_DYNACONF", BASE.parent / "config")
