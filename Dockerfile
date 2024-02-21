@@ -51,7 +51,7 @@ RUN --mount=type=cache,target=/root/.cache \
 ## JS builder
 FROM node:${NODE_VERSION}-${DEBIAN_VERSION}-slim as node-builder-base
 
-WORKDIR /app
+WORKDIR /opt/node
 
 COPY yarn.lock package.json ./
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
@@ -67,7 +67,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     curl && \
     apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-COPY --from=node-builder-base /app/node_modules /app/node_modules
+COPY --from=node-builder-base /opt/node /opt/node
 COPY --from=python-builder-base ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
 COPY docker/rootfs /
@@ -80,7 +80,8 @@ ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
     PATHS_STATIC="/static" \
-    PATHS_DATA="/data"
+    PATHS_DATA="/data" \
+    PATHS_NODE_MODULES="/opt/node/node_modules"
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000

@@ -1,7 +1,7 @@
+import shutil
 from urllib.parse import urlparse
 
 import sentry_sdk
-from distutils.dir_util import copy_tree
 from flask import Flask, request
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
@@ -92,8 +92,8 @@ def register_assets(app: Flask):
 
     precompiled_assets = ["img", "fonts"]
     for asset_type in precompiled_assets:
-        copy_tree(
-            str(paths.ASSETS / asset_type), str(paths.STATIC / asset_type), update=1
+        shutil.copytree(
+            paths.ASSETS / asset_type, paths.STATIC / asset_type, dirs_exist_ok=True
         )
 
 
