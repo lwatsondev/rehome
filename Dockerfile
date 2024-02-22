@@ -78,11 +78,11 @@ ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_HOST="0.0.0.0" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
-    CFG_PATHS__STATIC="/static" \
+    CFG_PATHS__STATIC="/data/static" \
     CFG_PATHS__DATA="/data" \
     CFG_PATHS__NODE_MODULES="/opt/node/node_modules"
 
-VOLUME ["/static", "/config", "/data"]
+VOLUME ["/config", "/data"]
 EXPOSE 5000
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

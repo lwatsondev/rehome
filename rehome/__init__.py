@@ -20,7 +20,7 @@ def create_app() -> Flask:
     )
 
     for path in [paths.STATIC, paths.DATA]:
-        path.mkdir(exist_ok=True)
+        path.mkdir(exist_ok=True, parents=True)
 
     load_configuration(app)
     register_extensions(app)
