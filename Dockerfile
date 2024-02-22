@@ -99,7 +99,9 @@ RUN --mount=type=cache,target=/root/.cache \
 
 ENV FLASK_DEBUG=1 \
     ENV_FOR_DYNACONF=development \
-    GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file ${FLASK_APP}/assets"
+    GUNICORN_OPTS="--reload --reload-extra-file /config" \
+    # Don't compile assets on startup as built-in autobuild is used in dev/testing environments.
+    SKIP_ASSETS=true
 
 
 ## Production image
