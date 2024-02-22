@@ -25,9 +25,10 @@ def create_app() -> Flask:
     load_configuration(app)
     register_extensions(app)
     register_blueprints(app)
+    register_context_processors(app)
+
     with app.app_context():
         register_assets(app)
-    register_context_processors(app)
 
     if not app.debug and not app.testing:
         ProxyFix(app)
@@ -44,7 +45,7 @@ def register_blueprints(app: Flask):
 
 @debug.log_func
 def init_sentry(app: Flask):
-    if (dsn := app.config.get("sentry_dsn")) and not (app.debug or app.testing):
+    if (dsn := app.config.get("sentry.dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
             dsn=dsn,
             environment="production",

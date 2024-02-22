@@ -6,13 +6,20 @@ if [ -z "$(find "${ROOT_PATH_FOR_DYNACONF}" -type f -mindepth 1 -maxdepth 1)" ];
     cp -au "${FLASK_APP}/resources/config/settings.yml" "${ROOT_PATH_FOR_DYNACONF}"
 fi
 
-flask db migrate
-
-if test -d "${CFG_PATHS__STATIC}/.webassets-cache"; then
-    flask assets clean
+if [ "${SKIP_MIGRATIONS:-false}" = "false" ]; then
+    flask db migrate
+else
+    echo "Skipping migrations due to SKIP_MIGRATIONS=${SKIP_MIGRATIONS}"
 fi
 
-flask assets build
+if [ "${SKIP_ASSETS:-false}" = "false" ]; then
+    if [ -d "${CFG_PATHS__STATIC}/.webassets-cache" ]; then
+        flask assets clean
+    fi
+    flask assets build
+else
+    echo "Skipping assets due to SKIP_ASSETS=${SKIP_ASSETS}"
+fi
 
 # shellcheck disable=SC2086
-exec gunicorn "${FLASK_APP}:create_app()" --worker-class gevent --bind "${GUNICORN_HOST}:${GUNICORN_PORT}" ${GUNICORN_OPTS}
+exec gunicorn "${FLASK_APP}:create_app()" --worker-class gevent --bind "${GUNICORN_HOST}:${GUNICORN_PORT}" ${GUNICORN_OPTS:-}
