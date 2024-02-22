@@ -25,7 +25,8 @@ def create_app() -> Flask:
     load_configuration(app)
     register_extensions(app)
     register_blueprints(app)
-    register_assets(app)
+    with app.app_context():
+        register_assets(app)
     register_context_processors(app)
 
     if not app.debug and not app.testing:
@@ -82,10 +83,9 @@ def register_assets(app: Flask):
         )
     }
 
-    with app.app_context():
-        assets.directory = app.static_folder
-        assets.auto_build = app.debug or app.testing
-        assets.append_path(paths.ASSETS)
+    assets.directory = app.static_folder
+    assets.auto_build = app.debug or app.testing
+    assets.append_path(paths.ASSETS)
 
     for name, bundle in bundles.items():
         assets.register(name, bundle)
@@ -103,7 +103,7 @@ def register_context_processors(app: Flask):
     def inject_menu():
         http_host = urlparse(request.base_url).hostname.replace(".", "_")
         menu = app.config.get(
-            f"rehome.profile.external.{http_host}",
-            app.config.get("rehome.profile.external.default"),
+            f"profile.external.{http_host}",
+            app.config.get("profile.external.default"),
         )
         return {"menu": menu}

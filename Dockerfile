@@ -57,6 +57,7 @@ COPY yarn.lock package.json ./
 RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
     yarn install
 
+
 ## Base image
 FROM python-base as flask-base
 
@@ -69,19 +70,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 
 COPY --from=node-builder-base /opt/node /opt/node
 COPY --from=python-builder-base ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-
 COPY docker/rootfs /
-
-COPY ./rehome ./rehome
-COPY ./alembic.ini .
+COPY rehome ./rehome
+COPY alembic.ini .
 
 ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_HOST="0.0.0.0" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
-    PATHS_STATIC="/static" \
-    PATHS_DATA="/data" \
-    PATHS_NODE_MODULES="/opt/node/node_modules"
+    CFG_PATHS__STATIC="/static" \
+    CFG_PATHS__DATA="/data" \
+    CFG_PATHS__NODE_MODULES="/opt/node/node_modules"
 
 VOLUME ["/static", "/config", "/data"]
 EXPOSE 5000
@@ -99,9 +98,13 @@ RUN --mount=type=cache,target=/root/.cache \
     poetry install --no-root
 
 ENV FLASK_DEBUG=1 \
-    GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file $FLASK_APP/assets"
+    ENV_FOR_DYNACONF=development \
+    GUNICORN_OPTS="--reload --reload-extra-file /config --reload-extra-file ${FLASK_APP}/assets"
+
 
 ## Production image
 FROM flask-base as production
+
+ENV ENV_FOR_DYNACONF=production
 
 HEALTHCHECK --start-interval=1s --start-period=10s --interval=10s --timeout=5s CMD ["/docker-healthcheck.sh"]
