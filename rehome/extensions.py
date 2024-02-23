@@ -1,3 +1,5 @@
+from importlib.util import find_spec
+
 from dynaconf import FlaskDynaconf
 from flask_assets import Environment
 from flask_sqlalchemy import SQLAlchemy
@@ -9,11 +11,7 @@ assets = Environment()
 db = SQLAlchemy()
 debugbar = None
 
-try:
-    import flask_debugtoolbar  # noqa: F401
-except ImportError:
-    pass
-else:
+if find_spec("flask_debugtoolbar"):
     from flask_debugtoolbar import DebugToolbarExtension
 
     debugbar = DebugToolbarExtension()

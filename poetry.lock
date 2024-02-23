@@ -260,19 +260,21 @@ SQLAlchemy-Utils = "*"
 
 [[package]]
 name = "flask-debugtoolbar"
-version = "0.13.1"
+version = "0.14.1"
 description = "A toolbar overlay for debugging Flask applications."
 optional = false
 python-versions = ">=2.7"
 files = [
-    {file = "Flask-DebugToolbar-0.13.1.tar.gz", hash = "sha256:0c26aa013a9813b8886857bf0ec24d28ab494114a264baf06c951cadc4dd0dae"},
-    {file = "Flask_DebugToolbar-0.13.1-py3-none-any.whl", hash = "sha256:491c737f321830c06a2835784acf1fc8488fd257a0ef318810b3b6bed5f600d5"},
+    {file = "Flask-DebugToolbar-0.14.1.tar.gz", hash = "sha256:ccd6a72119ea4f7c486823591b2b2f4a14dc7fb38d6bd495272e0ebdc08724cd"},
+    {file = "Flask_DebugToolbar-0.14.1-py3-none-any.whl", hash = "sha256:3b938b02c418ac86fc18431f484dcd459f24acf3d0c1e72131c06413863bcf04"},
 ]
 
 [package.dependencies]
 Blinker = "*"
 Flask = ">=0.8"
 itsdangerous = "*"
+MarkupSafe = "*"
+packaging = "*"
 werkzeug = "*"
 
 [[package]]
@@ -1175,4 +1177,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "9aab1abc09f6660aeaef9a41f85b9f5e887047e8820551cbe82c0056666c6785"
+content-hash = "7455ff365cdca31d4ed645b4461c1e316e31a328fb9dc6799747ada1ea850c76"

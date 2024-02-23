@@ -20,7 +20,7 @@ flask-assets = "^2.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.5.0"
-Flask-DebugToolbar = "^0.13.0"
+Flask-DebugToolbar = "^0.14.0"
 ruff = "^0.2.1"
 pre-commit-hooks = "^4.5.0"
 
