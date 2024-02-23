@@ -65,8 +65,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
     apt-get install --no-install-recommends -y \
     libpq5 \
-    curl && \
-    apt-get autoclean && rm -rf /var/lib/apt/lists/*
+    curl \
+    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=node-builder-base /opt/node /opt/node
 COPY --from=python-builder-base ${VIRTUAL_ENV} ${VIRTUAL_ENV}
