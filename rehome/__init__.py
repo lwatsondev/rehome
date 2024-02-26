@@ -62,6 +62,7 @@ def load_configuration(app: Flask):
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SESSION_USE_SIGNER=True,
+        SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
     )
 
 
