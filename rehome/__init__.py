@@ -8,7 +8,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import debug, paths
+from rehome import debug, paths, version
 from rehome.extensions import assets, db, debugbar, dynaconf
 
 
@@ -18,6 +18,8 @@ def create_app() -> Flask:
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
     )
+
+    app.logger.info(f"Starting {app.name} {version.VERSION}")
 
     for path in [paths.STATIC, paths.DATA]:
         path.mkdir(exist_ok=True, parents=True)
@@ -49,6 +51,7 @@ def init_sentry(app: Flask):
         sentry_sdk.init(
             dsn=dsn,
             integrations=[FlaskIntegration(), SqlalchemyIntegration()],
+            release=version.VERSION,
         )
         app.logger.info("Sentry is enabled")
 
