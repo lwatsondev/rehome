@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rehome"
-version = "0.7.5"
+version = "0.7.6"
 description = "A very minimal CMS"
 authors = ["Lee Watson <me@lwatson.dev>"]
 
