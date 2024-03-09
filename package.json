@@ -1,5 +1,24 @@
 {
-  "dependencies": {
-    "purecss": "^3.0.0"
-  }
+    "name": "rehome",
+    "version": "0.8.0",
+    "repository": "https://github.com/TheReverend403/rehome",
+    "author": "Lee Watson <me@lwatson.dev>",
+    "license": "",
+    "private": true,
+    "dependencies": {
+        "purecss": "^3.0.0"
+    },
+    "devDependencies": {
+        "postcss": "^8.4.35",
+        "stylelint": "^16.2.1",
+        "stylelint-config-standard-scss": "^13.0.0"
+    },
+    "scripts": {
+        "lint": "stylelint --fix"
+    },
+    "stylelint": {
+        "extends": [
+            "stylelint-config-standard-scss"
+        ]
+    }
 }

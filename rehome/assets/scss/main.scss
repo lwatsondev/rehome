@@ -1,7 +1,7 @@
 @import "includes/fonts";
 
 :root {
-    --primary-bg-color: #eeeeee;
+    --primary-bg-color: #eee;
     --primary-text-color: #1f1f1f;
     --secondary-text-color: #757575;
     --nav-border-color: #454545;
@@ -11,7 +11,7 @@
 
     @media (prefers-color-scheme: dark) {
         --primary-bg-color: #0d0d0d;
-        --primary-text-color: #eeeeee;
+        --primary-text-color: #eee;
         --primary-color: #8c54fe;
         --accent-color: #b28cfe;
     }
@@ -30,7 +30,7 @@ input,
 select,
 textarea,
 .pure-g [class*="pure-u"] {
-    font-family: "Roboto", sans-serif;
+    font-family: Roboto, sans-serif;
 }
 
 a {
