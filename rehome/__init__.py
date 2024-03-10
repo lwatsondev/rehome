@@ -24,8 +24,7 @@ def create_app() -> Flask:
     for path in [paths.STATIC, paths.DATA]:
         path.mkdir(exist_ok=True, parents=True)
 
-    load_configuration(app)
-    register_extensions(app)
+    init_extensions(app)
     register_blueprints(app)
     register_context_processors(app)
 
@@ -57,23 +56,21 @@ def init_sentry(app: Flask):
 
 
 @debug.log_func
-def load_configuration(app: Flask):
+def init_extensions(app: Flask):
     dynaconf.init_app(app)
-    app.config.update(
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SESSION_USE_SIGNER=True,
-        SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
-    )
-
-
-@debug.log_func
-def register_extensions(app: Flask):
     init_sentry(app)
     assets.init_app(app)
+
+    app.config.update(
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
+    )
     db.init_app(app)
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
+
+    app.config.update(SESSION_USE_SIGNER=True)  # for later
 
 
 @debug.log_func
