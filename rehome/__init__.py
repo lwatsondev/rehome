@@ -105,7 +105,7 @@ def register_context_processors(app: Flask):
     def inject_menu():
         http_host = urlparse(request.base_url).hostname.replace(".", "_")
         menu = app.config.get(
-            f"profile.links.{http_host}",
-            app.config.get("profile.links.default"),
+            f"home.links.{http_host}",
+            app.config.get("home.links.default"),
         )
         return {"menu": menu}
