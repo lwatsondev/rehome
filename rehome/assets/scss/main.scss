@@ -98,6 +98,10 @@ img.avatar-img {
     border: 2px solid var(--primary-color);
     border-radius: 50%;
 
+    @media screen and (max-width: 992px) {
+        max-width: 50%;
+    }
+
     &:hover {
         transition: all 250ms ease;
         filter: brightness(80%);
