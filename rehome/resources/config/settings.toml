@@ -1,3 +1,6 @@
 [home.links.default]
 somesite = "https://somesite.com"
 anothersite = "https://anothersite.com"
+
+[gravatar]
+email = ""

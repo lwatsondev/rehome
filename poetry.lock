@@ -490,6 +490,17 @@ MarkupSafe = ">=2.0"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
+name = "libgravatar"
+version = "1.0.4"
+description = "A library that provides a Python 3 interface for the Gravatar API."
+optional = false
+python-versions = "*"
+files = [
+    {file = "libgravatar-1.0.4-py2.py3-none-any.whl", hash = "sha256:f967619b38914e0f941e53387881005e43929814571103f6bbfa2afd75045e20"},
+    {file = "libgravatar-1.0.4.tar.gz", hash = "sha256:05cf4f8dfefe995d09078cd3d747c8f04dcf17d6004fc7bb542049a55f2238d9"},
+]
+
+[[package]]
 name = "libsass"
 version = "0.23.0"
 description = "Sass for Python: A straightforward binding of libsass for Python."
@@ -1227,4 +1238,4 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "21fb20359fb7ae9beee3d2aae4bc96f299e48b7c7d83d3b31a348b93e058bed2"
+content-hash = "d17e9762942153d19e5bae5d4e5784829c0441ccfead5ee1fbb0a0a1cafaf6f9"

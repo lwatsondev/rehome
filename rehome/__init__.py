@@ -2,7 +2,8 @@ import shutil
 from urllib.parse import urlparse
 
 import sentry_sdk
-from flask import Flask, request
+from flask import Flask, request, url_for
+from libgravatar import Gravatar
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from webassets import Bundle
@@ -109,3 +110,10 @@ def register_context_processors(app: Flask):
             app.config.get("home.links.default"),
         )
         return {"menu": menu}
+
+    @app.context_processor
+    def inject_avatar_url():
+        avatar_url = url_for("static", filename="img/avatar.webp")
+        if email := app.config.get("gravatar.email"):
+            avatar_url = Gravatar(email).get_image(size=512)
+        return {"avatar_url": avatar_url}
