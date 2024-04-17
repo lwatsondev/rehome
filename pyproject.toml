@@ -8,7 +8,7 @@ authors = ["Lee Watson <me@lwatson.dev>"]
 python = "^3.12"
 Flask = "^3.0.0"
 python-dotenv = "^1.0.0"
-gunicorn = { version = "^21.2.0", extras = ["gevent"] }
+gunicorn = { version = "^22.0.0", extras = ["gevent"] }
 cssmin = "^0.2.0"
 libsass = "^0.23.0"
 Flask-DB = "^0.4.0"
