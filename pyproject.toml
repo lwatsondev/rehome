@@ -23,16 +23,14 @@ libgravatar = "^1.0.4"
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.5.0"
 Flask-DebugToolbar = "^0.14.0"
-ruff = "^0.4.0"
+ruff = "^0.5.0"
 pre-commit-hooks = "^4.5.0"
 shellcheck-py = "^0.10.0.1"
 
 [tool.ruff]
 target-version = "py312"
 force-exclude = true
-extend-exclude = [
-    "data/",
-]
+extend-exclude = ["data/"]
 
 [tool.ruff.lint]
 select = [
@@ -68,9 +66,7 @@ select = [
 ]
 
 # ruff format compatibility
-ignore = [
-    "E501"
-]
+ignore = ["E501"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "rehome/db/migrations/*" = ["ERA001", "ARG001"]
