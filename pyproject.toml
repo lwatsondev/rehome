@@ -3,6 +3,7 @@ name = "rehome"
 version = "0.8.1"
 description = "A very minimal CMS"
 authors = ["Lee Watson <me@lwatson.dev>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
