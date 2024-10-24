@@ -6,7 +6,7 @@ authors = ["Lee Watson <me@lwatson.dev>"]
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.13"
 Flask = "^3.0.0"
 python-dotenv = "^1.0.0"
 gunicorn = { version = "^22.0.0", extras = ["gevent"] }
@@ -29,7 +29,7 @@ pre-commit-hooks = "^4.5.0"
 shellcheck-py = "^0.10.0.1"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 force-exclude = true
 extend-exclude = ["data/"]
 
