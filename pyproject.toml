@@ -9,7 +9,7 @@ package-mode = false
 python = "^3.13"
 Flask = "^3.0.0"
 python-dotenv = "^1.0.0"
-gunicorn = { version = "^22.0.0", extras = ["gevent"] }
+gunicorn = { version = "^23.0.0", extras = ["gevent"] }
 cssmin = "^0.2.0"
 libsass = "^0.23.0"
 Flask-DB = "^0.4.0"
