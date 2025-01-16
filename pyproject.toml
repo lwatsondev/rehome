@@ -3,35 +3,35 @@ name = "rehome"
 description = ""
 authors = [{ name = "Lee Watson", email = "<me@lwatson.dev>" }]
 version = "0.8.1"
-readme = "README.md"
 requires-python = ">=3.13"
-dynamic = ["dependencies"]
+dependencies = [
+    "flask (>=3.0.0,<4.0.0)",
+    "python-dotenv (>=1.0.0,<2.0.0)",
+    "gunicorn[gevent] (>=23.0.0,<24.0.0)",
+    "cssmin (>=0.2.0,<1.0.0)",
+    "libsass (>=0.23.0,<1.0.0)",
+    "flask-db (>=0.4.0,<1.0.0)",
+    "sqlalchemy[postgresql] (>=2.0.0,<3.0.0)",
+    "dynaconf[yaml] (>=3.2.4,<4.0.0)",
+    "sentry-sdk[flask] (>=2.8.0,<3.0.0)",
+    "gevent (>=24.2.1,<25.0.0)",
+    "flask-assets (>=2.0,<3.0)",
+    "psycopg (>=3.1.18,<4.0.0)",
+    "libgravatar (>=1.0.4,<2.0.0)",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit (>=4.0.0,<5.0.0)",
+    "pre-commit-hooks (>=5.0.0,<6.0.0)",
+    "ruff (>=0.9.0,<1.0.0)",
+    "shellcheck-py (>=0.10.0.1)",
+    "flask-debugtoolbar (>=0.14.0,<1.0.0)",
+]
 
 [tool.poetry]
 package-mode = false
 requires-poetry = ">=2.0"
-
-[tool.poetry.dependencies]
-Flask = "^3.0.0"
-python-dotenv = "^1.0.0"
-gunicorn = { version = "^23.0.0", extras = ["gevent"] }
-cssmin = "^0.2.0"
-libsass = "^0.23.0"
-Flask-DB = "^0.4.0"
-SQLAlchemy = { extras = ["postgresql"], version = "^2.0.0" }
-dynaconf = { extras = ["yaml"], version = "^3.2.4" }
-sentry-sdk = { extras = ["flask"], version = "^2.8.0" }
-gevent = "^24.2.1"
-flask-assets = "^2.0"
-psycopg = "^3.1.18"
-libgravatar = "^1.0.4"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^4.0.0"
-Flask-DebugToolbar = "^0.14.0"
-ruff = "^0.9.0"
-pre-commit-hooks = "^5.0.0"
-shellcheck-py = "^0.10.0.1"
 
 [tool.ruff]
 force-exclude = true
