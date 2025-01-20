@@ -1,7 +1,7 @@
 [project]
 name = "rehome"
 description = ""
-authors = [{ name = "Lee Watson", email = "<me@lwatson.dev>" }]
+authors = [{ name = "Lee Watson", email = "me@lwatson.dev" }]
 version = "0.8.1"
 requires-python = ">=3.13,<3.14"
 dependencies = [
@@ -14,7 +14,6 @@ dependencies = [
     "sqlalchemy[postgresql] (>=2.0.0,<3.0.0)",
     "dynaconf[yaml] (>=3.2.4,<4.0.0)",
     "sentry-sdk[flask] (>=2.8.0,<3.0.0)",
-    "gevent (>=24.2.1,<25.0.0)",
     "flask-assets (>=2.0,<3.0)",
     "psycopg (>=3.1.18,<4.0.0)",
     "libgravatar (>=1.0.4,<2.0.0)",
