@@ -3,6 +3,7 @@ name = "rehome"
 description = ""
 authors = [{ name = "Lee Watson", email = "me@lwatson.dev" }]
 version = "0.8.1"
+readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "flask (>=3.0.0,<4.0.0)",

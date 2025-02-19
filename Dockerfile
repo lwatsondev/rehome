@@ -40,6 +40,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=README.md,target=README.md \
     uv sync --frozen --no-install-project --no-dev
 
 
@@ -90,6 +91,7 @@ FROM flask-base AS development
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=README.md,target=README.md \
     uv sync --frozen --no-install-project --group dev
 
 ENV ENV_FOR_DYNACONF=development \
