@@ -8,7 +8,7 @@ First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 git clone git@github.com:TheReverend403/rehome
 cd rehome
 
-uv sync --all-groups
+uv sync --group dev
 uv run pre-commit install
 
 yarn install
