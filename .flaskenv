@@ -1,0 +1,2 @@
+FLASK_APP=rehome
+FLASK_ENV=development

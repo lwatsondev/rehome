@@ -1,6 +1,6 @@
 # rehome
 
-## Setting up the development environment
+## Setting up the dev environment
 
 First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
@@ -14,7 +14,7 @@ uv run pre-commit install
 yarn install
 ```
 
-## Running
+## Running in dev mode
 
 ### Docker
 
@@ -28,8 +28,6 @@ docker compose -f docker/docker-compose.dev.yml up --build --pull always
 ```sh
 mkdir config
 cp rehome/resources/config/settings.toml config/settings.toml # Edit settings.toml
-
-echo FLASK_APP=rehome\nFLASK_ENV=development > .flaskenv
 
 uv run flask assets build
 uv run flask db upgrade
