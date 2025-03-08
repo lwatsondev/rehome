@@ -1,0 +1,54 @@
+services:
+  rehome:
+    container_name: rehome
+    restart: "no"
+    init: true
+    read_only: true
+    user: ${PUID:-1000}:${PGID:-1000}
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      CFG_SQLALCHEMY_DATABASE_URI: postgresql+psycopg://${DB_USER:-rehome}:${DB_PASSWORD:-rehome}@${DB_HOST:-db}/${DB_NAME:-rehome}
+    volumes:
+      - ${BASE_DIR:-.}/config/app:/config
+      - ${BASE_DIR:-.}/data/app:/data
+      - ../:/app:ro
+    tmpfs:
+      - /tmp
+    networks:
+      - rehome
+    ports:
+      - "5000:5000"
+    build:
+      context: ../
+      target: development
+
+  db:
+    image: postgres:17-alpine
+    container_name: rehome_db
+    restart: "no"
+    user: ${PUID:-1000}:${PGID:-1000}
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-rehome}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rehome}
+      POSTGRES_USER: ${DB_USER:-rehome}
+    volumes:
+      - ${BASE_DIR:-.}/data/postgresql:/var/lib/postgresql/data
+    networks:
+      - rehome
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -q --username=$$POSTGRES_USER --host=$$POSTGRES_HOST",
+        ]
+      start_period: 5s
+      start_interval: 1s
+      interval: 10s
+      timeout: 1s
+
+networks:
+  rehome:

@@ -16,6 +16,15 @@ yarn install
 
 ## Running
 
+### Docker
+
+```sh
+cp docker/.env.example docker/.env # Open and set any empty variables
+docker compose -f docker/docker-compose.dev.yml up --build --pull always
+```
+
+### Manual
+
 ```sh
 mkdir config
 cp rehome/resources/config/settings.toml config/settings.toml # Edit settings.toml
