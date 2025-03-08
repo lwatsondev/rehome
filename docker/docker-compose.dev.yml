@@ -1,3 +1,5 @@
+name: rehome
+
 services:
   rehome:
     container_name: rehome
