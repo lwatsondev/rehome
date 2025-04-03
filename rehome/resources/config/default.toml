@@ -4,12 +4,13 @@
 ## Env var prefix is set to 'CFG_', not 'DYNACONF_'.
 ##
 
-[home.links.default]
+## Required
+# https://flask.palletsprojects.com/en/stable/config/#SECRET_KEY
+secret_key = ""
+
+[nav_links]
 somesite = "https://somesite.com"
 anothersite = "https://anothersite.com"
-
-[gravatar]
-email = ""
 
 [uploads]
 min_url_length = 3
@@ -44,3 +45,9 @@ display_inline = [
     "yml",
     "bash",
 ]
+
+[gravatar]
+email = ""
+
+[sentry]
+dsn = ""

@@ -1,11 +1,6 @@
 #!/bin/sh
 set -eu
 
-if [ -z "$(find "${ROOT_PATH_FOR_DYNACONF}" -mindepth 1 -maxdepth 1 -type f)" ]; then
-    echo "Copying default settings.toml to ${ROOT_PATH_FOR_DYNACONF}"
-    cp -au "${FLASK_APP}/resources/config/settings.toml" "${ROOT_PATH_FOR_DYNACONF}"
-fi
-
 if [ "${SKIP_MIGRATIONS:-false}" = "false" ]; then
     flask db upgrade
 else

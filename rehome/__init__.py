@@ -1,8 +1,7 @@
 import shutil
-from urllib.parse import urlparse
 
 import sentry_sdk
-from flask import Flask, request, url_for
+from flask import Flask, url_for
 from libgravatar import Gravatar
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
@@ -104,13 +103,9 @@ def register_assets(app: Flask):
 @debug.log_func
 def register_context_processors(app: Flask):
     @app.context_processor
-    def inject_menu():
-        http_host = urlparse(request.base_url).hostname.replace(".", "_")
-        menu = app.config.get(
-            f"home.links.{http_host}",
-            app.config.get("home.links.default"),
-        )
-        return {"menu": menu}
+    def inject_nav_links():
+        nav_links = app.config.get("nav_links")
+        return {"nav_links": nav_links}
 
     @app.context_processor
     def inject_avatar_url():

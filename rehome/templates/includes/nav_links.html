@@ -1,8 +1,8 @@
-{% if menu %}
+{% if nav_links %}
     <nav class="pure-menu pure-menu-horizontal social-links">
         <ul class="pure-menu-list">
             <span>[ </span>
-            {% for name, url in menu.items() %}
+            {% for name, url in nav_links.items() %}
                 <li class="pure-menu-item">
                     <a href="{{ url }}" target="_blank"
                        class="pure-menu-link social-links-item">{{ name }}</a>

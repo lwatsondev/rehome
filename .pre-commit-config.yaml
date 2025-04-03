@@ -45,7 +45,7 @@ repos:
 
       - id: ruff-check
         name: ruff-check
-        entry: uv run ruff check --fix --config=pyproject.toml
+        entry: uv run ruff check --fix
         language: system
         types: [python]
 

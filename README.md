@@ -19,7 +19,10 @@ yarn install
 ### Docker
 
 ```sh
-cp docker/.env.example docker/.env # Open and set any empty variables
+## Env var usage for configuration is documented here: https://www.dynaconf.com/envvars/
+## Env var prefix is set to 'CFG_', not 'DYNACONF_'.
+## You can also copy rehome/resources/config/default.toml to docker/config/app/
+cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.dev.yml up --build --pull always
 ```
 
@@ -27,7 +30,7 @@ docker compose -f docker/docker-compose.dev.yml up --build --pull always
 
 ```sh
 mkdir config
-cp rehome/resources/config/settings.toml config/settings.toml # Edit settings.toml
+cp rehome/resources/config/default.toml config/settings.toml # Edit settings.toml
 
 uv run flask assets build
 uv run flask db upgrade
