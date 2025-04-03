@@ -57,8 +57,7 @@ def upload():
     file.name = fd.filename
     file.size = file_size
     file.file_hash = file_hash
-    file.client_mimetype = fd.mimetype
-    file.server_mimetype = file_mimetype
+    file.mimetype = file_mimetype
     file.url = url
 
     db.session.add(file)
