@@ -10,7 +10,7 @@ from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import debug, meta, paths
-from rehome.extensions import assets, db, debugbar, dynaconf
+from rehome.extensions import assets, db, debugbar, dynaconf, migrate
 
 
 def create_app() -> Flask:
@@ -67,6 +67,7 @@ def init_extensions(app: Flask):
         SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
     )
     db.init_app(app)
+    migrate.init_app(app, db)
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)

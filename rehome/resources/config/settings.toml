@@ -10,3 +10,37 @@ anothersite = "https://anothersite.com"
 
 [gravatar]
 email = ""
+
+[uploads]
+min_url_length = 3
+upload_token = ""
+use_x_accel_redirect = false
+display_inline = [
+    "txt",
+    "php",
+    "rb",
+    "sh",
+    "py",
+    "conf",
+    "c",
+    "cpp",
+    "java",
+    "rs",
+    "html",
+    "htm",
+    "js",
+    "xml",
+    "sql",
+    "lua",
+    "cs",
+    "pl",
+    "md",
+    "ini",
+    "shtml",
+    "yaml",
+    "cfg",
+    "go",
+    "fish",
+    "yml",
+    "bash",
+]

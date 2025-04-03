@@ -7,13 +7,11 @@ services:
     init: true
     read_only: true
     user: ${PUID:-1000}:${PGID:-1000}
-    depends_on:
-      db:
-        condition: service_healthy
     env_file: .env
     environment:
       CFG_SECRET_KEY: ${CFG_SECRET_KEY:?}
-      CFG_SQLALCHEMY_DATABASE_URI: postgresql+psycopg://${POSTGRES_USER:-rehome}:${POSTGRES_PASSWORD:-rehome}@${POSTGRES_HOST:-db}/${POSTGRES_DB:-rehome}
+      CFG_UPLOADS__UPLOAD_TOKEN: ${CFG_UPLOADS__UPLOAD_TOKEN:?}
+      CFG_SQLALCHEMY_DATABASE_URI: sqlite:////data/app.db
     volumes:
       - ${BASE_DIR:-.}/config/app:/config
       - ${BASE_DIR:-.}/data/app:/data
@@ -32,37 +30,6 @@ services:
         limits:
           cpus: ${REHOME_CPU_LIMIT:-${CPU_LIMIT:-0}}
           memory: ${REHOME_MEM_LIMIT:-${MEM_LIMIT:-0}}
-
-  db:
-    image: postgres:17-alpine
-    container_name: rehome_db
-    restart: "no"
-    user: ${PUID:-1000}:${PGID:-1000}
-    env_file: .env
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_DB: rehome
-      POSTGRES_PASSWORD: rehome
-      POSTGRES_USER: rehome
-    volumes:
-      - ${BASE_DIR:-.}/data/postgresql:/var/lib/postgresql/data
-    networks:
-      - rehome
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -q --dbname=$$POSTGRES_DB --username=$$POSTGRES_USER --host=$$POSTGRES_HOST",
-        ]
-      start_period: 5s
-      start_interval: 1s
-      interval: 10s
-      timeout: 1s
-    deploy:
-      resources:
-        limits:
-          cpus: ${POSTGRES_CPU_LIMIT:-${CPU_LIMIT:-0}}
-          memory: ${POSTGRES_MEM_LIMIT:-${MEM_LIMIT:-0}}
 
 networks:
   rehome:

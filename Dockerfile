@@ -28,14 +28,6 @@ WORKDIR /app
 ## Python builder
 FROM python-base AS python-builder-base
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get update && \
-    apt-get install --no-install-recommends -y \
-    build-essential \
-    libffi-dev \
-    libpq-dev \
-    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
-
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
@@ -60,20 +52,21 @@ FROM python-base AS flask-base
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
     apt-get install --no-install-recommends -y \
-    libpq5 \
     curl \
+    libmagic1 \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=node-builder-base /opt/node /opt/node
 COPY --from=python-builder-base ${UV_PROJECT_ENVIRONMENT} ${UV_PROJECT_ENVIRONMENT}
 COPY docker/rootfs /
 COPY rehome ./rehome
-COPY alembic.ini .
 
 ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_HOST="0.0.0.0" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
+    FLASK_DB_DIRECTORY="/app/rehome/db/migrations" \
+    CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
     CFG_PATHS__STATIC="/data/static" \
     CFG_PATHS__DATA="/data" \
     CFG_PATHS__NODE_MODULES="/opt/node/node_modules"
