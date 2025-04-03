@@ -68,6 +68,7 @@ ENV ROOT_PATH_FOR_DYNACONF="/config" \
     FLASK_APP="rehome" \
     FLASK_DB_DIRECTORY="/app/rehome/db/migrations" \
     CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
+    CFG_PATHS__STATIC="/data/static" \
     CFG_PATHS__DATA="/data" \
     CFG_PATHS__NODE_MODULES="/opt/node/node_modules"
 
