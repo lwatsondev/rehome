@@ -1,2 +1,3 @@
 FLASK_APP=rehome
 FLASK_ENV=development
+FLASK_DB_DIRECTORY=rehome/db/migrations
