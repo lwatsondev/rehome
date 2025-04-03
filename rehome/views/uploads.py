@@ -80,7 +80,7 @@ def upload():
 
 
 @blueprint.route("<string:url>", methods=["GET"])
-def view(url):
+def view(url: str):
     file_instance = Upload.query.filter_by(url=url).first_or_404()
     relative_path = file_instance.path.relative_to(paths.UPLOADS)
 
