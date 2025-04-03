@@ -10,7 +10,6 @@ services:
     env_file: .env
     environment:
       CFG_SECRET_KEY: ${CFG_SECRET_KEY:?}
-      CFG_SQLALCHEMY_DATABASE_URI: sqlite:////data/app.db
     volumes:
       - ${BASE_DIR:-.}/config/app:/config
       - ${BASE_DIR:-.}/data/app:/data
