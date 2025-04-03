@@ -101,11 +101,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/06/02/3846e28288fa0ee0d45e3e01581629fbfcc1ca53121ad26e0f278daa8241/dynaconf-3.2.10-py2.py3-none-any.whl", hash = "sha256:7f70a4b8a8861efb88d8267aeb6f246c791dc34ecbb8299c26a19abd59113df6", size = 236203 },
 ]
 
-[package.optional-dependencies]
-yaml = [
-    { name = "ruamel-yaml" },
-]
-
 [[package]]
 name = "filelock"
 version = "3.18.0"
@@ -481,7 +476,7 @@ version = "1.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "cssmin" },
-    { name = "dynaconf", extra = ["yaml"] },
+    { name = "dynaconf" },
     { name = "flask" },
     { name = "flask-assets" },
     { name = "flask-httpauth" },
@@ -509,7 +504,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cssmin", specifier = ">=0.2.0,<1.0.0" },
-    { name = "dynaconf", extras = ["yaml"], specifier = ">=3.2.4,<4.0.0" },
+    { name = "dynaconf", specifier = ">=3.2.4,<4.0.0" },
     { name = "flask", specifier = ">=3.0.0,<4.0.0" },
     { name = "flask-assets", specifier = ">=2.0,<3.0" },
     { name = "flask-httpauth", specifier = ">=4.8.0,<5.0.0" },
