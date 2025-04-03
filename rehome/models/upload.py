@@ -42,7 +42,9 @@ class Upload(db.Model):
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str | None] = mapped_column(String(128))
     url: Mapped[str] = mapped_column(Text, nullable=False, unique=True, index=True)
-    file_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    file_hash: Mapped[str] = mapped_column(
+        String(64), nullable=False, index=True, unique=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
