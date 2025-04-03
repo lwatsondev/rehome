@@ -1,6 +1,7 @@
 docker/data
 docker/config
 /data
+/config
 
 .vscode/
 .idea/
