@@ -16,16 +16,6 @@ from rehome import db, paths
 from rehome.util import random_string
 
 
-def generate_upload_name(suffix: str | None) -> Path:
-    name_length = app.config.get("uploads.name_length", 3)
-
-    while True:
-        name = Path(random_string(name_length, extra_chars="-_~")).with_suffix(suffix)
-        if Upload.query.filter_by(name=name).first() is None:
-            return name
-        name_length += 1
-
-
 class Upload(db.Model):
     __tablename__ = "uploads"
 
@@ -43,17 +33,27 @@ class Upload(db.Model):
 
     def __init__(
         self,
-        name: Path,
         original_name: Path,
         size: int,
         mimetype: str,
         file_hash: str,
     ):
-        self.name = name
         self.original_name = original_name
+        self.name = self.__generate_name()
         self.size = size
         self.mimetype = mimetype
         self.file_hash = file_hash
+
+    def __generate_name(self) -> Path:
+        name_length = app.config.get("uploads.name_length", 5)
+
+        while True:
+            name = Path(random_string(name_length, extra_chars="-_~")).with_suffix(
+                self.original_name.suffix
+            )
+            if Upload.query.filter_by(name=name).first() is None:
+                return name
+            name_length += 1
 
     @hybrid_property
     def path(self) -> Path:

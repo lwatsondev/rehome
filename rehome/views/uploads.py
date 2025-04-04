@@ -15,7 +15,7 @@ from rehome import paths
 from rehome.auth import auth
 from rehome.extensions import db
 from rehome.forms.upload import UploadForm
-from rehome.models.upload import Upload, generate_upload_name
+from rehome.models.upload import Upload
 from rehome.views.pages import _base_error_handler
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
@@ -75,7 +75,6 @@ def upload_file():
     file_contents = fd.read()
     fd.close()
     file_original_name = Path(fd.filename)
-    file_name = generate_upload_name(file_original_name.suffix)
     file_size = len(file_contents)
     file_mimetype = magic.from_buffer(file_contents, mime=True)
     file_hash = hashlib.sha256(file_contents).hexdigest()
@@ -92,7 +91,6 @@ def upload_file():
         }, HTTPStatus.CREATED
 
     upload = Upload(
-        name=file_name,
         original_name=file_original_name,
         size=file_size,
         mimetype=file_mimetype,
