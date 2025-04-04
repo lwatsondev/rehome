@@ -24,24 +24,24 @@ def __random_string(length: int, extra_chars: str = "") -> str:
     )
 
 
-def generate_upload_url() -> str:
-    url_length = app.config.get("uploads.min_url_length", 3)
+def generate_upload_name() -> str:
+    name_length = app.config.get("uploads.name_length", 3)
 
     while True:
-        url = __random_string(url_length, extra_chars="-_~")
-        if Upload.query.filter_by(url=url).first() is None:
-            return url
-        url_length += 1
+        name = __random_string(name_length, extra_chars="-_~")
+        if Upload.query.filter_by(name=name).first() is None:
+            return name
+        name_length += 1
 
 
 class Upload(db.Model):
     __tablename__ = "uploads"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    original_name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str | None] = mapped_column(String(128))
-    url: Mapped[str] = mapped_column(Text, nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True, index=True)
     file_hash: Mapped[str] = mapped_column(
         String(64), nullable=False, index=True, unique=True
     )
@@ -51,7 +51,7 @@ class Upload(db.Model):
 
     @property
     def path(self) -> Path:
-        return paths.UPLOADS / self.url
+        return paths.UPLOADS / self.name
 
     @property
     def response_mimetype(self) -> str:
@@ -65,10 +65,10 @@ class Upload(db.Model):
 
     def to_dict(self) -> dict:
         return {
-            "name": self.name,
+            "original_name": self.original_name,
             "size": self.size,
             "mimetype": self.mimetype,
-            "url": self.url,
+            "name": self.name,
             "hash": self.file_hash,
             "created_at": self.created_at,
         }
