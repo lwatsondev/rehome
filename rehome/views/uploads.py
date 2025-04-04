@@ -55,7 +55,13 @@ def upload_file():
 
         return {"url": url_for(view_route, name=existing_upload.name, _external=True)}
 
-    upload = Upload(file_name, file_original_name, file_size, file_mimetype, file_hash)
+    upload = Upload(
+        name=file_name,
+        original_name=file_original_name,
+        size=file_size,
+        mimetype=file_mimetype,
+        file_hash=file_hash,
+    )
     db.session.add(upload)
 
     try:

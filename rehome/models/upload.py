@@ -43,8 +43,8 @@ class Upload(db.Model):
 
     def __init__(
         self,
-        name: Path | str,
-        original_name: Path | str,
+        name: Path,
+        original_name: Path,
         size: int,
         mimetype: str,
         file_hash: str,
