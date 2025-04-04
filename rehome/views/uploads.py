@@ -119,22 +119,34 @@ def upload_file():
 
 @blueprint.route("<string:name>", methods=[HTTPMethod.GET])
 def view(name: str):
-    file_instance = Upload.query.filter_by(name=name).first_or_404()
-    relative_path = file_instance.path.relative_to(paths.UPLOADS)
+    upload = Upload.query.filter_by(name=name).first_or_404()
+    relative_path = upload.path.relative_to(paths.UPLOADS)
+    # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
+    mimetype = (
+        "text/plain"
+        if upload.mimetype
+        in [
+            "text/html",
+            "multipart/related",
+            "application/xhtml+xml",
+            "application/xml",
+        ]
+        else upload.mimetype
+    )
 
     if app.config.get("uploads.use_x_accel_redirect"):
         response = make_response()
-        response.headers["Content-Type"] = file_instance.mimetype
+        response.headers["Content-Type"] = mimetype
         response.headers["Content-Disposition"] = (
-            f'inline; filename="{file_instance.original_name}"'
+            f'inline; filename="{upload.original_name}"'
         )
         response.headers["X-Accel-Redirect"] = f"/{relative_path}"
         return response
 
     return send_file(
-        file_instance.path,
-        mimetype=file_instance.mimetype,
-        download_name=str(file_instance.original_name),
+        upload.path,
+        mimetype=mimetype,
+        download_name=str(upload.original_name),
     )
 
 
