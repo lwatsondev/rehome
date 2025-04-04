@@ -52,6 +52,7 @@ def upload_file():
         existing_upload.original_name = file_original_name
         existing_upload.mimetype = file_mimetype
         db.session.commit()
+        tmp_file.unlink(missing_ok=True)
 
         return {"url": url_for(view_route, name=existing_upload.name, _external=True)}
 
@@ -70,7 +71,7 @@ def upload_file():
         shutil.move(tmp_file, upload.path)
     except (FileNotFoundError, OSError, IntegrityError) as exc:
         db.session.rollback()
-        tmp_file.unlink()
+        tmp_file.unlink(missing_ok=True)
         app.logger.error(exc)
         return {
             "errors": [
