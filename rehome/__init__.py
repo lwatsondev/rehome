@@ -1,5 +1,6 @@
 import shutil
 
+import flask_migrate
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
@@ -65,13 +66,16 @@ def init_extensions(app: Flask):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
     )
+
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db, directory=paths.MIGRATIONS)
+    with app.app_context():
+        flask_migrate.upgrade()
+
+    app.config.update(SESSION_USE_SIGNER=True)
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
-
-    app.config.update(SESSION_USE_SIGNER=True)  # for later
 
 
 @debug.log_func

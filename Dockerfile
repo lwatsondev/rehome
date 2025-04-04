@@ -66,11 +66,11 @@ ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_HOST="0.0.0.0" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
-    FLASK_DB_DIRECTORY="/app/rehome/db/migrations" \
     CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
     CFG_PATHS__STATIC="/data/static" \
     CFG_PATHS__DATA="/data" \
-    CFG_PATHS__NODE_MODULES="/opt/node/node_modules"
+    CFG_PATHS__NODE_MODULES="/opt/node/node_modules" \
+    CFG_PATHS__MIGRATIONS="/app/rehome/db/migrations"
 
 VOLUME ["/config", "/data"]
 EXPOSE 5000

@@ -1,12 +1,6 @@
 #!/bin/sh
 set -eu
 
-if [ "${SKIP_MIGRATIONS:-false}" = "false" ]; then
-    flask db upgrade
-else
-    echo "Skipping migrations due to SKIP_MIGRATIONS=${SKIP_MIGRATIONS}"
-fi
-
 if [ "${SKIP_ASSETS:-false}" = "false" ]; then
     if [ -d "${CFG_PATHS__STATIC}/.webassets-cache" ]; then
         flask assets clean
