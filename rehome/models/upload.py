@@ -53,16 +53,6 @@ class Upload(db.Model):
     def path(self) -> Path:
         return paths.UPLOADS / self.name
 
-    @property
-    def response_mimetype(self) -> str:
-        ext = self.path.suffix
-        if (
-            ext and ext.lstrip(".") in app.config.get("uploads.display_inline")
-        ) or self.mimetype.startswith("text/"):
-            return "text/plain"
-
-        return self.mimetype
-
     def to_dict(self) -> dict:
         return {
             "original_name": self.original_name,

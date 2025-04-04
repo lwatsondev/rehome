@@ -29,26 +29,24 @@ def upload():
         return {"errors": form.errors}
 
     fd = form.file.data
-
     fd.seek(0, os.SEEK_END)
     file_size = fd.tell()
     fd.seek(0)
-
     file_contents = fd.read()
     fd.seek(0)
 
+    mimetype = magic.from_buffer(file_contents, mime=True)
     file_hash = hashlib.sha256(file_contents).hexdigest()
-    file_mimetype = magic.from_buffer(file_contents, mime=True)
-
-    view_route = "uploads.view"
     extension = Path(fd.filename).suffix
     name = generate_upload_name()
     if extension:
         name = name + extension
 
+    view_route = "uploads.view"
     existing_file = Upload.query.filter_by(file_hash=file_hash).first()
     if existing_file:
         existing_file.original_name = fd.filename
+        existing_file.mimetype = mimetype
         db.session.commit()
 
         return {"url": url_for(view_route, name=existing_file.name, _external=True)}
@@ -57,7 +55,7 @@ def upload():
     file.original_name = fd.filename
     file.size = file_size
     file.file_hash = file_hash
-    file.mimetype = file_mimetype
+    file.mimetype = mimetype
     file.name = name
 
     db.session.add(file)
@@ -86,7 +84,7 @@ def view(name: str):
 
     if app.config.get("uploads.use_x_accel_redirect"):
         response = make_response()
-        response.headers["Content-Type"] = file_instance.response_mimetype
+        response.headers["Content-Type"] = file_instance.mimetype
         response.headers["Content-Disposition"] = (
             f'inline; filename="{file_instance.original_name}"'
         )
@@ -95,6 +93,6 @@ def view(name: str):
 
     return send_file(
         file_instance.path,
-        mimetype=file_instance.response_mimetype,
+        mimetype=file_instance.mimetype,
         download_name=file_instance.original_name,
     )
