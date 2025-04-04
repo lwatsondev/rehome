@@ -7,7 +7,7 @@ auth = HTTPTokenAuth(scheme="Bearer")
 
 @auth.verify_token
 def __verify_token(token: str) -> bool:
-    return token == app.config.get("uploads.upload_token")
+    return token == app.config.get("auth.token")
 
 
 @auth.error_handler

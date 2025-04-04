@@ -94,7 +94,7 @@ ENV ENV_FOR_DYNACONF=development \
     # Don't compile assets on startup as built-in autobuild is used in dev/testing environments.
     SKIP_ASSETS=true \
     CFG_SECRET_KEY=dev \
-    CFG_UPLOADS__UPLOAD_TOKEN=dev
+    CFG_AUTH__TOKEN=dev
 
 
 ## Production image

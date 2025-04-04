@@ -12,9 +12,11 @@ secret_key = ""
 somesite = "https://somesite.com"
 anothersite = "https://anothersite.com"
 
+[auth]
+token = ""
+
 [uploads]
-name_length = 3
-upload_token = ""
+name_length = 5
 use_x_accel_redirect = false
 
 [gravatar]
