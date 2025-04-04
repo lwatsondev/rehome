@@ -7,9 +7,9 @@ services:
     init: true
     read_only: true
     user: ${PUID:-1000}:${PGID:-1000}
-    env_file: .env
-    environment:
-      CFG_SECRET_KEY: ${CFG_SECRET_KEY:?}
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - ${BASE_DIR:-.}/config/app:/config
       - ${BASE_DIR:-.}/data/app:/data
