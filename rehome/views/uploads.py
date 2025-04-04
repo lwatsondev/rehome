@@ -120,7 +120,6 @@ def upload_file():
 @blueprint.route("<string:name>", methods=[HTTPMethod.GET])
 def view(name: str):
     upload = Upload.query.filter_by(name=name).first_or_404()
-    relative_path = upload.path.relative_to(paths.UPLOADS)
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -135,6 +134,7 @@ def view(name: str):
     )
 
     if app.config.get("uploads.use_x_accel_redirect"):
+        relative_path = upload.path.relative_to(paths.UPLOADS)
         response = make_response()
         response.headers["Content-Type"] = mimetype
         response.headers["Content-Disposition"] = (
@@ -153,7 +153,7 @@ def view(name: str):
 @blueprint.route("<string:name>", methods=[HTTPMethod.DELETE])
 @auth.login_required
 def delete(name: str):
-    file_instance = Upload.query.filter_by(name=name).first_or_404()
-    db.session.delete(file_instance)
+    upload = Upload.query.filter_by(name=name).first_or_404()
+    db.session.delete(upload)
     db.session.commit()
     return {"status": "deleted"}
