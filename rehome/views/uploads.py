@@ -62,7 +62,9 @@ def upload():
 
     try:
         db.session.commit()
-    except IntegrityError as exc:
+        file.path.parent.mkdir(exist_ok=True)
+        fd.save(file.path)
+    except (FileNotFoundError, OSError, IntegrityError) as exc:
         db.session.rollback()
         app.logger.error(exc)
         return {
@@ -70,9 +72,6 @@ def upload():
                 "An error occured while processing your file. Try uploading again."
             ]
         }
-    else:
-        file.path.parent.mkdir(exist_ok=True)
-        fd.save(file.path)
 
     return {"url": url_for(view_route, name=file.name, _external=True)}
 
