@@ -6,10 +6,11 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from rehome import config
+from rehome.models import BaseModel
 
 dynaconf = FlaskDynaconf(dynaconf_instance=config.dynaconf)
 assets = Environment()
-db = SQLAlchemy()
+db = SQLAlchemy(model_class=BaseModel)
 migrate = Migrate()
 debugbar = None
 

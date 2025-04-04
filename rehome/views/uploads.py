@@ -1,17 +1,20 @@
 import hashlib
-import os
+import shutil
+import tempfile
 from pathlib import Path
 
 import magic
 from flask import Blueprint, make_response, redirect, request, send_file, url_for
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import secure_filename
 
 from rehome import paths
 from rehome.auth import auth
 from rehome.extensions import db
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import Upload, generate_upload_name
+from rehome.util import random_string
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
@@ -23,48 +26,45 @@ def index():
 
 @blueprint.route("/", methods=["POST"])
 @auth.login_required
-def upload():
+def upload_file():
     form = UploadForm(request.files)
     if not form.validate_on_submit():
         return {"errors": form.errors}
 
     fd = form.file.data
-    fd.seek(0, os.SEEK_END)
-    file_size = fd.tell()
-    fd.seek(0)
-    file_contents = fd.read()
-    fd.seek(0)
+    file_original_name = Path(fd.filename)
+    tmp_dir = Path(tempfile.gettempdir()) / "rehome"
+    tmp_file = tmp_dir / Path(
+        random_string(32) + secure_filename(str(file_original_name))
+    )
+    tmp_file.parent.mkdir(exist_ok=True)
+    fd.save(tmp_file)
 
-    mimetype = magic.from_buffer(file_contents, mime=True)
+    file_name = generate_upload_name(tmp_file.suffix)
+    file_size = tmp_file.stat().st_size
+    file_contents = tmp_file.read_bytes()
+    file_mimetype = magic.from_buffer(file_contents, mime=True)
     file_hash = hashlib.sha256(file_contents).hexdigest()
-    extension = Path(fd.filename).suffix
-    name = generate_upload_name()
-    if extension:
-        name = name + extension
 
     view_route = "uploads.view"
-    existing_file = Upload.query.filter_by(file_hash=file_hash).first()
-    if existing_file:
-        existing_file.original_name = fd.filename
-        existing_file.mimetype = mimetype
+    existing_upload = Upload.query.filter_by(file_hash=file_hash).first()
+    if existing_upload:
+        existing_upload.original_name = file_original_name
+        existing_upload.mimetype = file_mimetype
         db.session.commit()
 
-        return {"url": url_for(view_route, name=existing_file.name, _external=True)}
+        return {"url": url_for(view_route, name=existing_upload.name, _external=True)}
 
-    file = Upload()
-    file.original_name = fd.filename
-    file.size = file_size
-    file.file_hash = file_hash
-    file.mimetype = mimetype
-    file.name = name
-    db.session.add(file)
+    upload = Upload(file_name, file_original_name, file_size, file_mimetype, file_hash)
+    db.session.add(upload)
 
     try:
         db.session.commit()
-        file.path.parent.mkdir(exist_ok=True)
-        fd.save(file.path)
+        upload.path.parent.mkdir(exist_ok=True)
+        shutil.move(tmp_file, upload.path)
     except (FileNotFoundError, OSError, IntegrityError) as exc:
         db.session.rollback()
+        tmp_file.unlink()
         app.logger.error(exc)
         return {
             "errors": [
@@ -72,7 +72,7 @@ def upload():
             ]
         }
 
-    return {"url": url_for(view_route, name=file.name, _external=True)}
+    return {"url": url_for(view_route, name=upload.name, _external=True)}
 
 
 @blueprint.route("<string:name>", methods=["GET"])
@@ -92,5 +92,5 @@ def view(name: str):
     return send_file(
         file_instance.path,
         mimetype=file_instance.mimetype,
-        download_name=file_instance.original_name,
+        download_name=str(file_instance.original_name),
     )
