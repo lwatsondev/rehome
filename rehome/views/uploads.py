@@ -1,10 +1,15 @@
 import hashlib
+from http import HTTPMethod, HTTPStatus
 from pathlib import Path
 
 import magic
 from flask import Blueprint, make_response, redirect, request, send_file, url_for
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import (
+    HTTPException,
+    NotFound,
+)
 
 from rehome import paths
 from rehome.auth import auth
@@ -15,17 +20,55 @@ from rehome.models.upload import Upload, generate_upload_name
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
 
-@blueprint.route("/", methods=["GET"])
+class __UploadError(Exception):
+    code: int = HTTPStatus.INTERNAL_SERVER_ERROR
+    description: str
+
+    def __init__(
+        self,
+        code: int = HTTPStatus.INTERNAL_SERVER_ERROR,
+        description: str = str | None,
+    ):
+        self.code = code
+        self.description = description
+
+
+class __ValidationError(__UploadError):
+    code: int = HTTPStatus.BAD_REQUEST
+    description: dict[str, str]
+
+    def __init__(self, description: dict[str, str]):
+        self.description = description
+
+
+@blueprint.errorhandler(__UploadError)
+def __upload_error_handler(error: __UploadError):
+    return {
+        "error": error.description,
+    }, error.code
+
+
+@blueprint.errorhandler(HTTPException)
+def __http_error_handler(error: HTTPException):
+    if request.method != HTTPMethod.DELETE and isinstance(error, NotFound):
+        return error
+
+    return {
+        "error": error.description,
+    }, error.code
+
+
+@blueprint.route("/", methods=[HTTPMethod.GET])
 def index():
     return redirect(url_for("pages.index"))
 
 
-@blueprint.route("/", methods=["POST"])
+@blueprint.route("/", methods=[HTTPMethod.POST])
 @auth.login_required
 def upload_file():
     form = UploadForm(request.files)
     if not form.validate_on_submit():
-        return {"errors": form.errors}
+        raise __ValidationError(description=form.errors)
 
     fd = form.file.data
     file_contents = fd.read()
@@ -43,7 +86,9 @@ def upload_file():
         existing_upload.mimetype = file_mimetype
         db.session.commit()
 
-        return {"url": url_for(view_route, name=existing_upload.name, _external=True)}
+        return {
+            "url": url_for(view_route, name=existing_upload.name, _external=True),
+        }, HTTPStatus.CREATED
 
     upload = Upload(
         name=file_name,
@@ -58,20 +103,20 @@ def upload_file():
         db.session.commit()
         upload.path.parent.mkdir(exist_ok=True)
         upload.path.write_bytes(file_contents)
-    except (FileNotFoundError, OSError, IntegrityError) as exc:
+    except (FileNotFoundError, OSError, IntegrityError) as error:
         db.session.rollback()
         upload.path.unlink(missing_ok=True)
-        app.logger.error(exc)
-        return {
-            "errors": [
-                "An error occured while processing your file. Try uploading again."
-            ]
-        }
+        app.logger.error(error)
+        raise __UploadError(
+            description="An error occured while saving the file. Check the application logs."
+        ) from error
 
-    return {"url": url_for(view_route, name=upload.name, _external=True)}
+    return {
+        "url": url_for(view_route, name=upload.name, _external=True),
+    }, HTTPStatus.CREATED
 
 
-@blueprint.route("<string:name>", methods=["GET"])
+@blueprint.route("<string:name>", methods=[HTTPMethod.GET])
 def view(name: str):
     file_instance = Upload.query.filter_by(name=name).first_or_404()
     relative_path = file_instance.path.relative_to(paths.UPLOADS)
@@ -90,3 +135,12 @@ def view(name: str):
         mimetype=file_instance.mimetype,
         download_name=str(file_instance.original_name),
     )
+
+
+@blueprint.route("<string:name>", methods=[HTTPMethod.DELETE])
+@auth.login_required
+def delete(name: str):
+    file_instance = Upload.query.filter_by(name=name).first_or_404()
+    db.session.delete(file_instance)
+    db.session.commit()
+    return {"status": "deleted"}

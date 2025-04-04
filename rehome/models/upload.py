@@ -59,19 +59,9 @@ class Upload(db.Model):
     def path(self) -> Path:
         return paths.UPLOADS / self.name
 
-    def to_dict(self) -> dict:
-        return {
-            "name": self.name,
-            "original_name": self.original_name,
-            "size": self.size,
-            "mimetype": self.mimetype,
-            "hash": self.file_hash,
-            "created_at": self.created_at,
-        }
 
-
-def after_delete(mapper, connection, target: Upload):  # noqa: ARG001
+def __after_delete(mapper, connection, target: Upload):  # noqa: ARG001
     target.path.unlink(missing_ok=True)
 
 
-event.listen(Upload, "after_delete", after_delete)
+event.listen(Upload, "after_delete", __after_delete)
