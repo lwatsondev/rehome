@@ -16,6 +16,7 @@ from rehome.auth import auth
 from rehome.extensions import db
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import Upload, generate_upload_name
+from rehome.views.pages import _base_error_handler
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
@@ -51,7 +52,7 @@ def __upload_error_handler(error: __UploadError):
 @blueprint.errorhandler(HTTPException)
 def __http_error_handler(error: HTTPException):
     if request.method != HTTPMethod.DELETE and isinstance(error, NotFound):
-        return error
+        return _base_error_handler(error)
 
     return {
         "error": error.description,

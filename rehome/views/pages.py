@@ -5,8 +5,8 @@ from werkzeug.exceptions import HTTPException
 blueprint = Blueprint("pages", __name__)
 
 
-@blueprint.errorhandler(HTTPException)
-def _error_handler(error: HTTPException):
+@blueprint.app_errorhandler(HTTPException)
+def _base_error_handler(error: HTTPException):
     try:
         template = render_template(f"errors/{error.code}.html", error=error)
     except TemplateNotFound:
