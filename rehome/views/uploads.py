@@ -57,7 +57,6 @@ def upload():
     file.file_hash = file_hash
     file.mimetype = mimetype
     file.name = name
-
     db.session.add(file)
 
     try:
