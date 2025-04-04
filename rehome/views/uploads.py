@@ -1,20 +1,16 @@
 import hashlib
-import shutil
-import tempfile
 from pathlib import Path
 
 import magic
 from flask import Blueprint, make_response, redirect, request, send_file, url_for
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
-from werkzeug.utils import secure_filename
 
 from rehome import paths
 from rehome.auth import auth
 from rehome.extensions import db
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import Upload, generate_upload_name
-from rehome.util import random_string
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
@@ -32,17 +28,11 @@ def upload_file():
         return {"errors": form.errors}
 
     fd = form.file.data
+    file_contents = fd.read()
+    fd.close()
     file_original_name = Path(fd.filename)
-    tmp_dir = Path(tempfile.gettempdir()) / "rehome"
-    tmp_file = tmp_dir / Path(
-        random_string(32) + secure_filename(str(file_original_name))
-    )
-    tmp_file.parent.mkdir(exist_ok=True)
-    fd.save(tmp_file)
-
-    file_name = generate_upload_name(tmp_file.suffix)
-    file_size = tmp_file.stat().st_size
-    file_contents = tmp_file.read_bytes()
+    file_name = generate_upload_name(file_original_name.suffix)
+    file_size = len(file_contents)
     file_mimetype = magic.from_buffer(file_contents, mime=True)
     file_hash = hashlib.sha256(file_contents).hexdigest()
 
@@ -52,7 +42,6 @@ def upload_file():
         existing_upload.original_name = file_original_name
         existing_upload.mimetype = file_mimetype
         db.session.commit()
-        tmp_file.unlink(missing_ok=True)
 
         return {"url": url_for(view_route, name=existing_upload.name, _external=True)}
 
@@ -68,10 +57,10 @@ def upload_file():
     try:
         db.session.commit()
         upload.path.parent.mkdir(exist_ok=True)
-        shutil.move(tmp_file, upload.path)
+        upload.path.write_bytes(file_contents)
     except (FileNotFoundError, OSError, IntegrityError) as exc:
         db.session.rollback()
-        tmp_file.unlink(missing_ok=True)
+        upload.path.unlink(missing_ok=True)
         app.logger.error(exc)
         return {
             "errors": [
