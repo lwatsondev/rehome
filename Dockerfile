@@ -7,7 +7,7 @@ ARG PYTHON_VERSION=3.13
 FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-${DEBIAN_VERSION}-slim AS python-base
 
 ARG META_VERSION
-ARG META_VERSION_HASH
+ARG META_COMMIT
 ARG META_SOURCE
 
 ENV PYTHONUNBUFFERED=1 \
@@ -15,7 +15,7 @@ ENV PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT="/venv" \
     META_VERSION="${META_VERSION}" \
-    META_VERSION_HASH="${META_VERSION_HASH}" \
+    META_COMMIT="${META_COMMIT}" \
     META_SOURCE="${META_SOURCE}"
 
 ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${PATH}" \
@@ -75,7 +75,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ENV ENV_FOR_DYNACONF=development \
     FLASK_ENV=development \
     FLASK_DEBUG=1 \
-    GUNICORN_OPTS="--reload --reload-extra-file /config" \
     CFG_SECRET_KEY=dev \
     CFG_AUTH__TOKEN=dev
 

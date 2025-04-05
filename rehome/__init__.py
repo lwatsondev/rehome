@@ -17,7 +17,7 @@ def create_app() -> Flask:
         template_folder=paths.TEMPLATES,
     )
 
-    app.logger.info(f"Starting {app.name} {meta.VERSION}")
+    app.logger.info(f"Starting {app.name} {meta.FULL_VERSION}")
 
     for path in [paths.STATIC, paths.DATA]:
         path.mkdir(exist_ok=True, parents=True)
@@ -45,7 +45,7 @@ def init_sentry(app: Flask):
         sentry_sdk.init(
             dsn=dsn,
             integrations=[FlaskIntegration(), SqlalchemyIntegration()],
-            release=meta.VERSION,
+            release=meta.FULL_VERSION,
         )
         app.logger.info("Sentry is enabled")
 
@@ -84,3 +84,7 @@ def register_context_processors(app: Flask):
         if email := app.config.get("gravatar.email"):
             avatar_url = Gravatar(email).get_image(size=512)
         return {"avatar_url": avatar_url}
+
+    @app.context_processor
+    def inject_meta_info():
+        return {"meta": meta}
