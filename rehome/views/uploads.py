@@ -109,7 +109,7 @@ def upload_file():
         fd.save(
             upload.path,
             buffer_size=app.config.get("uploads.save_chunk_size", 1024 * 128),
-        )  # Using 128Kb chunks to match ZFS' default recordsize.
+        )  # Using 128KB chunks to match ZFS' default recordsize.
     except (FileNotFoundError, OSError, IntegrityError) as error:
         db.session.rollback()
         upload.path.unlink(missing_ok=True)
