@@ -45,7 +45,7 @@ class Upload(db.Model):
         name_length = app.config.get("uploads.name_length", 5)
 
         while True:
-            name = Path(random_string(name_length, extra_chars="-_~")).with_suffix(
+            name = Path(random_string(name_length)).with_suffix(
                 self.original_name.suffix
             )
             if Upload.query.filter_by(name=name).first() is None:
