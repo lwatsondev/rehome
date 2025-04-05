@@ -1,4 +1,5 @@
 import hashlib
+import os
 from http import HTTPMethod, HTTPStatus
 from pathlib import Path
 
@@ -72,15 +73,19 @@ def upload_file():
         raise __ValidationError(description=form.errors)
 
     fd = form.file.data
-    file_contents = fd.read()
-    fd.close()
     file_original_name = Path(fd.filename)
-    file_size = len(file_contents)
-    file_mimetype = magic.from_buffer(file_contents, mime=True)
-    file_hash = hashlib.sha256(file_contents).hexdigest()
+    fd.seek(0, os.SEEK_END)
+    file_size = fd.tell()
+    fd.seek(0, os.SEEK_SET)
+    file_mimetype = magic.from_buffer(fd.read(4096), mime=True)
+    fd.seek(0, os.SEEK_SET)
+    file_hash = hashlib.file_digest(fd, hashlib.sha256).hexdigest()
+    fd.seek(0, os.SEEK_SET)
 
     view_route = "uploads.view"
-    existing_upload = Upload.query.filter_by(file_hash=file_hash).first()
+
+    existing_upload_query = db.select(Upload).filter_by(file_hash=file_hash)
+    existing_upload = db.session.execute(existing_upload_query).scalar()
     if existing_upload:
         existing_upload.original_name = file_original_name
         existing_upload.mimetype = file_mimetype
@@ -101,7 +106,10 @@ def upload_file():
     try:
         db.session.commit()
         upload.path.parent.mkdir(exist_ok=True)
-        upload.path.write_bytes(file_contents)
+        fd.save(
+            upload.path,
+            buffer_size=app.config.get("uploads.save_chunk_size", 1024 * 128),
+        )  # Using 128Kb chunks to match ZFS' default recordsize.
     except (FileNotFoundError, OSError, IntegrityError) as error:
         db.session.rollback()
         upload.path.unlink(missing_ok=True)
@@ -117,7 +125,7 @@ def upload_file():
 
 @blueprint.route("<string:name>", methods=[HTTPMethod.GET])
 def view(name: str):
-    upload = Upload.query.filter_by(name=name).first_or_404()
+    upload = db.one_or_404(db.select(Upload).filter_by(name=name))
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -151,7 +159,7 @@ def view(name: str):
 @blueprint.route("<string:name>", methods=[HTTPMethod.DELETE])
 @auth.login_required
 def delete(name: str):
-    upload = Upload.query.filter_by(name=name).first_or_404()
+    upload = db.one_or_404(db.select(Upload).filter_by(name=name))
     db.session.delete(upload)
     db.session.commit()
     return {"status": "deleted"}

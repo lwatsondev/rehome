@@ -48,7 +48,8 @@ class Upload(db.Model):
             name = Path(random_string(name_length)).with_suffix(
                 self.original_name.suffix
             )
-            if Upload.query.filter_by(name=name).first() is None:
+            upload_query = db.select(Upload).filter_by(name=name)
+            if db.session.execute(upload_query).scalar() is None:
                 return name
             name_length += 1
 
