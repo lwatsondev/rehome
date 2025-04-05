@@ -19,14 +19,11 @@ from rehome.util import random_string
 class Upload(db.Model):
     __tablename__ = "uploads"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[Path] = mapped_column(nullable=False, unique=True, index=True)
+    name: Mapped[Path] = mapped_column(primary_key=True)
     original_name: Mapped[Path] = mapped_column(nullable=False)
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str] = mapped_column(String(128), nullable=False)
-    file_hash: Mapped[str] = mapped_column(
-        String(64), nullable=False, index=True, unique=True
-    )
+    file_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
