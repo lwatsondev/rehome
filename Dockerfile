@@ -2,7 +2,6 @@
 
 ARG DEBIAN_VERSION=bookworm
 ARG PYTHON_VERSION=3.13
-ARG NODE_VERSION=22
 
 ## Base
 FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-${DEBIAN_VERSION}-slim AS python-base
@@ -35,17 +34,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project --no-dev
 
 
-## JS builder
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION}-slim AS node-builder-base
-
-WORKDIR /opt/node
-
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=bind,source=yarn.lock,target=yarn.lock \
-    --mount=type=bind,source=package.json,target=package.json \
-    yarn install --frozen-lockfile --prod
-
-
 ## Base image
 FROM python-base AS flask-base
 
@@ -56,7 +44,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     libmagic1 \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-COPY --from=node-builder-base /opt/node /opt/node
 COPY --from=python-builder-base ${UV_PROJECT_ENVIRONMENT} ${UV_PROJECT_ENVIRONMENT}
 COPY docker/rootfs /
 COPY rehome ./rehome
