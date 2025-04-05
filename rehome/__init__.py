@@ -1,16 +1,13 @@
-import shutil
-
 import flask_migrate
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-from webassets import Bundle
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import debug, meta, paths
-from rehome.extensions import assets, db, debugbar, dynaconf, migrate
+from rehome.extensions import db, debugbar, dynaconf, migrate
 
 
 def create_app() -> Flask:
@@ -28,9 +25,6 @@ def create_app() -> Flask:
     init_extensions(app)
     register_blueprints(app)
     register_context_processors(app)
-
-    with app.app_context():
-        register_assets(app)
 
     if not app.debug and not app.testing:
         app.wsgi_app = ProxyFix(app.wsgi_app)
@@ -60,7 +54,6 @@ def init_sentry(app: Flask):
 def init_extensions(app: Flask):
     dynaconf.init_app(app)
     init_sentry(app)
-    assets.init_app(app)
 
     app.config.update(
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
@@ -76,32 +69,6 @@ def init_extensions(app: Flask):
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
-
-
-@debug.log_func
-def register_assets(app: Flask):
-    bundles = {
-        "css-app": Bundle(
-            f"{paths.NODE_MODULES}/purecss/build/pure.css",
-            "scss/main.scss",
-            filters="libsass,cssmin",
-            output="css/main-%(version)s.css",
-        )
-    }
-
-    assets.directory = app.static_folder
-    assets.auto_build = app.debug or app.testing
-    assets.append_path(paths.ASSETS)
-    assets.config["LIBSASS_INCLUDES"] = [str(paths.NODE_MODULES)]
-
-    for name, bundle in bundles.items():
-        assets.register(name, bundle)
-
-    precompiled_assets = ["img", "fonts"]
-    for asset_type in precompiled_assets:
-        shutil.copytree(
-            paths.ASSETS / asset_type, paths.STATIC / asset_type, dirs_exist_ok=True
-        )
 
 
 @debug.log_func

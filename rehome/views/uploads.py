@@ -4,7 +4,15 @@ from http import HTTPMethod, HTTPStatus
 from pathlib import Path
 
 import magic
-from flask import Blueprint, make_response, redirect, request, send_file, url_for
+from flask import (
+    Blueprint,
+    Response,
+    make_response,
+    redirect,
+    request,
+    send_file,
+    url_for,
+)
 from flask import current_app as app
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import (
@@ -60,6 +68,18 @@ def __http_error_handler(error: HTTPException):
     }, error.code
 
 
+def __make_upload_file_response(upload: Upload) -> Response:
+    response = make_response(
+        {
+            "url": upload.url,
+        }
+    )
+    response.headers["Location"] = upload.url
+    response.status_code = HTTPStatus.CREATED
+
+    return response
+
+
 @blueprint.route("/", methods=[HTTPMethod.GET])
 def index():
     return redirect(url_for("pages.index"))
@@ -82,18 +102,13 @@ def upload_file():
     file_hash = hashlib.file_digest(fd, hashlib.sha256).hexdigest()
     fd.seek(0, os.SEEK_SET)
 
-    view_route = "uploads.view"
-
     existing_upload_query = db.select(Upload).filter_by(file_hash=file_hash)
     existing_upload = db.session.execute(existing_upload_query).scalar()
     if existing_upload:
         existing_upload.original_name = file_original_name
         existing_upload.mimetype = file_mimetype
         db.session.commit()
-
-        return {
-            "url": url_for(view_route, name=existing_upload.name, _external=True),
-        }, HTTPStatus.CREATED
+        return __make_upload_file_response(existing_upload)
 
     upload = Upload(
         original_name=file_original_name,
@@ -118,9 +133,7 @@ def upload_file():
             description="An error occured while saving the file. Check the application logs."
         ) from error
 
-    return {
-        "url": url_for(view_route, name=upload.name, _external=True),
-    }, HTTPStatus.CREATED
+    return __make_upload_file_response(upload)
 
 
 @blueprint.route("<string:name>", methods=[HTTPMethod.GET])

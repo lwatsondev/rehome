@@ -2,6 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from flask import current_app as app
+from flask import url_for
 from sqlalchemy import (
     BigInteger,
     DateTime,
@@ -56,6 +57,10 @@ class Upload(db.Model):
     @hybrid_property
     def path(self) -> Path:
         return paths.UPLOADS / self.name
+
+    @hybrid_property
+    def url(self) -> str:
+        return url_for("uploads.view", name=self.name, _external=True)
 
 
 def __after_delete(mapper, connection, target: Upload):  # noqa: ARG001

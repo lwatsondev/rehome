@@ -41,7 +41,7 @@ repos:
         name: stylelint
         entry: yarn run lint --formatter github
         language: system
-        types_or: [css, scss, sass]
+        types: [css]
 
       - id: ruff-check
         name: ruff-check

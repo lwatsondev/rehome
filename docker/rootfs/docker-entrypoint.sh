@@ -1,13 +1,8 @@
 #!/bin/sh
 set -eu
 
-if [ "${SKIP_ASSETS:-false}" = "false" ]; then
-    if [ -d "${CFG_PATHS__STATIC}/.webassets-cache" ]; then
-        flask assets clean
-    fi
-    flask assets build
-else
-    echo "Skipping assets due to SKIP_ASSETS=${SKIP_ASSETS}"
+if [ "${FLASK_DEBUG:-0}" = 1 ]; then
+    flask run --host=0.0.0.0
 fi
 
 # shellcheck disable=SC2086

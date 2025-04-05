@@ -67,9 +67,7 @@ ENV ROOT_PATH_FOR_DYNACONF="/config" \
     GUNICORN_PORT=5000 \
     FLASK_APP="rehome" \
     CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
-    CFG_PATHS__STATIC="/data/static" \
     CFG_PATHS__DATA="/data" \
-    CFG_PATHS__NODE_MODULES="/opt/node/node_modules" \
     CFG_PATHS__MIGRATIONS="/app/rehome/db/migrations"
 
 VOLUME ["/config", "/data"]
@@ -91,8 +89,6 @@ ENV ENV_FOR_DYNACONF=development \
     FLASK_ENV=development \
     FLASK_DEBUG=1 \
     GUNICORN_OPTS="--reload --reload-extra-file /config" \
-    # Don't compile assets on startup as built-in autobuild is used in dev/testing environments.
-    SKIP_ASSETS=true \
     CFG_SECRET_KEY=dev \
     CFG_AUTH__TOKEN=dev
 
