@@ -80,12 +80,12 @@ def __make_upload_file_response(upload: Upload) -> Response:
     return response
 
 
-@blueprint.route("/", methods=[HTTPMethod.GET])
+@blueprint.get("/")
 def index():
     return redirect(url_for("pages.index"))
 
 
-@blueprint.route("/", methods=[HTTPMethod.POST])
+@blueprint.post("/")
 @auth.login_required
 def upload_file():
     form = UploadForm(request.files)
@@ -136,7 +136,7 @@ def upload_file():
     return __make_upload_file_response(upload)
 
 
-@blueprint.route("<string:name>", methods=[HTTPMethod.GET])
+@blueprint.get("<string:name>")
 def view(name: str):
     upload = db.one_or_404(db.select(Upload).filter_by(name=name))
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
@@ -169,7 +169,7 @@ def view(name: str):
     )
 
 
-@blueprint.route("<string:name>", methods=[HTTPMethod.DELETE])
+@blueprint.delete("<string:name>")
 @auth.login_required
 def delete(name: str):
     upload = db.one_or_404(db.select(Upload).filter_by(name=name))
