@@ -11,8 +11,8 @@ services:
       - path: .env
         required: false
     volumes:
-      - ${BASE_DIR:-.}/config/app:/config
-      - ${BASE_DIR:-.}/data/app:/data
+      - ./config:/config
+      - ./data:/data
       - ../:/app
     tmpfs:
       - /tmp
