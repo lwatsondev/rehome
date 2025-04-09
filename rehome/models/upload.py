@@ -13,6 +13,7 @@ from sqlalchemy import (
     String,
     event,
     func,
+    select,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -63,11 +64,13 @@ class Upload(db.Model):
         file_hash = hashlib.file_digest(file.stream, hashlib.sha256).hexdigest()
         file.seek(0, os.SEEK_SET)
 
-        existing_query = db.select(cls).filter_by(file_hash=file_hash)
-        existing = db.session.execute(existing_query).scalar()
-        if existing:
-            existing.update(original_name=file_original_name, mimetype=file_mimetype)
-            return existing
+        existing_upload_query = select(cls).filter_by(file_hash=file_hash)
+        existing_upload = db.session.scalar(existing_upload_query)
+        if existing_upload:
+            existing_upload.update(
+                original_name=file_original_name, mimetype=file_mimetype
+            )
+            return existing_upload
 
         return cls(
             file_original_name,
@@ -77,7 +80,10 @@ class Upload(db.Model):
         )
 
     def save(self, file: FileStorage):
-        if self.path.exists():
+        check_exists_query = (
+            select(Upload).filter_by(file_hash=self.file_hash).exists().select()
+        )
+        if db.session.scalar(check_exists_query):
             return
 
         db.session.add(self)
@@ -109,7 +115,7 @@ class Upload(db.Model):
 
     @classmethod
     def one_or_404(cls, name: str) -> typing.Self:
-        return db.one_or_404(db.select(cls).filter_by(name=name))
+        return db.one_or_404(select(cls).filter_by(name=name))
 
     @hybrid_property
     def path(self) -> Path:
@@ -125,8 +131,8 @@ def _generate_name(suffix: str) -> Path:
 
     while True:
         name = Path(random_string(name_length)).with_suffix(suffix)
-        upload_query = db.select(Upload).filter_by(name=name)
-        if db.session.execute(upload_query).scalar() is None:
+        check_exists_query = select(Upload).filter_by(name=name).exists().select()
+        if not db.session.scalar(check_exists_query):
             return name
         name_length += 1
 
