@@ -1,3 +1,6 @@
+import logging
+import os
+
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
@@ -15,6 +18,12 @@ def create_app() -> Flask:
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
     )
+
+    if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
+        gunicorn_logger = logging.getLogger("gunicorn.error")
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
+
     app.logger.info(f"Starting {app.name} {meta.FULL_VERSION}")
 
     for path in [paths.STATIC, paths.DATA]:
