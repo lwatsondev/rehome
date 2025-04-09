@@ -26,9 +26,6 @@ def create_app() -> Flask:
 
     app.logger.info(f"Starting {app.name} {meta.FULL_VERSION}")
 
-    for path in [paths.STATIC, paths.DATA]:
-        path.mkdir(exist_ok=True, parents=True)
-
     init_extensions(app)
     register_blueprints(app)
     register_context_processors(app)

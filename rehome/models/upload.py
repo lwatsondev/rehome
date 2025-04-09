@@ -64,7 +64,7 @@ class Upload(db.Model):
     def save(self, file: FileStorage):
         db.session.add(self)
         try:
-            self.path.parent.mkdir(exist_ok=True)
+            self.path.parent.mkdir(exist_ok=True, parents=True)
             file.seek(0, os.SEEK_SET)
             file.save(
                 self.path,
