@@ -1,9 +1,5 @@
-import hashlib
-import os
 from http import HTTPMethod, HTTPStatus
-from pathlib import Path
 
-import magic
 from flask import (
     Blueprint,
     Response,
@@ -14,7 +10,6 @@ from flask import (
     url_for,
 )
 from flask import current_app as app
-from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import (
     HTTPException,
     NotFound,
@@ -22,7 +17,6 @@ from werkzeug.exceptions import (
 
 from rehome import paths
 from rehome.auth import auth
-from rehome.extensions import db
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import Upload, UploadSaveError
 from rehome.views.pages import _base_error_handler
@@ -92,28 +86,8 @@ def upload_file():
     if not form.validate_on_submit():
         raise ValidationError(description=form.errors)
 
-    fd: FileStorage = form.file.data
-    file_original_name = Path(fd.filename)
-    fd.seek(0, os.SEEK_END)
-    file_size = fd.tell()
-    fd.seek(0, os.SEEK_SET)
-    file_mimetype = magic.from_buffer(fd.read(4096), mime=True)
-    fd.seek(0, os.SEEK_SET)
-    file_hash = hashlib.file_digest(fd.stream, hashlib.sha256).hexdigest()
-    fd.seek(0, os.SEEK_SET)
-
-    existing_upload_query = db.select(Upload).filter_by(file_hash=file_hash)
-    existing_upload: Upload | None = db.session.execute(existing_upload_query).scalar()
-    if existing_upload:
-        existing_upload.update(original_name=file_original_name, mimetype=file_mimetype)
-        return __make_upload_file_response(existing_upload)
-
-    upload = Upload(
-        original_name=file_original_name,
-        size=file_size,
-        mimetype=file_mimetype,
-        file_hash=file_hash,
-    )
+    fd = form.file.data
+    upload = Upload.from_file(fd)
 
     try:
         upload.save(fd)
@@ -127,7 +101,7 @@ def upload_file():
 
 @blueprint.get("<string:name>")
 def view(name: str):
-    upload = db.one_or_404(db.select(Upload).filter_by(name=name))
+    upload = Upload.one_or_404(name)
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -161,7 +135,6 @@ def view(name: str):
 @blueprint.delete("<string:name>")
 @auth.login_required
 def delete(name: str):
-    upload = db.one_or_404(db.select(Upload).filter_by(name=name))
-    db.session.delete(upload)
-    db.session.commit()
+    upload = Upload.one_or_404(name)
+    upload.delete()
     return {"status": "deleted"}

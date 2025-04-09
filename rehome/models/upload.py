@@ -1,7 +1,10 @@
+import hashlib
 import os
+import typing
 from datetime import datetime
 from pathlib import Path
 
+import magic
 from flask import current_app as app
 from flask import url_for
 from sqlalchemy import (
@@ -43,25 +46,40 @@ class Upload(db.Model):
         mimetype: str,
         file_hash: str,
     ):
+        self.name = _generate_name(original_name.suffix)
         self.original_name = original_name
-        self.name = self.__generate_name()
         self.size = size
         self.mimetype = mimetype
         self.file_hash = file_hash
 
-    def __generate_name(self) -> Path:
-        name_length = app.config.get("uploads.name_length", 5)
+    @classmethod
+    def from_file(cls, file: FileStorage) -> typing.Self:
+        file_original_name = Path(file.filename)
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0, os.SEEK_SET)
+        file_mimetype = magic.from_buffer(file.read(4096), mime=True)
+        file.seek(0, os.SEEK_SET)
+        file_hash = hashlib.file_digest(file.stream, hashlib.sha256).hexdigest()
+        file.seek(0, os.SEEK_SET)
 
-        while True:
-            name = Path(random_string(name_length)).with_suffix(
-                self.original_name.suffix
-            )
-            upload_query = db.select(Upload).filter_by(name=name)
-            if db.session.execute(upload_query).scalar() is None:
-                return name
-            name_length += 1
+        existing_query = db.select(cls).filter_by(file_hash=file_hash)
+        existing = db.session.execute(existing_query).scalar()
+        if existing:
+            existing.update(original_name=file_original_name, mimetype=file_mimetype)
+            return existing
+
+        return cls(
+            file_original_name,
+            file_size,
+            file_mimetype,
+            file_hash,
+        )
 
     def save(self, file: FileStorage):
+        if self.path.exists():
+            return
+
         db.session.add(self)
         try:
             self.path.parent.mkdir(exist_ok=True, parents=True)
@@ -77,11 +95,21 @@ class Upload(db.Model):
             app.logger.exception(error)
             raise UploadSaveError from error
 
-    def update(self, original_name: Path, mimetype: str | None):
-        self.original_name = original_name
-        if mimetype:
-            self.mimetype = mimetype
+    def update(self, original_name: Path | None, mimetype: str | None):
+        if self.original_name == original_name and self.mimetype == mimetype:
+            return
+
+        self.original_name = original_name or self.original_name
+        self.mimetype = mimetype or self.mimetype
         db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def one_or_404(cls, name: str) -> typing.Self:
+        return db.one_or_404(db.select(cls).filter_by(name=name))
 
     @hybrid_property
     def path(self) -> Path:
@@ -90,6 +118,17 @@ class Upload(db.Model):
     @hybrid_property
     def url(self) -> str:
         return url_for("uploads.view", name=self.name, _external=True)
+
+
+def _generate_name(suffix: str) -> Path:
+    name_length = app.config.get("uploads.name_length", 5)
+
+    while True:
+        name = Path(random_string(name_length)).with_suffix(suffix)
+        upload_query = db.select(Upload).filter_by(name=name)
+        if db.session.execute(upload_query).scalar() is None:
+            return name
+        name_length += 1
 
 
 def __after_delete(mapper, connection, target: Upload):  # noqa: ARG001
