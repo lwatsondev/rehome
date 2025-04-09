@@ -47,6 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 COPY --from=python-builder-base ${UV_PROJECT_ENVIRONMENT} ${UV_PROJECT_ENVIRONMENT}
 COPY docker/rootfs /
 COPY rehome ./rehome
+COPY alembic.ini .
 
 ENV ROOT_PATH_FOR_DYNACONF="/config" \
     SETTINGS_FILES_FOR_DYNACONF='["/app/rehome/resources/config/default.toml", "*.toml"]' \

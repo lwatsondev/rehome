@@ -6,7 +6,7 @@ from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import debug, meta, paths
-from rehome.extensions import db, debugbar, dynaconf, migrate
+from rehome.extensions import db, debugbar, dynaconf
 
 
 def create_app() -> Flask:
@@ -59,7 +59,6 @@ def init_extensions(app: Flask):
     )
 
     db.init_app(app)
-    migrate.init_app(app, db, directory=paths.MIGRATIONS)
 
     app.config.update(SESSION_USE_SIGNER=True)
 
