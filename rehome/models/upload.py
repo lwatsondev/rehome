@@ -108,7 +108,7 @@ class Upload(db.Model):
         db.session.commit()
 
     @classmethod
-    def one_or_404(cls, name: Path) -> typing.Self:
+    def one_or_404(cls, name: str) -> typing.Self:
         return db.one_or_404(db.select(cls).filter_by(name=name))
 
     @hybrid_property
