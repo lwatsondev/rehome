@@ -1,6 +1,6 @@
 {
     "name": "rehome",
-    "version": "1.2.8",
+    "version": "1.2.9",
     "repository": "https://github.com/TheReverend403/rehome",
     "author": "Lee Watson <me@lwatson.dev>",
     "license": "",
@@ -10,7 +10,7 @@
         "stylelint-config-standard": "^37.0.0"
     },
     "scripts": {
-        "lint": "stylelint --fix **/*.css"
+        "lint": "stylelint --fix rehome/**/*.css"
     },
     "stylelint": {
         "extends": [

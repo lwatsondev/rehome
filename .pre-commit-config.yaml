@@ -39,7 +39,7 @@ repos:
 
       - id: stylelint
         name: stylelint
-        entry: yarn run lint --formatter github
+        entry: yarn run lint
         language: system
         types: [css]
 

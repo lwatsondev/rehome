@@ -1,4 +1,3 @@
-import flask_migrate
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
@@ -16,7 +15,6 @@ def create_app() -> Flask:
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
     )
-
     app.logger.info(f"Starting {app.name} {meta.FULL_VERSION}")
 
     for path in [paths.STATIC, paths.DATA]:
@@ -62,8 +60,6 @@ def init_extensions(app: Flask):
 
     db.init_app(app)
     migrate.init_app(app, db, directory=paths.MIGRATIONS)
-    with app.app_context():
-        flask_migrate.upgrade()
 
     app.config.update(SESSION_USE_SIGNER=True)
 

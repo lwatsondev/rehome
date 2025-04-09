@@ -14,7 +14,7 @@ from flask import (
     url_for,
 )
 from flask import current_app as app
-from sqlalchemy.exc import IntegrityError
+from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import (
     HTTPException,
     NotFound,
@@ -24,13 +24,13 @@ from rehome import paths
 from rehome.auth import auth
 from rehome.extensions import db
 from rehome.forms.upload import UploadForm
-from rehome.models.upload import Upload
+from rehome.models.upload import Upload, UploadSaveError
 from rehome.views.pages import _base_error_handler
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
 
-class __UploadError(Exception):
+class UploadError(Exception):
     code: int = HTTPStatus.INTERNAL_SERVER_ERROR
     description: str
 
@@ -43,7 +43,7 @@ class __UploadError(Exception):
         self.description = description
 
 
-class __ValidationError(__UploadError):
+class ValidationError(UploadError):
     code: int = HTTPStatus.BAD_REQUEST
     description: dict[str, str]
 
@@ -51,8 +51,8 @@ class __ValidationError(__UploadError):
         self.description = description
 
 
-@blueprint.errorhandler(__UploadError)
-def __upload_error_handler(error: __UploadError):
+@blueprint.errorhandler(UploadError)
+def __upload_error_handler(error: UploadError):
     return {
         "error": error.description,
     }, error.code
@@ -90,24 +90,22 @@ def index():
 def upload_file():
     form = UploadForm(request.files)
     if not form.validate_on_submit():
-        raise __ValidationError(description=form.errors)
+        raise ValidationError(description=form.errors)
 
-    fd = form.file.data
+    fd: FileStorage = form.file.data
     file_original_name = Path(fd.filename)
     fd.seek(0, os.SEEK_END)
     file_size = fd.tell()
     fd.seek(0, os.SEEK_SET)
     file_mimetype = magic.from_buffer(fd.read(4096), mime=True)
     fd.seek(0, os.SEEK_SET)
-    file_hash = hashlib.file_digest(fd, hashlib.sha256).hexdigest()
+    file_hash = hashlib.file_digest(fd.stream, hashlib.sha256).hexdigest()
     fd.seek(0, os.SEEK_SET)
 
     existing_upload_query = db.select(Upload).filter_by(file_hash=file_hash)
-    existing_upload = db.session.execute(existing_upload_query).scalar()
+    existing_upload: Upload | None = db.session.execute(existing_upload_query).scalar()
     if existing_upload:
-        existing_upload.original_name = file_original_name
-        existing_upload.mimetype = file_mimetype
-        db.session.commit()
+        existing_upload.update(original_name=file_original_name, mimetype=file_mimetype)
         return __make_upload_file_response(existing_upload)
 
     upload = Upload(
@@ -116,21 +114,12 @@ def upload_file():
         mimetype=file_mimetype,
         file_hash=file_hash,
     )
-    db.session.add(upload)
 
     try:
-        db.session.commit()
-        upload.path.parent.mkdir(exist_ok=True)
-        fd.save(
-            upload.path,
-            buffer_size=app.config.get("uploads.save_chunk_size", 1024 * 128),
-        )  # Using 128KB chunks to match ZFS' default recordsize.
-    except (FileNotFoundError, OSError, IntegrityError) as error:
-        db.session.rollback()
-        upload.path.unlink(missing_ok=True)
-        app.logger.error(error)
-        raise __UploadError(
-            description="An error occured while saving the file. Check the application logs."
+        upload.save(fd)
+    except UploadSaveError as error:
+        raise UploadError(
+            description="An error occurred while saving the file. Check the application logs."
         ) from error
 
     return __make_upload_file_response(upload)

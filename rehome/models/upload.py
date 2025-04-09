@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -10,11 +11,17 @@ from sqlalchemy import (
     event,
     func,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
+from werkzeug.datastructures import FileStorage
 
 from rehome import db, paths
 from rehome.util import random_string
+
+
+class UploadSaveError(Exception):
+    pass
 
 
 class Upload(db.Model):
@@ -53,6 +60,28 @@ class Upload(db.Model):
             if db.session.execute(upload_query).scalar() is None:
                 return name
             name_length += 1
+
+    def save(self, file: FileStorage):
+        db.session.add(self)
+        try:
+            self.path.parent.mkdir(exist_ok=True)
+            file.seek(0, os.SEEK_SET)
+            file.save(
+                self.path,
+                buffer_size=app.config.get("uploads.save_chunk_size", 1024 * 128),
+            )  # Using 128KB chunks to match ZFS' default recordsize.
+            db.session.commit()
+        except (OSError, IntegrityError) as error:
+            db.session.rollback()
+            self.path.unlink(missing_ok=True)
+            app.logger.exception(error)
+            raise UploadSaveError from error
+
+    def update(self, original_name: Path, mimetype: str | None):
+        self.original_name = original_name
+        if mimetype:
+            self.mimetype = mimetype
+        db.session.commit()
 
     @hybrid_property
     def path(self) -> Path:
