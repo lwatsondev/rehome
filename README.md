@@ -26,13 +26,3 @@ yarn install
 ## Config shouldn't be necessary for dev as everything that needs to be is already configured in the Dockerfile.
 docker compose -f docker/docker-compose.dev.yml up --build --pull always
 ```
-
-### Manual
-
-```sh
-mkdir config
-cp rehome/resources/config/default.toml config/settings.toml # Edit settings.toml
-
-# Do not use this in production, use a WSGI server such as gunicorn with rehome:create_app() as your entrypoint.
-uv run flask run
-```
