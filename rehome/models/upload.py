@@ -97,9 +97,9 @@ class Upload(db.Model):
             app.logger.exception(error)
             raise UploadSaveError from error
 
-    def update(self, **kwargs: Path | str | int):
-        for prop, value in kwargs.items():
-            setattr(self, prop, value)
+    def update(self, **fields: Path | str | int):
+        for field, value in fields.items():
+            setattr(self, field, value)
         db.session.commit()
 
     def delete(self):
