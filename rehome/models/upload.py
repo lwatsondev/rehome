@@ -12,6 +12,7 @@ from sqlalchemy import (
     DateTime,
     String,
     event,
+    exists,
     func,
     select,
 )
@@ -67,9 +68,6 @@ class Upload(db.Model):
         existing_upload_query = select(cls).filter_by(file_hash=file_hash)
         existing_upload = db.session.scalar(existing_upload_query)
         if existing_upload:
-            existing_upload.update(
-                original_name=file_original_name, mimetype=file_mimetype
-            )
             return existing_upload
 
         return cls(
@@ -80,10 +78,8 @@ class Upload(db.Model):
         )
 
     def save(self, file: FileStorage):
-        check_exists_query = (
-            select(Upload).filter_by(file_hash=self.file_hash).exists().select()
-        )
-        if db.session.scalar(check_exists_query):
+        if self.path.exists():
+            self.update(original_name=file.filename)
             return
 
         db.session.add(self)
@@ -101,12 +97,9 @@ class Upload(db.Model):
             app.logger.exception(error)
             raise UploadSaveError from error
 
-    def update(self, original_name: Path | None, mimetype: str | None):
-        if self.original_name == original_name and self.mimetype == mimetype:
-            return
-
-        self.original_name = original_name or self.original_name
-        self.mimetype = mimetype or self.mimetype
+    def update(self, **kwargs: Path | str | int):
+        for prop, value in kwargs.items():
+            setattr(self, prop, value)
         db.session.commit()
 
     def delete(self):
@@ -131,7 +124,8 @@ def _generate_name(suffix: str) -> Path:
 
     while True:
         name = Path(random_string(name_length)).with_suffix(suffix)
-        check_exists_query = select(Upload).filter_by(name=name).exists().select()
+        check_exists_query = select(exists().where(Upload.name == name))
+        app.logger.debug(check_exists_query)
         if not db.session.scalar(check_exists_query):
             return name
         name_length += 1
