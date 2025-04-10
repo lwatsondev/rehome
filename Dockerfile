@@ -1,41 +1,42 @@
 # syntax=docker/dockerfile:1
 
 ARG DEBIAN_VERSION=bookworm
-ARG PYTHON_VERSION=3.13
 
 ## Base
-FROM ghcr.io/astral-sh/uv:python${PYTHON_VERSION}-${DEBIAN_VERSION}-slim AS python-base
+FROM debian:${DEBIAN_VERSION}-slim AS python-base
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
+ENV PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT="/opt/uv/venv" \
+    UV_PYTHON_INSTALL_DIR="/opt/uv/python" \
+    UV_CACHE_DIR="/opt/uv/cache"
+
+ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${PATH}" \
+    PYTHONPATH="/app:${PYTHONPATH}"
+
+
+## Base image
+FROM python-base AS app-base
 
 ARG META_VERSION
 ARG META_COMMIT
 ARG META_SOURCE
 
-ENV PYTHONUNBUFFERED=1 \
-    UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    UV_PROJECT_ENVIRONMENT="/venv" \
-    META_VERSION="${META_VERSION}" \
+ENV META_VERSION="${META_VERSION}" \
     META_COMMIT="${META_COMMIT}" \
-    META_SOURCE="${META_SOURCE}"
-
-ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${PATH}" \
-    PYTHONPATH="/app:${PYTHONPATH}"
+    META_SOURCE="${META_SOURCE}" \
+    FLASK_APP="rehome" \
+    GUNICORN_HOST="0.0.0.0" \
+    GUNICORN_PORT=5000 \
+    ROOT_PATH_FOR_DYNACONF="/config" \
+    SETTINGS_FILES_FOR_DYNACONF='["/app/rehome/resources/config/default.toml", "*.toml"]' \
+    CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
+    CFG_PATHS__DATA="/data"
 
 WORKDIR /app
-
-
-## Python builder
-FROM python-base AS python-builder-base
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=README.md,target=README.md \
-    uv sync --frozen --no-install-project --no-dev
-
-
-## Base image
-FROM python-base AS flask-base
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
@@ -44,18 +45,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     libmagic1 \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-COPY --from=python-builder-base ${UV_PROJECT_ENVIRONMENT} ${UV_PROJECT_ENVIRONMENT}
+RUN --mount=type=cache,target=${UV_CACHE_DIR} \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=README.md,target=README.md \
+    uv sync --frozen --no-install-project --no-dev
+
 COPY docker/rootfs /
 COPY rehome ./rehome
 COPY alembic.ini .
-
-ENV ROOT_PATH_FOR_DYNACONF="/config" \
-    SETTINGS_FILES_FOR_DYNACONF='["/app/rehome/resources/config/default.toml", "*.toml"]' \
-    GUNICORN_HOST="0.0.0.0" \
-    GUNICORN_PORT=5000 \
-    FLASK_APP="rehome" \
-    CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
-    CFG_PATHS__DATA="/data"
 
 VOLUME ["/config", "/data"]
 EXPOSE 5000
@@ -64,25 +62,25 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 
 ## Dev image
-FROM flask-base AS development
+FROM app-base AS development
 
-RUN --mount=type=cache,target=/root/.cache/uv \
+RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=README.md,target=README.md \
     uv sync --frozen --no-install-project --group dev
 
-ENV ENV_FOR_DYNACONF=development \
-    FLASK_ENV=development \
+ENV FLASK_ENV=development \
     FLASK_DEBUG=1 \
+    ENV_FOR_DYNACONF=development \
     CFG_SECRET_KEY=dev \
     CFG_AUTH__TOKEN=dev
 
 
 ## Production image
-FROM flask-base AS production
+FROM app-base AS production
 
-ENV ENV_FOR_DYNACONF=production \
-    FLASK_ENV=production
+ENV FLASK_ENV=production \
+    ENV_FOR_DYNACONF=production
 
 HEALTHCHECK --start-interval=1s --start-period=10s --interval=10s --timeout=5s CMD ["/docker-healthcheck.sh"]
