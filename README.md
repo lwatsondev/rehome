@@ -16,8 +16,6 @@ yarn install
 
 ## Running in dev mode
 
-### Docker
-
 ```sh
 ## Env var usage for configuration is documented here: https://www.dynaconf.com/envvars/
 ## Env var prefix is set to 'CFG_', not 'DYNACONF_'.
