@@ -20,7 +20,7 @@
     <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-1-3 pure-u-xl-1-4">
         <div class="vertical-center">
             <a href="{{ url_for("pages.index") }}">
-                <img class="pure-img avatar-img" src="{{ avatar_url }}" alt="avatar">
+                <img class="pure-img avatar-img" src="{{ get_avatar() }}" alt="avatar">
             </a>
 
             {% include "includes/nav_links.html" %}
