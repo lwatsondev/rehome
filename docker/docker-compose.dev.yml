@@ -13,7 +13,7 @@ services:
     volumes:
       - ./config:/config
       - ./data:/data
-      - ../rehome:/app/rehome
+      - ../:/app
     tmpfs:
       - /tmp
     networks:

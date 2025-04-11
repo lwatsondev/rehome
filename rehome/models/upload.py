@@ -32,11 +32,11 @@ class UploadSaveError(Exception):
 class Upload(db.Model):
     __tablename__ = "uploads"
 
-    name: Mapped[Path] = mapped_column(primary_key=True)
+    name: Mapped[Path] = mapped_column(primary_key=True, nullable=False)
     original_name: Mapped[Path] = mapped_column(nullable=False)
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str] = mapped_column(String(128), nullable=False)
-    file_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    file_hash: Mapped[str] = mapped_column(String(64), primary_key=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
