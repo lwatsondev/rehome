@@ -30,7 +30,6 @@ FROM python-base AS app-base
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && apt-get install --no-install-recommends -y \
-    curl \
     libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -78,6 +77,11 @@ RUN --mount=type=cache,target=${UV_CACHE_DIR} \
 
 ## Production image
 FROM app-base AS production
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV FLASK_ENV=production \
     ENV_FOR_DYNACONF=production
