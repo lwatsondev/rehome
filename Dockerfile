@@ -28,16 +28,16 @@ RUN --mount=type=cache,target=${UV_CACHE_DIR} \
 ## Base image
 FROM python-base AS app-base
 
-ARG META_VERSION
-ARG META_COMMIT
-ARG META_SOURCE
-
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update && \
     apt-get install --no-install-recommends -y \
     curl \
     libmagic1 \
     && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+
+ARG META_VERSION
+ARG META_COMMIT
+ARG META_SOURCE
 
 ENV META_VERSION="${META_VERSION}" \
     META_COMMIT="${META_COMMIT}" \
