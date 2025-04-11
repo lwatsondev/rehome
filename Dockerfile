@@ -29,11 +29,10 @@ RUN --mount=type=cache,target=${UV_CACHE_DIR} \
 FROM python-base AS app-base
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    apt-get update && \
-    apt-get install --no-install-recommends -y \
+    apt-get update && apt-get install --no-install-recommends -y \
     curl \
     libmagic1 \
-    && apt-get autoclean && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 ARG META_VERSION
 ARG META_COMMIT
