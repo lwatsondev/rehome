@@ -64,17 +64,17 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 ## Dev image
 FROM app-base AS development
 
-RUN --mount=type=cache,target=${UV_CACHE_DIR} \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=README.md,target=README.md \
-    uv sync --frozen --no-install-project --group dev
-
 ENV FLASK_ENV=development \
     FLASK_DEBUG=1 \
     ENV_FOR_DYNACONF=development \
     CFG_SECRET_KEY=dev \
     CFG_AUTH__TOKEN=dev
+
+RUN --mount=type=cache,target=${UV_CACHE_DIR} \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=README.md,target=README.md \
+    uv sync --frozen --no-install-project --group dev
 
 
 ## Production image
