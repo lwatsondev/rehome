@@ -94,7 +94,6 @@ class Upload(db.Model):
         except (OSError, IntegrityError) as error:
             db.session.rollback()
             self.path.unlink(missing_ok=True)
-            app.logger.exception(error)
             raise UploadSaveError from error
 
     def update(self, **fields: Path | str | int):
@@ -125,7 +124,6 @@ def _generate_name(suffix: str) -> Path:
     while True:
         name = Path(random_string(name_length)).with_suffix(suffix)
         check_exists_query = select(exists().where(Upload.name == name))
-        app.logger.debug(check_exists_query)
         if not db.session.scalar(check_exists_query):
             return name
         name_length += 1
