@@ -17,6 +17,7 @@ def create_app() -> Flask:
         template_folder=paths.TEMPLATES,
     )
     dynaconf.init_app(app)
+    init_sentry(app)
 
     if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
         gunicorn_logger = logging.getLogger("gunicorn.error")
@@ -54,7 +55,6 @@ def init_extensions(app: Flask):
         SESSION_USE_SIGNER=True,
     )
 
-    init_sentry(app)
     db.init_app(app)
 
     if app.debug and debugbar is not None:
