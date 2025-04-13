@@ -3,10 +3,10 @@ from importlib.util import find_spec
 from dynaconf import FlaskDynaconf
 from flask_sqlalchemy import SQLAlchemy
 
-from rehome import config
+from rehome.config import dynaconf
 from rehome.models import BaseModel
 
-dynaconf = FlaskDynaconf(dynaconf_instance=config.dynaconf)
+dynaconf = FlaskDynaconf(dynaconf_instance=dynaconf)
 db = SQLAlchemy(model_class=BaseModel)
 debugbar = None
 

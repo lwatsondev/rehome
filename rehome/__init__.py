@@ -8,7 +8,7 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import debug, meta, paths
+from rehome import meta, paths
 from rehome.extensions import db, debugbar, dynaconf
 
 
@@ -18,13 +18,12 @@ def create_app() -> Flask:
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
     )
+    dynaconf.init_app(app)
 
     if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
         gunicorn_logger = logging.getLogger("gunicorn.error")
         app.logger.handlers = gunicorn_logger.handlers
         app.logger.setLevel(gunicorn_logger.level)
-
-    app.logger.info(f"Starting {app.name} {meta.FULL_VERSION}")
 
     init_extensions(app)
     register_blueprints(app)
@@ -36,14 +35,12 @@ def create_app() -> Flask:
     return app
 
 
-@debug.log_func
 def register_blueprints(app: Flask):
     from rehome import views
 
     views.register_blueprints(app)
 
 
-@debug.log_func
 def init_sentry(app: Flask):
     if (dsn := app.config.get("sentry.dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
@@ -54,25 +51,19 @@ def init_sentry(app: Flask):
         app.logger.info("Sentry is enabled")
 
 
-@debug.log_func
 def init_extensions(app: Flask):
-    dynaconf.init_app(app)
-    init_sentry(app)
-
     app.config.update(
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
+        SESSION_USE_SIGNER=True,
     )
 
+    init_sentry(app)
     db.init_app(app)
-
-    app.config.update(SESSION_USE_SIGNER=True)
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
 
 
-@debug.log_func
 def register_context_processors(app: Flask):
     @app.context_processor
     def inject_nav_links():
