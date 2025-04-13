@@ -444,7 +444,7 @@ dependencies = [
     { name = "libgravatar" },
     { name = "python-dotenv" },
     { name = "python-magic" },
-    { name = "sentry-sdk", extra = ["flask"] },
+    { name = "sentry-sdk", extra = ["flask", "sqlalchemy"] },
 ]
 
 [package.dev-dependencies]
@@ -468,7 +468,7 @@ requires-dist = [
     { name = "libgravatar", specifier = ">=1.0.4,<2.0.0" },
     { name = "python-dotenv", specifier = ">=1.0.0,<2.0.0" },
     { name = "python-magic", specifier = ">=0.4.0,<1.0.0" },
-    { name = "sentry-sdk", extras = ["flask"], specifier = ">=2.8.0,<3.0.0" },
+    { name = "sentry-sdk", extras = ["flask", "sqlalchemy"], specifier = ">=2.8.0,<3.0.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -532,6 +532,9 @@ flask = [
     { name = "blinker" },
     { name = "flask" },
     { name = "markupsafe" },
+]
+sqlalchemy = [
+    { name = "sqlalchemy" },
 ]
 
 [[package]]

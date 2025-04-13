@@ -4,8 +4,6 @@ import os
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
-from sentry_sdk.integrations.flask import FlaskIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import meta, paths
@@ -45,7 +43,6 @@ def init_sentry(app: Flask):
     if (dsn := app.config.get("sentry.dsn")) and not (app.debug or app.testing):
         sentry_sdk.init(
             dsn=dsn,
-            integrations=[FlaskIntegration(), SqlalchemyIntegration()],
             release=meta.FULL_VERSION,
         )
         app.logger.info("Sentry is enabled")
