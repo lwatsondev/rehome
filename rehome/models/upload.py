@@ -57,6 +57,7 @@ class Upload(db.Model):
     @classmethod
     def from_file(cls, file: FileStorage) -> typing.Self:
         file_original_name = Path(file.filename)
+        file.seek(0, os.SEEK_SET)
         file.seek(0, os.SEEK_END)
         file_size = file.tell()
         file.seek(0, os.SEEK_SET)
