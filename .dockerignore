@@ -1,0 +1,11 @@
+**
+
+!docker/rootfs/*
+!rehome
+!alembic.ini
+!pyproject.toml
+!uv.lock
+!.python-version
+!README.md
+
+**/__pycache__

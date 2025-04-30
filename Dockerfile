@@ -48,10 +48,8 @@ ENV META_VERSION="${META_VERSION}" \
     CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
     CFG_PATHS__DATA="/data"
 
-COPY docker/rootfs /
-COPY pyproject.toml uv.lock README.md ./
-COPY rehome ./rehome
-COPY alembic.ini .
+ADD . .
+RUN ln -s /app/docker/rootfs/* /
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     uv sync --no-install-project --no-dev
