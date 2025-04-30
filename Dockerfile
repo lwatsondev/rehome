@@ -19,7 +19,7 @@ ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${PATH}" \
 WORKDIR /app
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
-COPY .python-version ./
+COPY .python-version .
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     uv python install
