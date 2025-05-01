@@ -53,6 +53,9 @@ def init_extensions(app: Flask):
     app.config.update(
         SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
         SESSION_USE_SIGNER=True,
+        SQLALCHEMY_ENGINES={
+            "default": {"url": app.config.get("SQLALCHEMY_DATABASE_URI")}
+        },
     )
 
     db.init_app(app)

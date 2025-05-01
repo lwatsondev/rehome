@@ -16,12 +16,14 @@ from sqlalchemy import (
     func,
     select,
 )
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.datastructures import FileStorage
+from werkzeug.exceptions import NotFound
 
 from rehome import db, paths
+from rehome.models import BaseModel
 from rehome.util import random_string
 
 
@@ -29,7 +31,7 @@ class UploadSaveError(Exception):
     pass
 
 
-class Upload(db.Model):
+class Upload(BaseModel):
     __tablename__ = "uploads"
 
     name: Mapped[Path] = mapped_column(primary_key=True, nullable=False)
@@ -48,6 +50,7 @@ class Upload(db.Model):
         mimetype: str,
         file_hash: str,
     ):
+        super().__init__()
         self.name = _generate_name(original_name.suffix)
         self.original_name = original_name
         self.size = size
@@ -108,7 +111,10 @@ class Upload(db.Model):
 
     @classmethod
     def one_or_404(cls, name: str) -> typing.Self:
-        return db.one_or_404(select(cls).filter_by(name=name))
+        try:
+            return db.session.query(cls).filter_by(name=name).one()
+        except NoResultFound as error:
+            raise NotFound from error
 
     @hybrid_property
     def path(self) -> Path:

@@ -4,6 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from rehome import create_app
+from rehome.models import BaseModel
 
 # There's no access to current_app here so we must create our own app.
 app = create_app()
@@ -18,7 +19,7 @@ fileConfig(config.config_file_name)
 
 # Sets up metadata for autogenerate support,
 config.set_main_option("sqlalchemy.url", db_uri)
-target_metadata = db.metadata
+target_metadata = BaseModel.metadata
 
 
 def run_migrations_offline():
