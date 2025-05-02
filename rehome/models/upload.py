@@ -112,7 +112,7 @@ class Upload(BaseModel):
     @classmethod
     def one_or_404(cls, name: str) -> typing.Self:
         try:
-            return db.session.query(cls).filter_by(name=name).one()
+            return db.session.scalars(select(cls).filter_by(name=name)).one()
         except NoResultFound as error:
             raise NotFound from error
 
