@@ -10,6 +10,8 @@ services:
     env_file:
       - path: .env
         required: false
+    environment:
+      TZ: UTC
     volumes:
       - ./config:/config
       - ./data:/data

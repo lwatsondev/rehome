@@ -27,7 +27,7 @@ def upgrade():
         sa.Column("file_hash", sa.String(length=64), nullable=False),
         sa.Column(
             "created_at",
-            sa.DateTime(),
+            sa.DateTime(timezone=True),
             server_default=sa.text("(CURRENT_TIMESTAMP)"),
             nullable=False,
         ),
