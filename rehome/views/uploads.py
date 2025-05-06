@@ -102,7 +102,7 @@ def upload_file():
 
 @blueprint.get("<string:name>")
 def view(name: str):
-    upload = Upload.one_or_404(name)
+    upload = Upload.one_or_404(name=name)
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -136,6 +136,6 @@ def view(name: str):
 @blueprint.delete("<string:name>")
 @auth.login_required
 def delete(name: str):
-    upload = Upload.one_or_404(name)
+    upload = Upload.one_or_404(name=name)
     upload.delete()
     return {"status": "deleted"}

@@ -16,11 +16,10 @@ from sqlalchemy import (
     func,
     select,
 )
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.datastructures import FileStorage
-from werkzeug.exceptions import NotFound
 
 from rehome import db, paths
 from rehome.models import BaseModel
@@ -99,22 +98,6 @@ class Upload(BaseModel):
             db.session.rollback()
             self.path.unlink(missing_ok=True)
             raise UploadSaveError from error
-
-    def update(self, **fields: Path | str | int):
-        for field, value in fields.items():
-            setattr(self, field, value)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    @classmethod
-    def one_or_404(cls, name: str) -> typing.Self:
-        try:
-            return db.session.scalars(select(cls).filter_by(name=name)).one()
-        except NoResultFound as error:
-            raise NotFound from error
 
     @hybrid_property
     def path(self) -> Path:
