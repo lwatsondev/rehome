@@ -26,6 +26,7 @@ dev = [
     "ruff>=0.11.7",
     "shellcheck-py>=0.10.0.1",
     "flask-debugtoolbar>=0.16.0",
+    "yamlfix>=1.17.0",
 ]
 
 [tool.ruff]
@@ -70,3 +71,11 @@ ignore = ["E501"]
 
 [tool.ruff.format]
 line-ending = "lf"
+
+[tool.yamlfix]
+line_length = 120
+whitelines = 1
+section_whitelines = 1
+quote_basic_values = true
+quote_representation = '"'
+sequence_style = "block_style"

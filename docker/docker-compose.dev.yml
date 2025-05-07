@@ -1,35 +1,36 @@
-name: rehome
+---
+name: "rehome"
 
 services:
   rehome:
-    container_name: rehome
+    container_name: "rehome"
     restart: "no"
     init: true
     read_only: true
-    user: ${PUID:-1000}:${PGID:-1000}
+    user: "${PUID:-1000}:${PGID:-1000}"
     env_file:
-      - path: .env
+      - path: ".env"
         required: false
     environment:
-      TZ: UTC
+      TZ: "UTC"
     volumes:
-      - ./config:/config
-      - ./data:/data
-      - ../:/app
+      - "./config:/config"
+      - "./data:/data"
+      - "../:/app"
     tmpfs:
-      - /tmp
+      - "/tmp"
     networks:
-      - rehome
+      - "rehome"
     ports:
       - "5000:5000"
     build:
-      context: ../
-      target: development
+      context: "../"
+      target: "development"
     deploy:
       resources:
         limits:
-          cpus: ${REHOME_CPU_LIMIT:-${CPU_LIMIT:-0}}
-          memory: ${REHOME_MEM_LIMIT:-${MEM_LIMIT:-0}}
+          cpus: "${REHOME_CPU_LIMIT:-${CPU_LIMIT:-0}}"
+          memory: "${REHOME_MEM_LIMIT:-${MEM_LIMIT:-0}}"
 
 networks:
   rehome:
