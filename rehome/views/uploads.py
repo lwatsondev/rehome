@@ -92,10 +92,9 @@ def upload_file():
     try:
         upload.save(fd)
     except UploadSaveError as error:
-        app.logger.exception(error)
-        raise UploadError(
-            description="An error occurred while saving the file. Check the application logs."
-        ) from error
+        msg = "An error occurred while saving the file."
+        app.logger.exception(msg)
+        raise UploadError(description=f"{msg} Check the application logs.") from error
 
     return __make_upload_file_response(upload)
 

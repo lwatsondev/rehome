@@ -33,6 +33,9 @@ dev = [
 force-exclude = true
 extend-exclude = ["docker/data/", "docker/config/"]
 
+[tool.ruff.format]
+line-ending = "lf"
+
 [tool.ruff.lint]
 select = [
     "A",
@@ -41,16 +44,28 @@ select = [
     "BLE",
     "C4",
     "C90",
+    "COM",
     "DTZ",
     "E",
     "ERA",
     "F",
+    "FBT",
     "FIX",
+    "FLY",
     "FURB",
+    "G",
     "I",
+    "ICN",
+    "INP",
+    "ISC",
+    "LOG",
     "N",
+    "PERF",
+    "PIE",
     "PL",
+    "PT",
     "PTH",
+    "PYI",
     "Q",
     "RET",
     "RSE",
@@ -58,19 +73,37 @@ select = [
     "S",
     "SIM",
     "SLF",
+    "SLOT",
     "T10",
     "T20",
+    "TC",
+    "TD",
     "TID",
+    "TRY",
     "UP",
     "W",
     "YTT",
 ]
 
 # ruff format compatibility
-ignore = ["E501"]
+ignore = [
+    "COM812",
+    "COM819",
+    "D206",
+    "D300",
+    "E111",
+    "E114",
+    "E117",
+    "E501",
+    "Q000",
+    "Q001",
+    "Q002",
+    "Q003",
+    "W191",
+]
 
-[tool.ruff.format]
-line-ending = "lf"
+[tool.ruff.lint.per-file-ignores]
+"rehome/db/migrations/**.py" = ["INP"]
 
 [tool.yamlfix]
 line_length = 120
