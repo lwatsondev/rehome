@@ -19,14 +19,17 @@ class BaseModel(DeclarativeBase):
         }
     )
 
-    def update(self, **kwargs):
+    def update(self, commit=True, **kwargs):
         for field, value in kwargs.items():
             setattr(self, field, value)
-        db.session.commit()
 
-    def delete(self):
+        if commit:
+            db.session.commit()
+
+    def delete(self, commit=True):
         db.session.delete(self)
-        db.session.commit()
+        if commit:
+            db.session.commit()
 
     @classmethod
     def one_or_404(cls, **kwargs) -> typing.Self:
