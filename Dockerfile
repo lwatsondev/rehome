@@ -45,8 +45,7 @@ ENV META_VERSION="${META_VERSION}" \
     GUNICORN_PORT=5000 \
     ROOT_PATH_FOR_DYNACONF="/config" \
     SETTINGS_FILES_FOR_DYNACONF='["/app/rehome/resources/config/default.toml", "*.toml"]' \
-    CFG_SQLALCHEMY_DATABASE_URI="sqlite:////data/app.db" \
-    CFG_PATHS__DATA="/data"
+    CFG_PATHS__INSTANCE="/data"
 
 ADD . .
 RUN ln -s /app/docker/rootfs/* /

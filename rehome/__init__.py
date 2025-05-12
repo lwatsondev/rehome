@@ -15,6 +15,7 @@ def create_app() -> Flask:
         "rehome",
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
+        instance_path=paths.INSTANCE,
     )
     dynaconf.init_app(app)
 
@@ -54,7 +55,12 @@ def init_extensions(app: Flask):
         SQLALCHEMY_RECORD_QUERIES=app.debug,  # for debugbar
         SESSION_USE_SIGNER=True,
         SQLALCHEMY_ENGINES={
-            "default": {"url": app.config.get("SQLALCHEMY_DATABASE_URI")}
+            "default": {
+                "url": app.config.get(
+                    "SQLALCHEMY_DATABASE_URI",
+                    f"sqlite:////{paths.DATA}/app.db",
+                )
+            }
         },
     )
 

@@ -8,7 +8,7 @@ from rehome.models import BaseModel
 
 # There's no access to current_app here so we must create our own app.
 app = create_app()
-db_uri = app.config["SQLALCHEMY_DATABASE_URI"]
+db_uri = app.config.get("SQLALCHEMY_ENGINES").get("default").get("url")
 db = app.extensions["sqlalchemy"]
 
 # Provide access to the values within alembic.ini.
