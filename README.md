@@ -22,5 +22,5 @@ yarn install
 ## Add env vars to 'docker/.env'.
 ## You can also copy rehome/resources/config/default.toml to instance/config
 ## Config shouldn't be necessary for dev as everything that needs to be is already configured in the Dockerfile.
-docker compose -f docker/docker-compose.dev.yml up --build --pull always
+docker compose -f docker/compose.yaml up --build --pull always
 ```
