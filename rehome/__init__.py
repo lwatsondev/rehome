@@ -6,7 +6,7 @@ from flask import Flask, url_for
 from libgravatar import Gravatar
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import meta, paths
+from rehome import meta, paths, views
 from rehome.extensions import db, debugbar, dynaconf
 
 
@@ -36,8 +36,6 @@ def create_app() -> Flask:
 
 
 def register_blueprints(app: Flask):
-    from rehome import views
-
     views.register_blueprints(app)
 
 
