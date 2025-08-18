@@ -12,7 +12,7 @@ services:
       - path: ".env"
         required: false
     environment:
-      TZ: "UTC"
+      TZ: "${TZ:-UTC}"
     volumes:
       - "./config:/config"
       - "./data:/data"
