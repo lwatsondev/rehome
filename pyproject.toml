@@ -103,11 +103,3 @@ ignore = [
     "Q003",
     "W191",
 ]
-
-[tool.yamlfix]
-line_length = 120
-whitelines = 1
-section_whitelines = 1
-quote_basic_values = true
-quote_representation = '"'
-sequence_style = "block_style"
