@@ -26,7 +26,7 @@ dev = [
     "ruff>=0.12.0",
     "shellcheck-py>=0.10.0.1",
     "flask-debugtoolbar>=0.16.0",
-    "yamlfix>=1.17.0",
+    "yamllint>=1.37.1",
 ]
 
 [tool.ruff]
