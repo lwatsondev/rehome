@@ -1,7 +1,10 @@
 import os
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Dialect, Text, TypeDecorator
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class PathLike(TypeDecorator):

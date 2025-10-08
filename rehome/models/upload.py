@@ -1,7 +1,7 @@
 import hashlib
 import os
 import typing
-from datetime import datetime
+from datetime import datetime  # noqa: TC003
 from pathlib import Path
 
 import magic
@@ -19,11 +19,13 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
-from werkzeug.datastructures import FileStorage
 
 from rehome import db, paths
 from rehome.models import BaseModel
 from rehome.util import random_string
+
+if typing.TYPE_CHECKING:
+    from werkzeug.datastructures import FileStorage
 
 
 class UploadSaveError(Exception):
