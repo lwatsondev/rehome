@@ -26,12 +26,12 @@ blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
 class UploadError(Exception):
     code: int = HTTPStatus.INTERNAL_SERVER_ERROR
-    description: str
+    description: str | None
 
     def __init__(
         self,
         code: int = HTTPStatus.INTERNAL_SERVER_ERROR,
-        description: str = str | None,
+        description: str | None = None,
     ):
         self.code = code
         self.description = description

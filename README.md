@@ -5,7 +5,7 @@
 First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```sh
-git clone git@github.com:TheReverend403/rehome
+git clone git@github.com:lwatsondev/rehome
 cd rehome
 
 uv sync --group dev
