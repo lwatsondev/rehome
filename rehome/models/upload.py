@@ -111,37 +111,17 @@ class Upload(BaseModel):
 
 
 def _get_file_extension(path: Path) -> str:
-    """Extract file extension, supporting multipart extensions like .tar.gz."""
-    multipart_extensions = [
-        ".tar.gz",
-        ".tar.bz2",
-        ".tar.xz",
-        ".tar.Z",
-        ".tar.lz",
-        ".tar.zst",
-        ".tar.lzma",
-        ".tar.br",
-    ]
-
-    name_str = str(path)
-    for ext in multipart_extensions:
-        if name_str.endswith(ext):
-            return ext
-
-    # Fall back to single suffix.
-    return path.suffix
+    """Extract file extension, preserving multipart extensions like .tar.gz."""
+    return "".join(path.suffixes)
 
 
 def _generate_name(suffix: str) -> Path:
     name_length = app.config.get("uploads.name_length", 5)
 
     while True:
-        # For multipart extensions, construct manually to preserve the full extension.
-        if "." in suffix and suffix.count(".") > 1:
-            random_part = random_string(name_length)
-            name = Path(f"{random_part}{suffix}")
-        else:
-            name = Path(random_string(name_length)).with_suffix(suffix)
+        # Construct manually to preserve multipart extensions like .tar.gz.
+        random_part = random_string(name_length)
+        name = Path(f"{random_part}{suffix}")
         check_exists_query = select(exists().where(Upload.name == name))
         if not db.session.scalar(check_exists_query):
             return name
