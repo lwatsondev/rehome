@@ -119,9 +119,8 @@ def _generate_name(suffix: str) -> Path:
     name_length = app.config.get("uploads.name_length", 5)
 
     while True:
-        # Construct manually to preserve multipart extensions like .tar.gz.
         random_part = random_string(name_length)
-        name = Path(f"{random_part}{suffix}")
+        name = Path(random_part).with_suffix(suffix)
         check_exists_query = select(exists().where(Upload.name == name))
         if not db.session.scalar(check_exists_query):
             return name
