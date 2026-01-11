@@ -10,23 +10,52 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      docker:
+        patterns:
+          - "*"
 
   - package-ecosystem: "docker-compose"
     directory: "/docker"
     schedule:
       interval: "weekly"
+    groups:
+      docker-compose:
+        patterns:
+          - "*"
 
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      python-production:
+        dependency-type: "production"
+        exclude-patterns:
+          - "flask-*"
+      python-dev:
+        dependency-type: "development"
+        exclude-patterns:
+          - "flask-*"
+      python-flask:
+        patterns:
+          - "flask-*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      gh-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      npm-production:
+        dependency-type: "production"
+      npm-dev:
+        dependency-type: "development"
