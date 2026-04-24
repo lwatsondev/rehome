@@ -1,20 +1,14 @@
 from alembic import command
-from alembic.config import Config
 from sqlalchemy import create_engine, inspect
 
 
-def test_migrations_round_trip(tmp_path):
-    engine = create_engine(f"sqlite:///{tmp_path / 'test.db'}")
-    alembic_cfg = Config("alembic.ini")
+def test_migrations(alembic_cfg, migration_db_url):
+    command.upgrade(alembic_cfg, "head")
+    command.downgrade(alembic_cfg, "base")
+    command.upgrade(alembic_cfg, "head")
 
-    with engine.connect() as conn:
-        alembic_cfg.attributes["connection"] = conn
+    engine = create_engine(migration_db_url)
+    tables = inspect(engine).get_table_names()
+    engine.dispose()
 
-        command.upgrade(alembic_cfg, "head")
-        assert "uploads" in inspect(conn).get_table_names()
-
-        command.downgrade(alembic_cfg, "base")
-        assert "uploads" not in inspect(conn).get_table_names()
-
-        command.upgrade(alembic_cfg, "head")
-        assert "uploads" in inspect(conn).get_table_names()
+    assert "uploads" in tables

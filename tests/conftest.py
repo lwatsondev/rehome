@@ -1,4 +1,5 @@
 import pytest
+from alembic.config import Config as AlembicConfig
 
 from rehome import create_app
 from rehome.extensions import db
@@ -32,3 +33,15 @@ def client(app):
 @pytest.fixture
 def auth_headers():
     return {"Authorization": f"Bearer {AUTH_TOKEN}"}
+
+
+@pytest.fixture
+def migration_db_url(tmp_path):
+    return f"sqlite:///{tmp_path / 'migrations.db'}"
+
+
+@pytest.fixture
+def alembic_cfg(migration_db_url):
+    cfg = AlembicConfig("alembic.ini")
+    cfg.attributes["sqlalchemy.url"] = migration_db_url
+    return cfg
