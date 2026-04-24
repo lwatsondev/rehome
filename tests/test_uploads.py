@@ -1,6 +1,6 @@
 import hashlib
 import io
-import pathlib
+from pathlib import Path
 
 import pytest
 from sqlalchemy import select
@@ -9,7 +9,7 @@ import rehome.paths
 from rehome.extensions import db
 from rehome.models.upload import Upload
 
-FIXTURES = pathlib.Path(__file__).parent / "fixtures"
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture
@@ -51,6 +51,7 @@ def test_upload(client, uploads_dir, auth_headers, filename, suffix):
     assert path.is_file()
     assert "".join(path.suffixes) == suffix
 
+    db.session.rollback()  # Ensure we have a clean session to test the database record.
     record = db.session.scalar(select(Upload).filter_by(name=name))
     assert record is not None
     assert str(record.original_name) == filename
@@ -66,5 +67,6 @@ def test_upload_rename(client, auth_headers):
     assert first.json["url"] == second.json["url"]
 
     name = first.json["url"].split("/")[-1]
+    db.session.rollback()  # Ensure we have a clean session to test the database record.
     record = db.session.scalar(select(Upload).filter_by(name=name))
     assert str(record.original_name) == "other.txt"

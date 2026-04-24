@@ -35,7 +35,7 @@ testpaths = ["tests"]
 
 [tool.ruff]
 force-exclude = true
-extend-exclude = ["docker/data/", "docker/config/", "instance/"]
+extend-exclude = ["docker/data/", "docker/config/", "instance/", "tests/fixtures/"]
 
 [tool.ruff.format]
 line-ending = "lf"
