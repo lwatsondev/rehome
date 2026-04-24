@@ -70,7 +70,7 @@ def _make_mp4() -> bytes:
 @pytest.mark.parametrize(
     ("content", "filename", "suffix"),
     [
-        (_make_txt(), "lorem.txt", ".txt"),
+        (_make_txt(), "hello.txt", ".txt"),
         (_make_png(), "image.png", ".png"),
         (_make_py(), "script.py", ".py"),
         (_make_tar_gz(), "archive.tar.gz", ".tar.gz"),
@@ -97,7 +97,7 @@ def test_upload(client, uploads_dir, auth_headers, content, filename, suffix):  
 
 def test_upload_rename(client, auth_headers):
     content = _make_txt()
-    first = _post_bytes(client, content, "lorem.txt", auth_headers)
+    first = _post_bytes(client, content, "hello.txt", auth_headers)
     second = _post_bytes(client, content, "other.txt", auth_headers)
 
     assert first.json["url"] == second.json["url"]
