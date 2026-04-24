@@ -52,6 +52,16 @@ def run_migrations_online():
     In this scenario we need to create an Engine and associate a connection
     with the context.
     """
+    # Support injected connections for testing (see tests/test_migrations.py).
+    if (injected := config.attributes.get("connection")) is not None:
+        context.configure(
+            connection=injected,
+            target_metadata=target_metadata,
+            compare_type=True,
+        )
+        with context.begin_transaction():
+            context.run_migrations()
+        return
 
     # If you use Alembic revision's --autogenerate flag this function will
     # prevent Alembic from creating an empty migration file if nothing changed.

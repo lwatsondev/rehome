@@ -2,16 +2,12 @@
 
 ## Setting up the dev environment
 
-First, install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+First, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and [yarn](https://yarnpkg.com/getting-started/install).
 
 ```sh
 git clone git@github.com:lwatsondev/rehome
 cd rehome
-
-uv sync --group dev
-uv run pre-commit install
-
-yarn install
+make setup
 ```
 
 ## Running in dev mode
@@ -22,5 +18,13 @@ yarn install
 ## Add env vars to 'docker/.env'.
 ## You can also copy rehome/resources/config/default.toml to instance/config
 ## Config shouldn't be necessary for dev as everything that needs to be is already configured in the Dockerfile.
-docker compose -f docker/compose.yaml up --build --pull always
+make run
 ```
+
+## Running tests
+
+```sh
+make test
+```
+
+Tests run inside Docker to match the production environment.

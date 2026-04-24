@@ -10,7 +10,7 @@ from rehome import meta, paths
 from rehome.extensions import db, debugbar, dynaconf
 
 
-def create_app() -> Flask:
+def create_app(test_config: dict | None = None) -> Flask:
     app = Flask(
         "rehome",
         static_folder=paths.STATIC,
@@ -18,6 +18,9 @@ def create_app() -> Flask:
         instance_path=paths.INSTANCE,
     )
     dynaconf.init_app(app)
+
+    if test_config is not None:
+        app.config.update(test_config)
 
     if "gunicorn" in os.environ.get("SERVER_SOFTWARE", ""):
         gunicorn_logger = logging.getLogger("gunicorn.error")
