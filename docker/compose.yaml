@@ -32,5 +32,17 @@ services:
           cpus: "${REHOME_CPU_LIMIT:-${CPU_LIMIT:-0}}"
           memory: "${REHOME_MEM_LIMIT:-${MEM_LIMIT:-0}}"
 
+  test:
+    extends:
+      service: "rehome"
+    container_name: "rehome-test"
+    entrypoint: []
+    command: ["uv", "run", "pytest"]
+    ports: []
+    environment:
+      UV_NO_CACHE: "1"
+    profiles:
+      - "test"
+
 networks:
   rehome:
