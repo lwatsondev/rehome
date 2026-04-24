@@ -1,5 +1,6 @@
 import hashlib
 import io
+from http import HTTPStatus
 from pathlib import Path
 
 import pytest
@@ -43,7 +44,7 @@ def test_upload(client, uploads_dir, auth_headers, filename, suffix):
     content = (FIXTURES / filename).read_bytes()
     response = _post_bytes(client, content, filename, auth_headers)
 
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
     assert "url" in response.json
 
     name = response.json["url"].split("/")[-1]
