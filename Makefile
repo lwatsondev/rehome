@@ -11,4 +11,4 @@ run:
 	docker compose -f docker/compose.yaml up --build
 
 test:
-	docker compose -f docker/compose.yaml --profile test run --rm $(TTY_FLAG) test
+	docker compose -f docker/compose.yaml --profile test run --rm $(TTY_FLAG) --build test
