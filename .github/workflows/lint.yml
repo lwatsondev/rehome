@@ -40,7 +40,7 @@ jobs:
       - name: "Lint"
         uses: "pre-commit/action@v3.0.1"
 
-      - name: "Install system dependencies"
+      - name: "Install test dependencies"
         run: "sudo apt-get install --no-install-recommends -y libmagic1"
 
       - name: "Test"
