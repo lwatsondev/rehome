@@ -1,27 +1,48 @@
-docker/data/*
-docker/config/*
-
+# Editors
 .vscode/
 .idea/
+.cursor/
+*.swp
+*.swo
+*~
+Session.vim
+*.sublime-project
+*.sublime-workspace
 
-node_modules/
-.ruff_cache/
+# OS
+.DS_Store
+Thumbs.db
 
-# Byte-compiled / optimized / DLL files
+# Python cache and build files
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# Flask stuff:
-instance/
-
-# Environments
-.env
+# Python virtual environments
 .venv
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+
+# Env vars and secrets for dynaconf
+.env
+.secrets.*
+
+# Node
+node_modules/
+
+# Flask instance
+instance/
+
+docker/data/
+docker/config/
 
 !/.git*
