@@ -7,7 +7,6 @@ on: # yamllint disable-line rule:truthy
 env:
   RUFF_OUTPUT_FORMAT: "github"
   UV_FROZEN: 1
-  SKIP: "pytest" # Skip pytest in pre-commit since it is run separately in the test step.
 
 jobs:
   lint:
@@ -38,4 +37,6 @@ jobs:
         run: "yarn install --frozen-lockfile"
 
       - name: "Lint"
-        uses: "pre-commit/action@v3.0.1"
+        uses: "j178/prek-action@v2.0.2"
+        with:
+          extra-args: "--all-files --skip pytest"
