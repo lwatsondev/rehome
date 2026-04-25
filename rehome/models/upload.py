@@ -46,13 +46,14 @@ class Upload(BaseModel):
 
     def __init__(
         self,
+        name: Path,
         original_name: Path,
         size: int,
         mimetype: str,
         file_hash: str,
     ):
         super().__init__()
-        self.name = _generate_name(_get_file_extension(original_name))
+        self.name = name
         self.original_name = original_name
         self.size = size
         self.mimetype = mimetype
@@ -76,6 +77,7 @@ class Upload(BaseModel):
             return existing_upload
 
         return cls(
+            _generate_name(file_original_name),
             file_original_name,
             file_size,
             file_mimetype,
@@ -110,13 +112,9 @@ class Upload(BaseModel):
         return url_for("uploads.view", name=self.name, _external=True)
 
 
-def _get_file_extension(path: Path) -> str:
-    """Extract file extension, preserving multipart extensions like .tar.gz."""
-    return "".join(path.suffixes)
-
-
-def _generate_name(suffix: str) -> Path:
+def _generate_name(original: Path) -> Path:
     name_length = app.config.get("uploads.name_length", 5)
+    suffix = "".join(original.suffixes)
 
     while True:
         random_part = random_string(name_length)
@@ -127,8 +125,6 @@ def _generate_name(suffix: str) -> Path:
         name_length += 1
 
 
-def __after_delete(mapper, connection, target: Upload):  # noqa: ARG001
+@event.listens_for(Upload, "after_delete")
+def _after_delete(mapper, connection, target: Upload):  # noqa: ARG001
     target.path.unlink(missing_ok=True)
-
-
-event.listen(Upload, "after_delete", __after_delete)
