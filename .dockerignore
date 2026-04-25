@@ -4,6 +4,7 @@
 !rehome
 !alembic.ini
 !pyproject.toml
+!gunicorn.conf.py
 !uv.lock
 !.python-version
 !README.md
