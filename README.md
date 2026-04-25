@@ -21,6 +21,12 @@ make setup
 make run
 ```
 
+## Linting
+
+```sh
+make lint
+```
+
 ## Running tests
 
 ```sh
