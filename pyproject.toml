@@ -27,6 +27,7 @@ dev = [
     "flask-debugtoolbar>=0.16.0",
     "yamllint>=1.37.1",
     "pytest>=9.0.3",
+    "hadolint-py>=2.14.0.1",
 ]
 
 [tool.pytest.ini_options]
