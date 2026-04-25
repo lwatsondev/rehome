@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask import Blueprint, render_template
 from jinja2 import TemplateNotFound
 from werkzeug.exceptions import HTTPException
@@ -18,3 +20,8 @@ def _base_error_handler(error: HTTPException):
 @blueprint.get("/")
 def index():
     return render_template("pages/index.html")
+
+
+@blueprint.get("/_/health")
+def health():
+    return "", HTTPStatus.NO_CONTENT
