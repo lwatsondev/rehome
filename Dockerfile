@@ -63,9 +63,7 @@ FROM app-base AS development
 
 ENV FLASK_ENV=development \
     FLASK_DEBUG=1 \
-    ENV_FOR_DYNACONF=development \
-    CFG_SECRET_KEY=dev \
-    CFG_AUTH__TOKEN=dev
+    ENV_FOR_DYNACONF=development
 
 RUN --mount=type=cache,target=${UV_CACHE_DIR} \
     uv sync --no-install-project --group dev
