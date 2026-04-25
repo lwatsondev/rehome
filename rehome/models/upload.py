@@ -1,8 +1,9 @@
 import hashlib
-import os
+import shutil
 import typing
 from datetime import datetime  # noqa: TC003
 from pathlib import Path
+from typing import BinaryIO
 
 import magic
 from flask import current_app as app
@@ -23,9 +24,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from rehome import db, paths
 from rehome.models import BaseModel
 from rehome.util import random_string
-
-if typing.TYPE_CHECKING:
-    from werkzeug.datastructures import FileStorage
 
 
 class UploadSaveError(Exception):
@@ -60,43 +58,51 @@ class Upload(BaseModel):
         self.file_hash = file_hash
 
     @classmethod
-    def from_file(cls, file: FileStorage) -> typing.Self:
-        file_original_name = Path(file.filename)
-        file.seek(0, os.SEEK_SET)
-        file.seek(0, os.SEEK_END)
-        file_size = file.tell()
-        file.seek(0, os.SEEK_SET)
-        file_mimetype = magic.from_buffer(file.read(4096), mime=True)
-        file.seek(0, os.SEEK_SET)
-        file_hash = hashlib.file_digest(file.stream, hashlib.sha256).hexdigest()
-        file.seek(0, os.SEEK_SET)
+    def from_file(cls, file: BinaryIO, name: str | Path) -> typing.Self:
+        original_name = Path(name)
+        file.seek(0)
+        hasher = hashlib.sha256()
+        file_size = 0
+        header = b""
+
+        # Single pass rather than previous behaviour of multiple seeks.
+        # Collects hash, size, and mime header together.
+        while chunk := file.read(1024 * 128):
+            if not header:
+                header = chunk[:4096]
+            hasher.update(chunk)
+            file_size += len(chunk)
+        file_mimetype = magic.from_buffer(header, mime=True)
+        file_hash = hasher.hexdigest()
 
         existing_upload_query = select(cls).filter_by(file_hash=file_hash)
         existing_upload = db.session.scalar(existing_upload_query)
         if existing_upload:
+            existing_upload.update(original_name=original_name)
             return existing_upload
 
         return cls(
-            _generate_name(file_original_name),
-            file_original_name,
+            _generate_name(original_name),
+            original_name,
             file_size,
             file_mimetype,
             file_hash,
         )
 
-    def save(self, file: FileStorage):
+    def save(self, file: BinaryIO):
         if self.path.exists():
-            self.update(original_name=file.filename)
             return
 
         db.session.add(self)
         try:
             self.path.parent.mkdir(exist_ok=True, parents=True)
-            file.seek(0, os.SEEK_SET)
-            file.save(
-                self.path,
-                buffer_size=app.config.get("uploads.save_chunk_size", 1024 * 128),
-            )  # Using 128KB chunks to match ZFS' default recordsize.
+            file.seek(0)
+            with self.path.open("wb") as dest:
+                shutil.copyfileobj(
+                    file,
+                    dest,
+                    length=app.config.get("uploads.save_chunk_size", 1024 * 128),
+                )
             db.session.commit()
         except (OSError, IntegrityError) as error:
             db.session.rollback()

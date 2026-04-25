@@ -87,12 +87,12 @@ def upload_file():
         raise ValidationError(description=form.errors)
 
     fd = form.file.data
-    upload = Upload.from_file(fd)
+    upload = Upload.from_file(fd, fd.filename)
 
     try:
         upload.save(fd)
     except UploadSaveError as error:
-        msg = "An error occurred while saving the file."
+        msg = "An error occurred while saving a file."
         app.logger.exception(msg)
         raise UploadError(description=f"{msg} Check the application logs.") from error
 
