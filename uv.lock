@@ -430,8 +430,7 @@ wheels = [
 
 [[package]]
 name = "rehome"
-version = "1.6.3"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "dynaconf" },
     { name = "flask" },

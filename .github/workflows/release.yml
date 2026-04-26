@@ -16,6 +16,8 @@ jobs:
       packages: "write"
     steps:
       - uses: "actions/checkout@v6"
+        with:
+          fetch-depth: 0
 
       - name: "Set up Docker Buildx"
         uses: "docker/setup-buildx-action@v4"
@@ -46,12 +48,9 @@ jobs:
           context: "."
           file: "docker/Dockerfile"
           target: "production"
+          build-contexts: "dotgit=.git"
           push: "${{ github.event_name != 'pull_request' }}"
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
           cache-from: "type=gha"
           cache-to: "type=gha,mode=max"
-          build-args: |-
-            META_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            META_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            META_SOURCE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.source'] }}

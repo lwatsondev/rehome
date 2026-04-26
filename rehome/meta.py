@@ -1,12 +1,12 @@
-import os
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import metadata as pkg_metadata
 
-FULL_VERSION: str = "[version unknown]"
-VERSION: str | None = os.getenv("META_VERSION")
-COMMIT: str | None = os.getenv("META_COMMIT")
-SOURCE: str = os.getenv("META_SOURCE") or "https://github.com/lwatsondev/rehome"
-
-if VERSION:
-    FULL_VERSION = f"{VERSION}"
-
-if COMMIT:
-    FULL_VERSION += f"-{COMMIT[:8]}"
+try:
+    _meta = pkg_metadata("rehome")
+    FULL_VERSION: str = _meta["Version"]
+    SOURCE: str = dict(
+        u.split(", ", 1) for u in (_meta.get_all("Project-URL") or [])
+    ).get("source", "")
+except PackageNotFoundError:
+    FULL_VERSION = "[version unknown]"
+    SOURCE = ""
