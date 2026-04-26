@@ -43,7 +43,9 @@ jobs:
 
       - name: "Get version"
         id: "version"
-        run: "echo \"version=$(git describe --tags --exact-match 2>/dev/null || echo '')\" >> $GITHUB_OUTPUT"
+        run: |
+          pip install --quiet setuptools-scm
+          echo "version=$(python -m setuptools_scm)" >> $GITHUB_OUTPUT
 
       - name: "Build and push Docker image"
         if: "${{ !env.ACT }}"
