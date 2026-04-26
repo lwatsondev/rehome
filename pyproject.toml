@@ -2,7 +2,7 @@
 name = "rehome"
 description = ""
 authors = [{ name = "Lee Watson", email = "me@lwatson.dev" }]
-dynamic = ["version"]
+version = "1.6.3"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 dependencies = [
@@ -18,9 +18,6 @@ dependencies = [
     "dynaconf>=3.2.10",
     "flask-sqlalchemy-lite>=0.1.0",
 ]
-
-[project.urls]
-source = "https://github.com/lwatsondev/rehome"
 
 [dependency-groups]
 dev = [
@@ -113,13 +110,3 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["ARG001", "PLR2004", "S101", "S105", "S106", "S607"]
-
-[build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
-
-[tool.hatch.version]
-source = "vcs"
-
-[tool.hatch.build.hooks.vcs]
-version-file = "rehome/_version.py"

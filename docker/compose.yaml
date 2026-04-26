@@ -29,8 +29,6 @@ services:
       context: "../"
       dockerfile: "docker/Dockerfile"
       target: "development"
-      additional_contexts:
-        dotgit: "../.git"
     deploy:
       resources:
         limits:
@@ -42,9 +40,7 @@ services:
       service: "rehome"
     container_name: "rehome-test"
     entrypoint: []
-    # --no-sync: The image is fully built so we don't need to sync the virtual environment.
-    # We don't want to sync the venv because uv cannot write to the venv because of `read_only: true`.
-    command: ["uv", "run", "--no-sync", "pytest"]
+    command: ["uv", "run", "pytest"]
     ports: []
     environment:
       UV_NO_CACHE: "1"

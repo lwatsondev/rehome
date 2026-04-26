@@ -28,8 +28,6 @@ def create_app(test_config: dict | None = None) -> Flask:
         app.logger.setLevel(gunicorn_logger.level)
         init_sentry(app)
 
-    app.logger.info(f"Starting rehome version {meta.FULL_VERSION}")
-
     init_extensions(app)
     register_blueprints(app)
     register_context_processors(app)
