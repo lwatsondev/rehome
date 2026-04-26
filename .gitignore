@@ -1,5 +1,7 @@
 # Editors
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 .cursor/
 *.swp
