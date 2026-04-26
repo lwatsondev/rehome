@@ -35,8 +35,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 
 COPY . .
 
+ARG SETUPTOOLS_SCM_PRETEND_VERSION
 RUN --mount=type=bind,from=dotgit,target=.git \
     --mount=type=cache,target=${UV_CACHE_DIR} \
+    SETUPTOOLS_SCM_PRETEND_VERSION="${SETUPTOOLS_SCM_PRETEND_VERSION}" \
     uv sync --no-dev
 
 

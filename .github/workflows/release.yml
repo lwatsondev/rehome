@@ -41,6 +41,10 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
+      - name: "Get version"
+        id: "version"
+        run: "echo \"version=$(git describe --tags)\" >> $GITHUB_OUTPUT"
+
       - name: "Build and push Docker image"
         if: "${{ !env.ACT }}"
         uses: "docker/build-push-action@v7"
@@ -49,6 +53,7 @@ jobs:
           file: "docker/Dockerfile"
           target: "production"
           build-contexts: "dotgit=.git"
+          build-args: "SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.version.outputs.version }}"
           push: "${{ github.event_name != 'pull_request' }}"
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
