@@ -1,10 +1,11 @@
 {
     "name": "rehome",
-    "version": "1.4.3",
+    "version": "1.6.3",
     "repository": "https://github.com/lwatsondev/rehome",
     "author": "Lee Watson <me@lwatson.dev>",
     "license": "",
     "private": true,
+    "packageManager": "yarn@1.22.22",
     "devDependencies": {
         "stylelint": "^17.6.0",
         "stylelint-config-standard": "^40.0.0"

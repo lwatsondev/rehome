@@ -45,7 +45,7 @@ types = ["shell"]
 [[repos.hooks]]
 id = "stylelint"
 name = "stylelint"
-entry = "yarn run lint"
+entry = "corepack yarn run lint"
 language = "system"
 types = ["css"]
 
