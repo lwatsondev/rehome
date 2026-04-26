@@ -1,8 +1,0 @@
-{
-    "recommendations": [
-        "ms-python.python",
-        "charliermarsh.ruff",
-        "ms-azuretools.vscode-docker",
-        "tamasfe.even-better-toml"
-    ]
-}
