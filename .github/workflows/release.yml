@@ -7,6 +7,7 @@ on: # yamllint disable-line rule:truthy
 env:
   REGISTRY: "ghcr.io"
   IMAGE_NAME: "${{ github.repository }}"
+  ACT: ""
 
 jobs:
   build-and-push-image:
@@ -40,13 +41,12 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
 
       - name: "Build and push Docker image"
-        if: "${{ !env.ACT }}"
         uses: "docker/build-push-action@v7"
         with:
           context: "."
           file: "docker/Dockerfile"
           target: "production"
-          push: "${{ github.event_name != 'pull_request' }}"
+          push: "${{ github.event_name != 'pull_request' && !env.ACT }}"
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
           cache-from: "type=gha"
