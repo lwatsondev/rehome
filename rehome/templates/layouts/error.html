@@ -1,9 +1,0 @@
-{% extends "layouts/base.html" %}
-
-{% block description %}My personal {{ error.code }} error page. No guarantee of page.{% endblock %}
-
-{% block title %}{{ error.code }} | {{ error.name }}{% endblock %}
-
-{% block content %}
-    <p>{{ error.description }}</p>
-{% endblock %}

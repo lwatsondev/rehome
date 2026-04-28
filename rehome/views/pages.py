@@ -10,16 +10,16 @@ blueprint = Blueprint("pages", __name__)
 @blueprint.app_errorhandler(HTTPException)
 def _base_error_handler(error: HTTPException):
     try:
-        template = render_template(f"errors/{error.code}.html", error=error)
+        template = render_template(f"errors/{error.code}.html.j2", error=error)
     except TemplateNotFound:
-        template = render_template("layouts/error.html", error=error)
+        template = render_template("layouts/error.html.j2", error=error)
 
     return template, error.code
 
 
 @blueprint.get("/")
 def index():
-    return render_template("pages/index.html")
+    return render_template("pages/index.html.j2")
 
 
 @blueprint.get("/_/health")
