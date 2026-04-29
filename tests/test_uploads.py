@@ -100,4 +100,5 @@ def test_upload_rename(client, auth_headers):
     name = first.json["url"].split("/")[-1]
     db.session.rollback()  # Ensure we have a clean session to test the database record.
     record = db.session.scalar(select(Upload).filter_by(name=name))
+    assert record is not None
     assert str(record.original_name) == "other.txt"

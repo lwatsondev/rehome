@@ -24,11 +24,11 @@ class PathLike(TypeDecorator):
         self,
         value: os.PathLike | None,
         dialect: Dialect,  # noqa: ARG002
-    ) -> str:
+    ) -> str | None:
         """Convert an `os.PathLike` value to a string for the database."""
         if value:
-            value = os.fspath(value)
-        return value
+            return os.fspath(value)
+        return None
 
     def process_result_value(
         self,
@@ -37,5 +37,5 @@ class PathLike(TypeDecorator):
     ) -> os.PathLike | None:
         """Restore a string from the database to an `os.Pathlike`."""
         if value is not None:
-            value = self.factory(value)
-        return value
+            return self.factory(value)
+        return None
