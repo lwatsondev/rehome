@@ -11,5 +11,7 @@ INSTANCE = Path(_config.get("paths.instance", BASE.parent / "instance"))
 DATA = Path(_config.get("paths.data", INSTANCE))
 UPLOADS = Path(_config.get("paths.uploads", DATA / "uploads"))
 
-for path in [INSTANCE, DATA, UPLOADS]:
-    path.mkdir(parents=True, exist_ok=True)
+
+def ensure_dirs():
+    for path in [INSTANCE, DATA, UPLOADS]:
+        path.mkdir(parents=True, exist_ok=True)

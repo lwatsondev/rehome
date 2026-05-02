@@ -28,6 +28,9 @@ def create_app(test_config: dict | None = None) -> Flask:
         app.logger.setLevel(gunicorn_logger.level)
         init_sentry(app)
 
+    if not app.testing:
+        paths.ensure_dirs()
+
     init_extensions(app)
     register_blueprints(app)
     register_context_processors(app)

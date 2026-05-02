@@ -90,7 +90,7 @@ def test_delete_removes_file(client, uploads_dir, auth_headers):
     assert not path.exists()
 
 
-def test_upload_rename(client, auth_headers):
+def test_upload_rename(client, uploads_dir, auth_headers):
     content = (FIXTURES / "hello.txt").read_bytes()
     first = _post_bytes(client, content, "hello.txt", auth_headers)
     second = _post_bytes(client, content, "other.txt", auth_headers)

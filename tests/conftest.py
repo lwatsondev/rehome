@@ -1,6 +1,7 @@
 import pytest
 from alembic.config import Config as AlembicConfig
 
+import rehome.paths
 from rehome import create_app
 from rehome.extensions import db
 from rehome.models import BaseModel
@@ -41,7 +42,10 @@ def migration_db_url(tmp_path):
 
 
 @pytest.fixture
-def alembic_cfg(migration_db_url):
+def alembic_cfg(migration_db_url, monkeypatch):
+    monkeypatch.setattr(
+        rehome.paths, "ensure_dirs", lambda: None
+    )  # Prevent creating instance/data directories during migration tests.
     cfg = AlembicConfig("alembic.ini")
     cfg.attributes["sqlalchemy.url"] = migration_db_url
     return cfg
