@@ -86,7 +86,7 @@ def register_context_processors(app: Flask):
     def inject_avatar():
         avatar_url = url_for("static", filename="img/avatar.webp")
         if email := app.config.get("gravatar.email"):
-            avatar_url = Gravatar(email).get_image(size=512)
+            avatar_url = Gravatar(email).get_image(size=256)
 
         return {"avatar_url": avatar_url}
 
