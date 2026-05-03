@@ -31,6 +31,7 @@ def upload_list(sort: str):
     if not uploads:
         click.echo(click.style("No files.", fg="yellow"))
         return
+
     table = Table(show_edge=False, pad_edge=False)
     table.add_column("Name", style="bold")
     table.add_column("Slug")
@@ -62,9 +63,11 @@ def upload_delete(slugs: tuple[str, ...]):
         if not upload:
             raise _UploadNotFoundError(slug)
         uploads.append(upload)
+
     noun = "file" if len(uploads) == 1 else "files"
     names_str = ", ".join(f"'{u.slug}'" for u in uploads)
     click.confirm(f"Delete {noun} {names_str}?", abort=True)
     for upload in uploads:
         upload.delete()
+
     click.echo(click.style(f"Deleted {len(uploads)} {noun}.", fg="green"))

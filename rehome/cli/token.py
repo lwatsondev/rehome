@@ -27,9 +27,11 @@ token_cli = AppGroup("token", help="Manage auth tokens.")
 def token_create(name: str):
     if db.session.get(AuthToken, name):
         raise _TokenExistsError(name)
+
     plaintext, token = AuthToken.generate(name)
     db.session.add(token)
     db.session.commit()
+
     click.echo(plaintext)
 
 
@@ -39,6 +41,7 @@ def token_list():
     if not tokens:
         click.echo(click.style("No tokens.", fg="yellow"))
         return
+
     table = Table(show_edge=False, pad_edge=False)
     table.add_column("Name", style="bold")
     table.add_column("Created")
@@ -50,6 +53,7 @@ def token_list():
             else "[yellow]never[/yellow]"
         )
         table.add_row(token.name, localtime(token.created_at), last_used)
+
     Console().print(table)
 
 
@@ -59,5 +63,6 @@ def token_delete(name: str):
     token = db.session.get(AuthToken, name)
     if not token:
         raise _TokenNotFoundError(name)
+
     token.delete()
     click.echo(click.style(f"Deleted token '{name}'.", fg="green"))
