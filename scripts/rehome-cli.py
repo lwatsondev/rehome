@@ -4,7 +4,9 @@
 # dependencies = [
 #     "click>=8.0",
 #     "dynaconf>=3.0",
+#     "humanize>=4.0",
 #     "niquests[speedups]",
+#     "rich>=13.0",
 # ]
 # ///
 
@@ -13,9 +15,13 @@ import sys
 from pathlib import Path
 
 import click
+import humanize
 import niquests
 from dynaconf import Dynaconf
 from dynaconf.loaders import write as dynaconf_write
+from niquests import Response
+from rich.console import Console
+from rich.table import Table
 
 _XDG_CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 _CONFIG_DIR = _XDG_CONFIG_HOME / "rehome"
@@ -23,28 +29,28 @@ _CONFIG_FILE = _CONFIG_DIR / "config.toml"
 _DEFAULT_BASE_URL = "https://lwatson.dev"
 
 
-class UploadError(Exception):
+class RehomeError(Exception):
     pass
 
 
-class _ConnectionError(UploadError):
+class _ConnectionError(RehomeError):
     def __init__(self, base_url: str) -> None:
         super().__init__(f"Could not connect to {base_url}.")
 
 
-class _TimeoutError(UploadError):
+class _TimeoutError(RehomeError):
     def __init__(self, base_url: str) -> None:
         super().__init__(f"Request to {base_url} timed out.")
 
 
-class _RequestError(UploadError):
+class _RequestError(RehomeError):
     def __init__(self, exc: Exception) -> None:
         super().__init__(f"Request failed: {exc}.")
 
 
-class _ServerError(UploadError):
+class _ServerError(RehomeError):
     def __init__(self, error: str) -> None:
-        super().__init__(f"Upload failed: {error}")
+        super().__init__(f"Server error: {error}")
 
 
 def _load_config() -> Dynaconf:
@@ -88,14 +94,15 @@ def _ensure_config() -> Dynaconf:
     return config
 
 
-def _upload(file: Path, base_url: str, token: str) -> str:
+def _make_request(method: str, url: str, token: str, **kwargs) -> Response:
+    base_url = url.split("/f", 1)[0]
     try:
-        with file.open("rb") as f:
-            response = niquests.post(
-                f"{base_url}/f/",
-                files={"file": (file.name, f)},
-                headers={"Authorization": f"Bearer {token}"},
-            )
+        return niquests.request(
+            method,
+            url,
+            headers={"Authorization": f"Bearer {token}"},
+            **kwargs,
+        )
     except niquests.exceptions.ConnectionError:
         raise _ConnectionError(base_url) from None
     except niquests.exceptions.Timeout:
@@ -103,6 +110,8 @@ def _upload(file: Path, base_url: str, token: str) -> str:
     except niquests.exceptions.RequestException as exc:
         raise _RequestError(exc) from exc
 
+
+def _check_response(response: Response) -> None:
     if not response.ok:
         try:
             error = response.json().get("error", response.reason)
@@ -114,25 +123,96 @@ def _upload(file: Path, base_url: str, token: str) -> str:
             error = response.reason or f"HTTP {response.status_code}"
         raise _ServerError(error)
 
+
+def _upload(file: Path, base_url: str, token: str) -> str:
+    with file.open("rb") as fd:
+        response = _make_request(
+            "POST",
+            f"{base_url}/f/",
+            token,
+            files={"file": (file.name, fd)},
+        )
+    _check_response(response)
     return response.json()["url"]
 
 
-@click.command()
-@click.argument("file", type=click.Path(exists=True, readable=True, path_type=Path))
-def main(file: Path) -> None:
+def _list_uploads(base_url: str, token: str) -> list[dict]:
+    response = _make_request("GET", f"{base_url}/f/", token)
+    _check_response(response)
+    return response.json()
+
+
+def _delete_uploads(names: list[str], base_url: str, token: str) -> int:
+    response = _make_request("DELETE", f"{base_url}/f/", token, json={"names": names})
+    _check_response(response)
+    return response.json()["deleted"]
+
+
+@click.group()
+@click.pass_context
+def cli(ctx: click.Context) -> None:
     config = _ensure_config()
+    ctx.ensure_object(dict)
+    ctx.obj["base_url"] = config.get("base_url", _DEFAULT_BASE_URL).rstrip("/")
+    ctx.obj["token"] = config.get("auth.token")
 
-    base_url = config.get("base_url", _DEFAULT_BASE_URL).rstrip("/")
-    token = config.get("auth.token")
 
+@cli.command("upload")
+@click.argument("file", type=click.Path(exists=True, readable=True, path_type=Path))
+@click.pass_obj
+def upload_cmd(obj: dict, file: Path) -> None:
     try:
-        url = _upload(file, base_url, token)
-    except UploadError as exc:
-        click.echo(str(exc))
+        url = _upload(file, obj["base_url"], obj["token"])
+    except RehomeError as exc:
+        click.echo(str(exc), err=True)
         sys.exit(1)
 
     click.echo(url)
 
 
+@cli.command("list")
+@click.pass_obj
+def list_cmd(obj: dict) -> None:
+    try:
+        uploads = _list_uploads(obj["base_url"], obj["token"])
+    except RehomeError as exc:
+        click.echo(str(exc), err=True)
+        sys.exit(1)
+
+    if not uploads:
+        click.echo("No files.")
+        return
+
+    table = Table(show_edge=False, pad_edge=False)
+    table.add_column("Name", style="bold")
+    table.add_column("Slug")
+    table.add_column("Size")
+    table.add_column("Type")
+    table.add_column("Created")
+    for upload in uploads:
+        table.add_row(
+            upload["original_name"],
+            upload["name"],
+            humanize.naturalsize(upload["size"]),
+            upload["mimetype"],
+            upload["created_at"],
+        )
+    Console().print(table)
+
+
+@cli.command("delete")
+@click.argument("names", nargs=-1, required=True)
+@click.pass_obj
+def delete_cmd(obj: dict, names: tuple[str, ...]) -> None:
+    try:
+        count = _delete_uploads(list(names), obj["base_url"], obj["token"])
+    except RehomeError as exc:
+        click.echo(str(exc), err=True)
+        sys.exit(1)
+
+    noun = "file" if count == 1 else "files"
+    click.echo(f"Deleted {count} {noun}.")
+
+
 if __name__ == "__main__":
-    main()
+    cli()

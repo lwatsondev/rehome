@@ -101,3 +101,63 @@ def test_upload_rename(client, uploads_dir, auth_headers):
     record = db.session.get(Upload, name)
     assert record is not None
     assert str(record.original_name) == "other.txt"
+
+
+def test_list_uploads(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    _post_bytes(client, content, "hello.txt", auth_headers)
+
+    response = client.get("/f/", headers=auth_headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert len(data) == 1
+    assert data[0]["original_name"] == "hello.txt"
+    assert "name" in data[0]
+    assert "size" in data[0]
+    assert "mimetype" in data[0]
+    assert "created_at" in data[0]
+    assert "url" in data[0]
+
+
+def test_bulk_delete(client, uploads_dir, auth_headers):
+    txt_name = (
+        _post_bytes(
+            client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+    png_name = (
+        _post_bytes(
+            client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.delete(
+        "/f/", json={"names": [txt_name, png_name]}, headers=auth_headers
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json["deleted"] == 2
+    assert db.session.get(Upload, txt_name) is None
+    assert db.session.get(Upload, png_name) is None
+
+
+def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
+    name = (
+        _post_bytes(
+            client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.delete(
+        "/f/", json={"names": [name, "nonexistent.txt"]}, headers=auth_headers
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert db.session.get(Upload, name) is not None

@@ -4,18 +4,17 @@ from flask import (
     Blueprint,
     Response,
     make_response,
-    redirect,
     request,
     send_file,
-    url_for,
 )
 from flask import current_app as app
+from sqlalchemy import select
 from werkzeug.exceptions import (
     HTTPException,
     NotFound,
 )
 
-from rehome import paths
+from rehome import db, paths
 from rehome.auth import auth
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import Upload, UploadSaveError
@@ -75,8 +74,22 @@ def __make_upload_file_response(upload: Upload) -> Response:
 
 
 @blueprint.get("/")
-def index():
-    return redirect(url_for("pages.index"))
+@auth.login_required
+def list_uploads():
+    uploads = db.session.scalars(
+        select(Upload).order_by(Upload.created_at.desc())
+    ).all()
+    return [
+        {
+            "name": str(upload.name),
+            "original_name": str(upload.original_name),
+            "size": upload.size,
+            "mimetype": upload.mimetype,
+            "created_at": upload.created_at.isoformat(),
+            "url": upload.url,
+        }
+        for upload in uploads
+    ]
 
 
 @blueprint.post("/")
@@ -132,9 +145,22 @@ def view(name: str):
     )
 
 
-@blueprint.delete("<string:name>")
+@blueprint.delete("/")
 @auth.login_required
-def delete(name: str):
-    upload = Upload.one_or_404(name=name)
-    upload.delete()
-    return {"status": "deleted"}
+def delete_uploads():
+    names = (request.get_json() or {}).get("names", [])
+    uploads, not_found = [], []
+    for name in names:
+        upload = db.session.get(Upload, name)
+        if upload:
+            uploads.append(upload)
+        else:
+            not_found.append(name)
+    if not_found:
+        raise UploadError(
+            code=HTTPStatus.NOT_FOUND,
+            description=f"Not found: {', '.join(not_found)}",
+        )
+    for upload in uploads:
+        upload.delete()
+    return {"deleted": len(uploads)}
