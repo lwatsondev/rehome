@@ -10,9 +10,11 @@
 # ]
 # ///
 
+import json
 import os
 import sys
 from datetime import UTC, datetime
+from http import HTTPMethod
 from pathlib import Path
 
 import click
@@ -29,6 +31,8 @@ _CONFIG_DIR = _XDG_CONFIG_HOME / "rehome"
 _CONFIG_FILE = _CONFIG_DIR / "config.toml"
 _DEFAULT_BASE_URL = "https://lwatson.dev"
 _DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
+_ORDER_ASC = "asc"
+_ORDER_DESC = "desc"
 
 
 class RehomeError(Exception):
@@ -130,20 +134,25 @@ def _check_response(response: Response) -> None:
 def _upload(session: Session, file: Path) -> str:
     with file.open("rb") as fd:
         response = _make_request(
-            session, "POST", "/f/", files={"file": (file.name, fd)}
+            session, HTTPMethod.POST, "/f/", files={"file": (file.name, fd)}
         )
     _check_response(response)
     return response.json()["url"]
 
 
-def _list_uploads(session: Session) -> list[dict]:
-    response = _make_request(session, "GET", "/f/")
+def _list_uploads(session: Session, sort: str, desc: bool) -> list[dict]:
+    response = _make_request(
+        session,
+        HTTPMethod.GET,
+        "/f/",
+        params={"sort": sort, "order": _ORDER_DESC if desc else _ORDER_ASC},
+    )
     _check_response(response)
     return response.json()
 
 
 def _delete_uploads(session: Session, slugs: list[str]) -> int:
-    response = _make_request(session, "DELETE", "/f/", json={"slugs": slugs})
+    response = _make_request(session, HTTPMethod.DELETE, "/f/", json={"slugs": slugs})
     _check_response(response)
     return response.json()["deleted"]
 
@@ -158,6 +167,7 @@ def _localtime(dt: datetime, format_str: str) -> str:
 @click.pass_context
 def cli(ctx: click.Context) -> None:
     config = _ensure_config()
+
     ctx.ensure_object(dict)
     base_url = config.get("base_url", _DEFAULT_BASE_URL).rstrip("/")
     ctx.obj["session"] = _make_session(base_url, config.get("auth.token"))
@@ -178,13 +188,26 @@ def upload_cmd(obj: dict, file: Path) -> None:
 
 
 @cli.command("list")
+@click.option(
+    "--sort",
+    type=click.Choice(["created", "size", "mimetype"]),
+    default="created",
+    show_default=True,
+    help="Sort by field.",
+)
+@click.option("--desc", is_flag=True, default=False, help="Sort descending.")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Output raw JSON.")
 @click.pass_obj
-def list_cmd(obj: dict) -> None:
+def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
     try:
-        uploads = _list_uploads(obj["session"])
+        uploads = _list_uploads(obj["session"], sort, desc)
     except RehomeError as exc:
         click.echo(str(exc), err=True)
         sys.exit(1)
+
+    if as_json:
+        click.echo(json.dumps(uploads, indent=2))
+        return
 
     if not uploads:
         click.echo("No files.")
@@ -195,17 +218,21 @@ def list_cmd(obj: dict) -> None:
     table.add_column("Slug")
     table.add_column("Size")
     table.add_column("Type")
+    table.add_column("URL")
     table.add_column("Created")
+
     for upload in uploads:
         table.add_row(
             upload["name"],
             upload["slug"],
             humanize.naturalsize(upload["size"]),
             upload["mimetype"],
+            upload["url"],
             _localtime(
                 datetime.fromisoformat(upload["created_at"]), obj["datetime_format"]
             ),
         )
+
     Console().print(table)
 
 
@@ -213,6 +240,9 @@ def list_cmd(obj: dict) -> None:
 @click.argument("slugs", nargs=-1, required=True)
 @click.pass_obj
 def delete_cmd(obj: dict, slugs: tuple[str, ...]) -> None:
+    if "*" in slugs:
+        click.confirm("Delete all files?", abort=True)
+
     try:
         count = _delete_uploads(obj["session"], list(slugs))
     except RehomeError as exc:

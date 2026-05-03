@@ -146,6 +146,31 @@ def test_bulk_delete(client, uploads_dir, auth_headers):
     assert db.session.get(Upload, png_slug) is None
 
 
+def test_wildcard_delete(client, uploads_dir, auth_headers):
+    txt_slug = (
+        _post_bytes(
+            client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+    png_slug = (
+        _post_bytes(
+            client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.delete("/f/", json={"slugs": ["*"]}, headers=auth_headers)
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json["deleted"] == 2
+    assert db.session.get(Upload, txt_slug) is None
+    assert db.session.get(Upload, png_slug) is None
+    assert list(uploads_dir.iterdir()) == []
+
+
 def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
     slug = (
         _post_bytes(

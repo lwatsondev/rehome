@@ -8,7 +8,9 @@ def test_created_token_authenticates(app, client):
     runner = app.test_cli_runner()
     result = runner.invoke(args=["token", "create", "new"])
     token = result.output.strip()
+
     response = client.post("/f/", headers={"Authorization": f"Bearer {token}"})
+
     assert response.status_code != HTTPStatus.UNAUTHORIZED
 
 
@@ -23,7 +25,9 @@ def test_deleted_token_no_longer_authenticates(app, client):
     runner = app.test_cli_runner()
     create_result = runner.invoke(args=["token", "create", "temp"])
     token = create_result.output.strip()
+
     runner.invoke(args=["token", "delete", "temp"])
+
     response = client.post("/f/", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 

@@ -17,7 +17,13 @@ from werkzeug.exceptions import (
 from rehome import db, paths
 from rehome.auth import auth
 from rehome.forms.upload import UploadForm
-from rehome.models.upload import Upload, UploadSaveError
+from rehome.models.upload import (
+    ORDER_ASC,
+    ORDER_DESC,
+    SORT_COLUMNS,
+    Upload,
+    UploadSaveError,
+)
 from rehome.views.pages import _base_error_handler
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
@@ -76,7 +82,25 @@ def __make_upload_file_response(upload: Upload) -> Response:
 @blueprint.get("/")
 @auth.login_required
 def list_uploads():
-    uploads = db.session.scalars(select(Upload).order_by(Upload.created_at)).all()
+    sort = request.args.get("sort", "created")
+    order = request.args.get("order", ORDER_ASC)
+
+    if sort not in SORT_COLUMNS:
+        raise UploadError(
+            code=HTTPStatus.BAD_REQUEST,
+            description=f"Invalid sort: {sort!r}. Choose from: {', '.join(SORT_COLUMNS)}",
+        )
+
+    if order not in (ORDER_ASC, ORDER_DESC):
+        raise UploadError(
+            code=HTTPStatus.BAD_REQUEST,
+            description=f"Invalid order: {order!r}. Choose from: {ORDER_ASC}, {ORDER_DESC}",
+        )
+
+    col = SORT_COLUMNS[sort]
+    col = col.desc() if order == ORDER_DESC else col.asc()
+
+    uploads = db.session.scalars(select(Upload).order_by(col)).all()
     return [
         {
             "slug": str(upload.slug),
@@ -113,6 +137,7 @@ def upload_file():
 @blueprint.get("<string:slug>")
 def view(slug: str):
     upload = Upload.one_or_404(slug=slug)
+
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -145,8 +170,14 @@ def view(slug: str):
 @auth.login_required
 def delete_uploads():
     slugs = (request.get_json() or {}).get("slugs", [])
-    uploads, not_found = [], []
 
+    if "*" in slugs:
+        uploads = db.session.scalars(select(Upload)).all()
+        for upload in uploads:
+            upload.delete()
+        return {"deleted": len(uploads)}
+
+    uploads, not_found = [], []
     for slug in slugs:
         upload = db.session.get(Upload, slug)
         if upload:

@@ -118,6 +118,16 @@ class Upload(BaseModel):
         return url_for("uploads.view", slug=self.slug, _external=True)
 
 
+ORDER_ASC = "asc"
+ORDER_DESC = "desc"
+
+SORT_COLUMNS = {
+    "created": Upload.created_at,
+    "size": Upload.size,
+    "mimetype": Upload.mimetype,
+}
+
+
 def _generate_slug(file_name: Path) -> Path:
     slug_length = app.config.get("uploads.slug_length", 5)
     suffix = "".join(file_name.suffixes)

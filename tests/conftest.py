@@ -50,6 +50,7 @@ def alembic_cfg(migration_db_url, monkeypatch):
     monkeypatch.setattr(
         rehome.paths, "ensure_dirs", lambda: None
     )  # Prevent creating instance/data directories during migration tests.
+
     cfg = AlembicConfig("alembic.ini")
     cfg.attributes["sqlalchemy.url"] = migration_db_url
     return cfg

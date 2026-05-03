@@ -37,6 +37,7 @@ def token_create(name: str):
 @token_cli.command("list")
 def token_list():
     tokens = db.session.scalars(select(AuthToken).order_by(AuthToken.created_at)).all()
+
     if not tokens:
         click.echo(click.style("No tokens.", fg="yellow"))
         return
