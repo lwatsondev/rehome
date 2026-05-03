@@ -76,9 +76,7 @@ def __make_upload_file_response(upload: Upload) -> Response:
 @blueprint.get("/")
 @auth.login_required
 def list_uploads():
-    uploads = db.session.scalars(
-        select(Upload).order_by(Upload.created_at.desc())
-    ).all()
+    uploads = db.session.scalars(select(Upload).order_by(Upload.created_at)).all()
     return [
         {
             "slug": str(upload.slug),
