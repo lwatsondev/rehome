@@ -1,6 +1,8 @@
 import click
 import humanize
 from flask.cli import AppGroup
+from rich.console import Console
+from rich.table import Table
 from sqlalchemy import select
 
 from rehome import db
@@ -29,17 +31,19 @@ def upload_list(sort: str):
     if not uploads:
         click.echo(click.style("No files.", fg="yellow"))
         return
-    for index, upload in enumerate(uploads):
-        if index:
-            click.echo()
-        click.echo(click.style(str(upload.name), bold=True))
-        click.echo(
-            f"  {click.style('created', dim=True)}  {localtime(upload.created_at)}"
+    table = Table(show_edge=False, pad_edge=False)
+    table.add_column("Name", style="bold")
+    table.add_column("Created")
+    table.add_column("Size")
+    table.add_column("Type")
+    for upload in uploads:
+        table.add_row(
+            str(upload.name),
+            localtime(upload.created_at),
+            humanize.naturalsize(upload.size),
+            upload.mimetype,
         )
-        click.echo(
-            f"  {click.style('size', dim=True)}     {humanize.naturalsize(upload.size)}"
-        )
-        click.echo(f"  {click.style('type', dim=True)}     {upload.mimetype}")
+    Console().print(table)
 
 
 class _UploadNotFoundError(click.ClickException):

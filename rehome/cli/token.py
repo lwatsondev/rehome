@@ -1,5 +1,7 @@
 import click
 from flask.cli import AppGroup
+from rich.console import Console
+from rich.table import Table
 from sqlalchemy import select
 
 from rehome import db
@@ -37,19 +39,18 @@ def token_list():
     if not tokens:
         click.echo(click.style("No tokens.", fg="yellow"))
         return
-    for index, token in enumerate(tokens):
-        if index:
-            click.echo()
+    table = Table(show_edge=False, pad_edge=False)
+    table.add_column("Name", style="bold")
+    table.add_column("Created")
+    table.add_column("Last Used")
+    for token in tokens:
         last_used = (
             localtime(token.last_used_at)
             if token.last_used_at
-            else click.style("never", fg="yellow")
+            else "[yellow]never[/yellow]"
         )
-        click.echo(click.style(token.name, bold=True))
-        click.echo(
-            f"  {click.style('created', dim=True)}   {localtime(token.created_at)}"
-        )
-        click.echo(f"  {click.style('last used', dim=True)} {last_used}")
+        table.add_row(token.name, localtime(token.created_at), last_used)
+    Console().print(table)
 
 
 @token_cli.command("delete")
@@ -59,5 +60,4 @@ def token_delete(name: str):
     if not token:
         raise _TokenNotFoundError(name)
     token.delete()
-    db.session.commit()
     click.echo(click.style(f"Deleted token '{name}'.", fg="green"))
