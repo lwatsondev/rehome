@@ -191,8 +191,8 @@ def list_cmd(obj: dict) -> None:
     table.add_column("Created")
     for upload in uploads:
         table.add_row(
-            upload["original_name"],
             upload["name"],
+            upload["slug"],
             humanize.naturalsize(upload["size"]),
             upload["mimetype"],
             upload["created_at"],

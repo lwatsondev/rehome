@@ -8,7 +8,7 @@ import pytest
 
 import rehome.paths
 from rehome.extensions import db
-from rehome.models.upload import Upload, _generate_name
+from rehome.models.upload import Upload, _generate_slug
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -55,12 +55,12 @@ def test_upload(client, uploads_dir, auth_headers, filename, suffix):
     db.session.rollback()  # Ensure we have a clean session to test the database record.
     record = db.session.get(Upload, name)
     assert record is not None
-    assert str(record.original_name) == filename
+    assert str(record.name) == filename
     assert path.read_bytes() == content
     assert record.file_hash == hashlib.sha256(content).hexdigest()
 
 
-def test_generate_name_retries_on_collision(app):
+def test_generate_slug_retries_on_collision(app):
     db.session.add(
         Upload(Path("abcde.txt"), Path("original.txt"), 100, "text/plain", "deadbeef")
     )
@@ -69,9 +69,9 @@ def test_generate_name_retries_on_collision(app):
     with mock.patch(
         "rehome.models.upload.random_string", side_effect=["abcde", "fghij"]
     ):
-        name = _generate_name(Path("original.txt"))
+        slug = _generate_slug(Path("original.txt"))
 
-    assert name == Path("fghij.txt")
+    assert slug == Path("fghij.txt")
 
 
 def test_delete_removes_file(client, uploads_dir, auth_headers):
@@ -100,7 +100,7 @@ def test_upload_rename(client, uploads_dir, auth_headers):
     db.session.rollback()  # Ensure we have a clean session to test the database record.
     record = db.session.get(Upload, name)
     assert record is not None
-    assert str(record.original_name) == "other.txt"
+    assert str(record.name) == "other.txt"
 
 
 def test_list_uploads(client, uploads_dir, auth_headers):
@@ -112,8 +112,8 @@ def test_list_uploads(client, uploads_dir, auth_headers):
     assert response.status_code == HTTPStatus.OK
     data = response.json
     assert len(data) == 1
-    assert data[0]["original_name"] == "hello.txt"
-    assert "name" in data[0]
+    assert data[0]["name"] == "hello.txt"
+    assert "slug" in data[0]
     assert "size" in data[0]
     assert "mimetype" in data[0]
     assert "created_at" in data[0]

@@ -39,8 +39,8 @@ def upload_list(sort: str):
     table.add_column("Created")
     for upload in uploads:
         table.add_row(
-            str(upload.original_name),
             str(upload.name),
+            str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
             localtime(upload.created_at),
@@ -63,7 +63,7 @@ def upload_delete(names: tuple[str, ...]):
             raise _UploadNotFoundError(name)
         uploads.append(upload)
     noun = "file" if len(uploads) == 1 else "files"
-    names_str = ", ".join(f"'{u.name}'" for u in uploads)
+    names_str = ", ".join(f"'{u.slug}'" for u in uploads)
     click.confirm(f"Delete {noun} {names_str}?", abort=True)
     for upload in uploads:
         upload.delete()

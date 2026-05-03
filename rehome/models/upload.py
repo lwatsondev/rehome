@@ -33,8 +33,8 @@ class UploadSaveError(Exception):
 class Upload(BaseModel):
     __tablename__ = "uploads"
 
-    name: Mapped[Path] = mapped_column(primary_key=True, nullable=False)
-    original_name: Mapped[Path] = mapped_column(nullable=False)
+    slug: Mapped[Path] = mapped_column(primary_key=True, nullable=False)
+    name: Mapped[Path] = mapped_column(nullable=False)
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str] = mapped_column(Text, nullable=False)
     file_hash: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
@@ -44,22 +44,22 @@ class Upload(BaseModel):
 
     def __init__(
         self,
+        slug: Path,
         name: Path,
-        original_name: Path,
         size: int,
         mimetype: str,
         file_hash: str,
     ):
         super().__init__()
+        self.slug = slug
         self.name = name
-        self.original_name = original_name
         self.size = size
         self.mimetype = mimetype
         self.file_hash = file_hash
 
     @classmethod
     def from_file(cls, file: BinaryIO, name: str | Path) -> typing.Self:
-        original_name = Path(name)
+        file_name = Path(name)
         file.seek(0)
         hasher = hashlib.sha256()
         file_size = 0
@@ -78,12 +78,12 @@ class Upload(BaseModel):
         existing_upload_query = select(cls).filter_by(file_hash=file_hash)
         existing_upload = db.session.scalar(existing_upload_query)
         if existing_upload:
-            existing_upload.update(original_name=original_name)
+            existing_upload.update(name=file_name)
             return existing_upload
 
         return cls(
-            _generate_name(original_name),
-            original_name,
+            _generate_slug(file_name),
+            file_name,
             file_size,
             file_mimetype,
             file_hash,
@@ -111,24 +111,24 @@ class Upload(BaseModel):
 
     @hybrid_property
     def path(self) -> Path:
-        return paths.UPLOADS / self.name
+        return paths.UPLOADS / self.slug
 
     @hybrid_property
     def url(self) -> str:
-        return url_for("uploads.view", name=self.name, _external=True)
+        return url_for("uploads.view", slug=self.slug, _external=True)
 
 
-def _generate_name(original: Path) -> Path:
-    name_length = app.config.get("uploads.name_length", 5)
-    suffix = "".join(original.suffixes)
+def _generate_slug(file_name: Path) -> Path:
+    slug_length = app.config.get("uploads.slug_length", 5)
+    suffix = "".join(file_name.suffixes)
 
     while True:
-        random_part = random_string(name_length)
-        name = Path(random_part).with_suffix(suffix)
-        check_exists_query = select(exists().where(Upload.name == name))
+        random_part = random_string(slug_length)
+        slug = Path(random_part).with_suffix(suffix)
+        check_exists_query = select(exists().where(Upload.slug == slug))
         if not db.session.scalar(check_exists_query):
-            return name
-        name_length += 1
+            return slug
+        slug_length += 1
 
 
 @event.listens_for(Upload, "after_delete")

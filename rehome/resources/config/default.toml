@@ -13,7 +13,7 @@ somesite = "https://somesite.com"
 anothersite = "https://anothersite.com"
 
 [uploads]
-name_length = 5
+slug_length = 5
 use_x_accel_redirect = false
 
 [gravatar]

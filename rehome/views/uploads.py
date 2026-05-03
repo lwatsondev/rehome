@@ -81,8 +81,8 @@ def list_uploads():
     ).all()
     return [
         {
+            "slug": str(upload.slug),
             "name": str(upload.name),
-            "original_name": str(upload.original_name),
             "size": upload.size,
             "mimetype": upload.mimetype,
             "created_at": upload.created_at.isoformat(),
@@ -112,9 +112,9 @@ def upload_file():
     return __make_upload_file_response(upload)
 
 
-@blueprint.get("<string:name>")
-def view(name: str):
-    upload = Upload.one_or_404(name=name)
+@blueprint.get("<string:slug>")
+def view(slug: str):
+    upload = Upload.one_or_404(slug=slug)
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
         "text/plain"
@@ -132,30 +132,28 @@ def view(name: str):
         relative_path = upload.path.relative_to(paths.UPLOADS)
         response = make_response()
         response.headers["Content-Type"] = mimetype
-        response.headers["Content-Disposition"] = (
-            f'inline; filename="{upload.original_name}"'
-        )
+        response.headers["Content-Disposition"] = f'inline; filename="{upload.name}"'
         response.headers["X-Accel-Redirect"] = f"/{relative_path}"
         return response
 
     return send_file(
         upload.path,
         mimetype=mimetype,
-        download_name=str(upload.original_name),
+        download_name=str(upload.name),
     )
 
 
 @blueprint.delete("/")
 @auth.login_required
 def delete_uploads():
-    names = (request.get_json() or {}).get("names", [])
+    slugs = (request.get_json() or {}).get("names", [])
     uploads, not_found = [], []
-    for name in names:
-        upload = db.session.get(Upload, name)
+    for slug in slugs:
+        upload = db.session.get(Upload, slug)
         if upload:
             uploads.append(upload)
         else:
-            not_found.append(name)
+            not_found.append(slug)
     if not_found:
         raise UploadError(
             code=HTTPStatus.NOT_FOUND,
