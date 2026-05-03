@@ -43,7 +43,7 @@ def upload_list(sort: str):
             str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
-            upload.created_at,
+            upload.created_at.isoformat(),
         )
     Console().print(table)
 

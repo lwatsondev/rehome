@@ -46,7 +46,11 @@ def token_list():
     table.add_column("Created")
     table.add_column("Last Used")
     for token in tokens:
-        last_used = token.last_used_at or "[yellow]never[/yellow]"
+        last_used = (
+            token.last_used_at.isoformat()
+            if token.last_used_at
+            else "[yellow]never[/yellow]"
+        )
         table.add_row(token.name, token.created_at, last_used)
 
     Console().print(table)
