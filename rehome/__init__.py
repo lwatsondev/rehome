@@ -47,8 +47,10 @@ def create_app(test_config: dict | None = None) -> Flask:
 
 def register_commands(app: Flask):
     from rehome.cli.token import token_cli  # noqa: PLC0415
+    from rehome.cli.upload import upload_cli  # noqa: PLC0415
 
     app.cli.add_command(token_cli)
+    app.cli.add_command(upload_cli)
 
 
 def register_blueprints(app: Flask):

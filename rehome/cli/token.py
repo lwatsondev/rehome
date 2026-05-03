@@ -1,11 +1,10 @@
-from datetime import UTC, datetime
-
 import click
 from flask.cli import AppGroup
 from sqlalchemy import select
 
 from rehome import db
 from rehome.models.auth_token import AuthToken
+from rehome.util import localtime
 
 
 class _TokenExistsError(click.ClickException):
@@ -16,12 +15,6 @@ class _TokenExistsError(click.ClickException):
 class _TokenNotFoundError(click.ClickException):
     def __init__(self, name: str) -> None:
         super().__init__(f"Token '{name}' not found.")
-
-
-def _localtime(dt: datetime) -> str:
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=UTC)
-    return dt.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
 token_cli = AppGroup("token", help="Manage auth tokens.")
@@ -48,13 +41,13 @@ def token_list():
         if index:
             click.echo()
         last_used = (
-            _localtime(token.last_used_at)
+            localtime(token.last_used_at)
             if token.last_used_at
             else click.style("never", fg="yellow")
         )
         click.echo(click.style(token.name, bold=True))
         click.echo(
-            f"  {click.style('created', dim=True)}   {_localtime(token.created_at)}"
+            f"  {click.style('created', dim=True)}   {localtime(token.created_at)}"
         )
         click.echo(f"  {click.style('last used', dim=True)} {last_used}")
 
