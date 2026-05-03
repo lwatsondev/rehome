@@ -1,4 +1,4 @@
-"""add_auth_tokens_table
+"""Add auth_tokens table for database-backed bearer token authentication.
 
 Revision ID: 7c221e1bf861
 Revises: 4b921713d879

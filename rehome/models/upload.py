@@ -37,7 +37,7 @@ class Upload(BaseModel):
     original_name: Mapped[Path] = mapped_column(nullable=False)
     size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     mimetype: Mapped[str] = mapped_column(Text, nullable=False)
-    file_hash: Mapped[str] = mapped_column(Text, primary_key=True, nullable=False)
+    file_hash: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

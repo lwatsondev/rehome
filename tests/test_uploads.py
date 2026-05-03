@@ -5,7 +5,6 @@ from pathlib import Path
 from unittest import mock
 
 import pytest
-from sqlalchemy import select
 
 import rehome.paths
 from rehome.extensions import db
@@ -54,7 +53,7 @@ def test_upload(client, uploads_dir, auth_headers, filename, suffix):
     assert "".join(path.suffixes) == suffix
 
     db.session.rollback()  # Ensure we have a clean session to test the database record.
-    record = db.session.scalar(select(Upload).filter_by(name=name))
+    record = db.session.get(Upload, name)
     assert record is not None
     assert str(record.original_name) == filename
     assert path.read_bytes() == content
@@ -83,7 +82,7 @@ def test_delete_removes_file(client, uploads_dir, auth_headers):
     path = uploads_dir / name
     assert path.is_file()
 
-    record = db.session.scalar(select(Upload).filter_by(name=name))
+    record = db.session.get(Upload, name)
     db.session.delete(record)
     db.session.commit()
 
@@ -99,6 +98,6 @@ def test_upload_rename(client, uploads_dir, auth_headers):
 
     name = first.json["url"].split("/")[-1]
     db.session.rollback()  # Ensure we have a clean session to test the database record.
-    record = db.session.scalar(select(Upload).filter_by(name=name))
+    record = db.session.get(Upload, name)
     assert record is not None
     assert str(record.original_name) == "other.txt"
