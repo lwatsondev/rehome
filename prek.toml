@@ -55,14 +55,14 @@ name = "ruff-check"
 entry = "uv run ruff check"
 args = ["--fix"]
 language = "system"
-files = "\\.(py)$|scripts/rehome-cli"
+types = ["python"]
 
 [[repos.hooks]]
 id = "ruff-format"
 name = "ruff-format"
 entry = "uv run ruff format"
 language = "system"
-files = "\\.(py)$|scripts/rehome-cli"
+types = ["python"]
 
 [[repos.hooks]]
 id = "pytest"
