@@ -13,8 +13,7 @@ services:
         required: false
     environment:
       TZ: "${TZ:-UTC}"
-      CFG_SECRET_KEY: "dev"
-      CFG_AUTH__TOKEN: "dev"
+      REHOME_SECRET_KEY: "dev"
     volumes:
       - "./config:/config"
       - "./data:/data"

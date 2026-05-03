@@ -33,12 +33,22 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     init_extensions(app)
     register_blueprints(app)
+    register_commands(app)
     register_context_processors(app)
 
     if not app.debug and not app.testing:
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
+    if not app.testing:
+        _ensure_auth_token(app)
+
     return app
+
+
+def register_commands(app: Flask):
+    from rehome.cli.token import token_cli  # noqa: PLC0415
+
+    app.cli.add_command(token_cli)
 
 
 def register_blueprints(app: Flask):
@@ -74,6 +84,25 @@ def init_extensions(app: Flask):
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
+
+
+def _ensure_auth_token(app: Flask):
+    from sqlalchemy import func, select  # noqa: PLC0415
+    from sqlalchemy.exc import OperationalError  # noqa: PLC0415
+
+    from rehome.models.auth_token import AuthToken  # noqa: PLC0415
+
+    with app.app_context():
+        try:
+            count = db.session.scalar(select(func.count()).select_from(AuthToken))
+        except OperationalError:
+            db.session.rollback()
+            return
+        if count == 0:
+            plaintext, token = AuthToken.generate("default")
+            db.session.add(token)
+            db.session.commit()
+            app.logger.warning("No auth tokens found. Generated token: %s", plaintext)
 
 
 def register_context_processors(app: Flask):

@@ -8,7 +8,7 @@ from rehome.models import BaseModel
 
 
 @pytest.fixture
-def empty_token_client():
+def no_tokens_client():
     app = create_app(
         test_config={
             "TESTING": True,
@@ -16,18 +16,17 @@ def empty_token_client():
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         }
     )
-    app.config["auth.token"] = ""
     with app.app_context():
         BaseModel.metadata.create_all(db.engine)
         yield app.test_client()
         BaseModel.metadata.drop_all(db.engine)
 
 
-def test_empty_token_no_credentials(empty_token_client):
-    response = empty_token_client.post("/f/")
+def test_no_credentials(no_tokens_client):
+    response = no_tokens_client.post("/f/")
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
-def test_empty_token_empty_bearer(empty_token_client):
-    response = empty_token_client.post("/f/", headers={"Authorization": "Bearer "})
+def test_empty_bearer(no_tokens_client):
+    response = no_tokens_client.post("/f/", headers={"Authorization": "Bearer "})
     assert response.status_code == HTTPStatus.UNAUTHORIZED

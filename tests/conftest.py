@@ -5,6 +5,7 @@ import rehome.paths
 from rehome import create_app
 from rehome.extensions import db
 from rehome.models import BaseModel
+from rehome.models.auth_token import AuthToken
 
 AUTH_TOKEN = "test-token"
 
@@ -19,9 +20,12 @@ def app():
             "WTF_CSRF_ENABLED": False,
         }
     )
-    app.config["auth.token"] = AUTH_TOKEN
     with app.app_context():
         BaseModel.metadata.create_all(db.engine)
+        _, token = AuthToken.generate("test")
+        token.update(token=AUTH_TOKEN, commit=False)
+        db.session.add(token)
+        db.session.commit()
         yield app
         BaseModel.metadata.drop_all(db.engine)
 

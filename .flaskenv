@@ -1,6 +1,5 @@
 FLASK_APP=rehome
 FLASK_ENV=development
 FLASK_DEBUG=true
-CFG_SECRET_KEY=dev
-CFG_AUTH__TOKEN=dev
+REHOME_SECRET_KEY=dev
 ROOT_PATH_FOR_DYNACONF=instance/config
