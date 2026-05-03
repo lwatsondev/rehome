@@ -1,4 +1,4 @@
 #!/bin/sh
 set -eu
 
-curl -sf "http://${GUNICORN_HOST}:${GUNICORN_PORT}/_/health" > /dev/null
+curl -sf "http://${GUNICORN_BIND}/_/health" > /dev/null
