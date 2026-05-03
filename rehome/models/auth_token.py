@@ -30,9 +30,11 @@ class AuthToken(BaseModel):
     def verify(cls, token: str) -> bool:
         if not token:
             return False
+
         auth_token = db.session.scalar(select(cls).where(cls.token == token))
         if auth_token is None:
             return False
+
         auth_token.last_used_at = datetime.now(UTC)
         db.session.commit()
         return True
