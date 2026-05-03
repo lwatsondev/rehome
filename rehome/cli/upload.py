@@ -7,7 +7,6 @@ from sqlalchemy import select
 
 from rehome import db
 from rehome.models.upload import Upload
-from rehome.util import localtime
 
 upload_cli = AppGroup("upload", help="Manage uploaded files.")
 
@@ -44,7 +43,7 @@ def upload_list(sort: str):
             str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
-            localtime(upload.created_at),
+            upload.created_at,
         )
     Console().print(table)
 

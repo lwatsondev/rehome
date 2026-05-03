@@ -12,6 +12,7 @@
 
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import click
@@ -27,6 +28,7 @@ _XDG_CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config
 _CONFIG_DIR = _XDG_CONFIG_HOME / "rehome"
 _CONFIG_FILE = _CONFIG_DIR / "config.toml"
 _DEFAULT_BASE_URL = "https://lwatson.dev"
+_DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
 
 
 class RehomeError(Exception):
@@ -148,6 +150,12 @@ def _delete_uploads(slugs: list[str], base_url: str, token: str) -> int:
     return response.json()["deleted"]
 
 
+def _localtime(dt: datetime, format_str: str) -> str:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone().strftime(format_str or _DEFAULT_DATETIME_FORMAT)
+
+
 @click.group()
 @click.pass_context
 def cli(ctx: click.Context) -> None:
@@ -155,6 +163,7 @@ def cli(ctx: click.Context) -> None:
     ctx.ensure_object(dict)
     ctx.obj["base_url"] = config.get("base_url", _DEFAULT_BASE_URL).rstrip("/")
     ctx.obj["token"] = config.get("auth.token")
+    ctx.obj["datetime_format"] = config.get("datetime_format", _DEFAULT_DATETIME_FORMAT)
 
 
 @cli.command("upload")
@@ -195,7 +204,9 @@ def list_cmd(obj: dict) -> None:
             upload["slug"],
             humanize.naturalsize(upload["size"]),
             upload["mimetype"],
-            upload["created_at"],
+            _localtime(
+                datetime.fromisoformat(upload["created_at"]), obj["datetime_format"]
+            ),
         )
     Console().print(table)
 
