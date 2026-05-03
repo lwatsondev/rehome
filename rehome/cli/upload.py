@@ -33,15 +33,17 @@ def upload_list(sort: str):
         return
     table = Table(show_edge=False, pad_edge=False)
     table.add_column("Name", style="bold")
-    table.add_column("Created")
+    table.add_column("Slug")
     table.add_column("Size")
     table.add_column("Type")
+    table.add_column("Created")
     for upload in uploads:
         table.add_row(
+            str(upload.original_name),
             str(upload.name),
-            localtime(upload.created_at),
             humanize.naturalsize(upload.size),
             upload.mimetype,
+            localtime(upload.created_at),
         )
     Console().print(table)
 
