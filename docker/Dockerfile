@@ -44,7 +44,7 @@ ENV META_VERSION="${META_VERSION}" \
     GUNICORN_HOST="0.0.0.0" \
     GUNICORN_PORT=5000 \
     ROOT_PATH_FOR_DYNACONF="/config" \
-    CFG_PATHS__INSTANCE="/data"
+    REHOME_PATHS__INSTANCE="/data"
 
 COPY . .
 RUN ln -s /app/docker/rootfs/* /
