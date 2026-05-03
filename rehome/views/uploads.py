@@ -146,7 +146,7 @@ def view(slug: str):
 @blueprint.delete("/")
 @auth.login_required
 def delete_uploads():
-    slugs = (request.get_json() or {}).get("names", [])
+    slugs = (request.get_json() or {}).get("slugs", [])
     uploads, not_found = [], []
     for slug in slugs:
         upload = db.session.get(Upload, slug)

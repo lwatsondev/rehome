@@ -142,8 +142,8 @@ def _list_uploads(base_url: str, token: str) -> list[dict]:
     return response.json()
 
 
-def _delete_uploads(names: list[str], base_url: str, token: str) -> int:
-    response = _make_request("DELETE", f"{base_url}/f/", token, json={"names": names})
+def _delete_uploads(slugs: list[str], base_url: str, token: str) -> int:
+    response = _make_request("DELETE", f"{base_url}/f/", token, json={"slugs": slugs})
     _check_response(response)
     return response.json()["deleted"]
 
@@ -201,11 +201,11 @@ def list_cmd(obj: dict) -> None:
 
 
 @cli.command("delete")
-@click.argument("names", nargs=-1, required=True)
+@click.argument("slugs", nargs=-1, required=True)
 @click.pass_obj
-def delete_cmd(obj: dict, names: tuple[str, ...]) -> None:
+def delete_cmd(obj: dict, slugs: tuple[str, ...]) -> None:
     try:
-        count = _delete_uploads(list(names), obj["base_url"], obj["token"])
+        count = _delete_uploads(list(slugs), obj["base_url"], obj["token"])
     except RehomeError as exc:
         click.echo(str(exc), err=True)
         sys.exit(1)

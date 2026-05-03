@@ -47,13 +47,13 @@ def test_upload(client, uploads_dir, auth_headers, filename, suffix):
     assert response.status_code == HTTPStatus.CREATED
     assert "url" in response.json
 
-    name = response.json["url"].split("/")[-1]
-    path = uploads_dir / name
+    slug = response.json["url"].split("/")[-1]
+    path = uploads_dir / slug
     assert path.is_file()
     assert "".join(path.suffixes) == suffix
 
     db.session.rollback()  # Ensure we have a clean session to test the database record.
-    record = db.session.get(Upload, name)
+    record = db.session.get(Upload, slug)
     assert record is not None
     assert str(record.name) == filename
     assert path.read_bytes() == content
@@ -78,11 +78,11 @@ def test_delete_removes_file(client, uploads_dir, auth_headers):
     content = (FIXTURES / "hello.txt").read_bytes()
     response = _post_bytes(client, content, "hello.txt", auth_headers)
 
-    name = response.json["url"].split("/")[-1]
-    path = uploads_dir / name
+    slug = response.json["url"].split("/")[-1]
+    path = uploads_dir / slug
     assert path.is_file()
 
-    record = db.session.get(Upload, name)
+    record = db.session.get(Upload, slug)
     db.session.delete(record)
     db.session.commit()
 
@@ -96,9 +96,9 @@ def test_upload_rename(client, uploads_dir, auth_headers):
 
     assert first.json["url"] == second.json["url"]
 
-    name = first.json["url"].split("/")[-1]
+    slug = first.json["url"].split("/")[-1]
     db.session.rollback()  # Ensure we have a clean session to test the database record.
-    record = db.session.get(Upload, name)
+    record = db.session.get(Upload, slug)
     assert record is not None
     assert str(record.name) == "other.txt"
 
@@ -121,14 +121,14 @@ def test_list_uploads(client, uploads_dir, auth_headers):
 
 
 def test_bulk_delete(client, uploads_dir, auth_headers):
-    txt_name = (
+    txt_slug = (
         _post_bytes(
             client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
         )
         .json["url"]
         .split("/")[-1]
     )
-    png_name = (
+    png_slug = (
         _post_bytes(
             client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
         )
@@ -137,17 +137,17 @@ def test_bulk_delete(client, uploads_dir, auth_headers):
     )
 
     response = client.delete(
-        "/f/", json={"names": [txt_name, png_name]}, headers=auth_headers
+        "/f/", json={"slugs": [txt_slug, png_slug]}, headers=auth_headers
     )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json["deleted"] == 2
-    assert db.session.get(Upload, txt_name) is None
-    assert db.session.get(Upload, png_name) is None
+    assert db.session.get(Upload, txt_slug) is None
+    assert db.session.get(Upload, png_slug) is None
 
 
 def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
-    name = (
+    slug = (
         _post_bytes(
             client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
         )
@@ -156,8 +156,8 @@ def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
     )
 
     response = client.delete(
-        "/f/", json={"names": [name, "nonexistent.txt"]}, headers=auth_headers
+        "/f/", json={"slugs": [slug, "nonexistent.txt"]}, headers=auth_headers
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert db.session.get(Upload, name) is not None
+    assert db.session.get(Upload, slug) is not None

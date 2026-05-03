@@ -49,18 +49,18 @@ def upload_list(sort: str):
 
 
 class _UploadNotFoundError(click.ClickException):
-    def __init__(self, name: str) -> None:
-        super().__init__(f"File '{name}' not found.")
+    def __init__(self, slug: str) -> None:
+        super().__init__(f"File '{slug}' not found.")
 
 
 @upload_cli.command("delete")
-@click.argument("names", nargs=-1, required=True)
-def upload_delete(names: tuple[str, ...]):
+@click.argument("slugs", nargs=-1, required=True)
+def upload_delete(slugs: tuple[str, ...]):
     uploads = []
-    for name in names:
-        upload = db.session.get(Upload, name)
+    for slug in slugs:
+        upload = db.session.get(Upload, slug)
         if not upload:
-            raise _UploadNotFoundError(name)
+            raise _UploadNotFoundError(slug)
         uploads.append(upload)
     noun = "file" if len(uploads) == 1 else "files"
     names_str = ", ".join(f"'{u.slug}'" for u in uploads)
