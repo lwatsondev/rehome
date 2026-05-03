@@ -146,17 +146,21 @@ def view(slug: str):
 def delete_uploads():
     slugs = (request.get_json() or {}).get("slugs", [])
     uploads, not_found = [], []
+
     for slug in slugs:
         upload = db.session.get(Upload, slug)
         if upload:
             uploads.append(upload)
         else:
             not_found.append(slug)
+
     if not_found:
         raise UploadError(
             code=HTTPStatus.NOT_FOUND,
             description=f"Not found: {', '.join(not_found)}",
         )
+
     for upload in uploads:
         upload.delete()
+
     return {"deleted": len(uploads)}
