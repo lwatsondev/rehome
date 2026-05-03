@@ -51,7 +51,7 @@ def token_list():
             if token.last_used_at
             else "[yellow]never[/yellow]"
         )
-        table.add_row(token.name, token.created_at, last_used)
+        table.add_row(token.name, token.created_at.isoformat(), last_used)
 
     Console().print(table)
 
