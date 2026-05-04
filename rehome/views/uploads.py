@@ -117,7 +117,14 @@ def list_uploads():
 @blueprint.post("/")
 @auth.login_required
 def upload_file():
-    form = UploadForm(request.files)
+    try:
+        form = UploadForm(request.files)
+    except OSError as exc:
+        raise UploadError(
+            code=HTTPStatus.BAD_REQUEST,
+            description="Upload interrupted.",
+        ) from exc
+
     if not form.validate_on_submit():
         raise ValidationError(description=form.errors)
 

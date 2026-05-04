@@ -171,6 +171,22 @@ def test_wildcard_delete(client, uploads_dir, auth_headers):
     assert list(uploads_dir.iterdir()) == []
 
 
+def test_upload_client_disconnect(client, uploads_dir, auth_headers):
+    with mock.patch(
+        "flask.wrappers.Request._load_form_data",
+        side_effect=OSError("No more data"),
+    ):
+        response = client.post(
+            "/f/",
+            data={"file": (io.BytesIO(b"data"), "file.txt")},
+            content_type="multipart/form-data",
+            headers=auth_headers,
+        )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json["error"] == "Upload interrupted."
+
+
 def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
     slug = (
         _post_bytes(

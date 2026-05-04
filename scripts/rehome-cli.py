@@ -6,6 +6,7 @@
 #     "dynaconf>=3.0",
 #     "humanize>=4.0",
 #     "niquests[speedups]",
+#     "requests-toolbelt>=1.0",
 #     "rich>=13.0",
 # ]
 # ///
@@ -23,8 +24,17 @@ from dynaconf import Dynaconf
 from dynaconf.loaders import write as dynaconf_write
 from niquests import Response, Session
 from niquests import exceptions as niquests_exceptions
+from requests_toolbelt import MultipartEncoder
 from rich import box
 from rich.console import Console
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TextColumn,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
 from rich.table import Table
 
 _XDG_CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
@@ -134,9 +144,31 @@ def _check_response(response: Response) -> None:
 
 def _upload(session: Session, file: Path) -> str:
     with file.open("rb") as fd:
-        response = _make_request(
-            session, HTTPMethod.POST, "/f/", files={"file": (file.name, fd)}
-        )
+        encoder = MultipartEncoder(fields={"file": (file.name, fd)})
+
+        with Progress(
+            TextColumn("[cyan]{task.description}"),
+            BarColumn(),
+            DownloadColumn(),
+            TransferSpeedColumn(),
+            TimeRemainingColumn(),
+            console=Console(stderr=True),
+        ) as progress:
+            task_id = progress.add_task(file.name, total=encoder.len)
+
+            def body():
+                while chunk := encoder.read(1 << 17):
+                    progress.update(task_id, advance=len(chunk))
+                    yield chunk
+
+            response = _make_request(
+                session,
+                HTTPMethod.POST,
+                "/f/",
+                data=body(),
+                headers={"Content-Type": encoder.content_type},
+            )
+
     _check_response(response)
     return response.json()["url"]
 
