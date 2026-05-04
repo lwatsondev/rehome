@@ -22,9 +22,8 @@ class AuthToken(BaseModel):
     )
 
     @classmethod
-    def generate(cls, name: str) -> tuple[str, typing.Self]:
-        token = secrets.token_urlsafe(32)
-        return token, cls(name=name, token=token)
+    def generate(cls, name: str) -> typing.Self:
+        return cls(name=name, token=secrets.token_urlsafe(32))
 
     @classmethod
     def verify(cls, token: str) -> bool:

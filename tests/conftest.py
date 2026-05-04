@@ -22,7 +22,7 @@ def app():
     )
     with app.app_context():
         BaseModel.metadata.create_all(db.engine)
-        _, token = AuthToken.generate("test")
+        token = AuthToken.generate("test")
         token.update(token=AUTH_TOKEN, commit=False)
         db.session.add(token)
         db.session.commit()

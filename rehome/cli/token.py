@@ -28,11 +28,11 @@ def token_create(name: str):
     if db.session.get(AuthToken, name):
         raise _TokenExistsError(name)
 
-    plaintext, token = AuthToken.generate(name)
+    token = AuthToken.generate(name)
     db.session.add(token)
     db.session.commit()
 
-    click.echo(plaintext)
+    click.echo(token.token)
 
 
 @token_cli.command("list")

@@ -101,10 +101,10 @@ def _ensure_auth_token(app: Flask):
             db.session.rollback()
             return
         if count == 0:
-            plaintext, token = AuthToken.generate("default")
+            token = AuthToken.generate("default")
             db.session.add(token)
             db.session.commit()
-            app.logger.warning("No auth tokens found. Generated token: %s", plaintext)
+            app.logger.warning("No auth tokens found. Generated token: %s", token.token)
 
 
 def register_context_processors(app: Flask):
