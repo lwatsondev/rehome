@@ -40,7 +40,6 @@ def upload_list(sort: str, desc: bool):
     table.add_column("Slug", style="bright_white")
     table.add_column("Size", style="bright_white")
     table.add_column("Type", style="bright_white")
-    table.add_column("URL")
     table.add_column("Created", style="dim")
 
     for upload in uploads:
@@ -49,7 +48,6 @@ def upload_list(sort: str, desc: bool):
             str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
-            f"[blue link={upload.url}]{upload.url}[/blue link]",
             upload.created_at.isoformat(),
         )
     Console().print(table)
