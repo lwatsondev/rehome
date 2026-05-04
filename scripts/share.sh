@@ -103,7 +103,7 @@ _play_sound() {
 _take_screenshot() {
     local target="$1"
     local save_path
-    save_path=$(mktemp --tmpdir --suffix=.png share.sh-XXXXX)
+    save_path=$(mktemp --tmpdir --suffix=.png sharesh-XXXXX)
 
     local grimshot_output
     grimshot_output=$(grimshot save "$target" "$save_path" 2>&1)
