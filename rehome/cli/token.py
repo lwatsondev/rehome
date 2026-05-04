@@ -1,5 +1,6 @@
 import click
 from flask.cli import AppGroup
+from rich import box
 from rich.console import Console
 from rich.table import Table
 from sqlalchemy import select
@@ -42,10 +43,15 @@ def token_list():
         click.echo(click.style("No tokens.", fg="yellow"))
         return
 
-    table = Table(show_edge=False, pad_edge=False)
-    table.add_column("Name", style="bold")
-    table.add_column("Created")
-    table.add_column("Last Used")
+    table = Table(
+        show_edge=False,
+        pad_edge=False,
+        box=box.ASCII_DOUBLE_HEAD,
+        header_style="bold green",
+    )
+    table.add_column("Name", style="cyan")
+    table.add_column("Created", style="dim")
+    table.add_column("Last Used", style="dim")
     for token in tokens:
         last_used = (
             token.last_used_at.isoformat()

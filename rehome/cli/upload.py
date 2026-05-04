@@ -1,6 +1,7 @@
 import click
 import humanize
 from flask.cli import AppGroup
+from rich import box
 from rich.console import Console
 from rich.table import Table
 from sqlalchemy import select
@@ -29,20 +30,26 @@ def upload_list(sort: str, desc: bool):
         click.echo(click.style("No files.", fg="yellow"))
         return
 
-    table = Table(show_edge=False, pad_edge=False)
-    table.add_column("Name", style="bold")
-    table.add_column("Slug")
-    table.add_column("Size")
-    table.add_column("Type")
+    table = Table(
+        show_edge=False,
+        pad_edge=False,
+        box=box.ASCII_DOUBLE_HEAD,
+        header_style="bold green",
+    )
+    table.add_column("Name", style="cyan")
+    table.add_column("Slug", style="bright_white")
+    table.add_column("Size", style="bright_white")
+    table.add_column("Type", style="bright_white")
     table.add_column("URL")
-    table.add_column("Created")
+    table.add_column("Created", style="dim")
+
     for upload in uploads:
         table.add_row(
             str(upload.name),
             str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
-            upload.url,
+            f"[blue link={upload.url}]{upload.url}[/blue link]",
             upload.created_at.isoformat(),
         )
     Console().print(table)

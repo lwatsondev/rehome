@@ -23,6 +23,7 @@ from dynaconf import Dynaconf
 from dynaconf.loaders import write as dynaconf_write
 from niquests import Response, Session
 from niquests import exceptions as niquests_exceptions
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -213,13 +214,18 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
         click.echo("No files.")
         return
 
-    table = Table(show_edge=False, pad_edge=False)
-    table.add_column("Name", style="bold")
-    table.add_column("Slug")
-    table.add_column("Size")
-    table.add_column("Type")
-    table.add_column("URL")
-    table.add_column("Created")
+    table = Table(
+        show_edge=False,
+        pad_edge=False,
+        box=box.ASCII_DOUBLE_HEAD,
+        header_style="bold green",
+    )
+    table.add_column("Name", style="cyan")
+    table.add_column("Slug", style="bright_white")
+    table.add_column("Size", style="bright_white")
+    table.add_column("Type", style="bright_white")
+    table.add_column("URL", style="blue")
+    table.add_column("Created", style="dim")
 
     for upload in uploads:
         table.add_row(
@@ -227,7 +233,7 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
             upload["slug"],
             humanize.naturalsize(upload["size"]),
             upload["mimetype"],
-            upload["url"],
+            f"[link={upload['url']}]{upload['url']}[/link]",
             _localtime(
                 datetime.fromisoformat(upload["created_at"]), obj["datetime_format"]
             ),
