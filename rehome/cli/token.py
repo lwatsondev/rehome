@@ -8,15 +8,23 @@ from sqlalchemy import select
 from rehome import db
 from rehome.models.auth_token import AuthToken
 
+_out = Console()
+
 
 class _TokenExistsError(click.ClickException):
     def __init__(self, name: str) -> None:
         super().__init__(f"Token '{name}' already exists.")
 
+    def show(self, file=None) -> None:  # noqa: ARG002
+        _out.print(f"[red]Error:[/red] {self.format_message()}")
+
 
 class _TokenNotFoundError(click.ClickException):
     def __init__(self, name: str) -> None:
         super().__init__(f"Token '{name}' not found.")
+
+    def show(self, file=None) -> None:  # noqa: ARG002
+        _out.print(f"[red]Error:[/red] {self.format_message()}")
 
 
 token_cli = AppGroup("token", help="Manage auth tokens.")
@@ -32,7 +40,7 @@ def token_create(name: str):
     db.session.add(token)
     db.session.commit()
 
-    click.echo(token.token)
+    _out.print(token.token)
 
 
 @token_cli.command("list")
@@ -40,7 +48,7 @@ def token_list():
     tokens = db.session.scalars(select(AuthToken).order_by(AuthToken.created_at)).all()
 
     if not tokens:
-        click.echo(click.style("No tokens.", fg="yellow"))
+        _out.print("[yellow]No tokens.[/yellow]")
         return
 
     table = Table(
@@ -60,7 +68,7 @@ def token_list():
         )
         table.add_row(token.name, token.created_at.isoformat(), last_used)
 
-    Console().print(table)
+    _out.print(table)
 
 
 @token_cli.command("delete")
@@ -71,4 +79,4 @@ def token_delete(name: str):
         raise _TokenNotFoundError(name)
 
     token.delete()
-    click.echo(click.style(f"Deleted token '{name}'.", fg="green"))
+    _out.print(f"[green]Deleted token '{name}'.[/green]")

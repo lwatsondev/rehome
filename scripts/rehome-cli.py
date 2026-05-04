@@ -35,6 +35,7 @@ from rich.progress import (
     TimeRemainingColumn,
     TransferSpeedColumn,
 )
+from rich.prompt import Confirm, Prompt
 from rich.table import Table
 
 _XDG_CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
@@ -44,6 +45,9 @@ _DEFAULT_BASE_URL = "https://lwatson.dev"
 _DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
 _ORDER_ASC = "asc"
 _ORDER_DESC = "desc"
+
+_out = Console()
+_err = Console(stderr=True)
 
 
 class RehomeError(Exception):
@@ -93,15 +97,15 @@ def _ensure_config() -> Dynaconf:
     needs_save = False
 
     if not base_url:
-        base_url = click.prompt("Base URL", default=_DEFAULT_BASE_URL)
+        base_url = Prompt.ask("Base URL", default=_DEFAULT_BASE_URL, console=_err)
         needs_save = True
 
     if not token:
         if config:
-            click.echo("No auth token found in config.")
+            _out.print("[yellow]No auth token found in config.[/yellow]")
         else:
-            click.echo("No configuration found.")
-        token = click.prompt("Auth token", hide_input=True)
+            _out.print("[yellow]No configuration found.[/yellow]")
+        token = Prompt.ask("Auth token", password=True, console=_err)
         needs_save = True
 
     if needs_save:
@@ -152,7 +156,7 @@ def _upload(session: Session, file: Path) -> str:
             DownloadColumn(),
             TransferSpeedColumn(),
             TimeRemainingColumn(),
-            console=Console(stderr=True),
+            console=_err,
         ) as progress:
             task_id = progress.add_task(file.name, total=encoder.len)
 
@@ -193,6 +197,7 @@ def _delete_uploads(session: Session, slugs: list[str]) -> int:
 def _localtime(dt: datetime, format_str: str) -> str:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)
+
     return dt.astimezone().strftime(format_str or _DEFAULT_DATETIME_FORMAT)
 
 
@@ -214,10 +219,10 @@ def upload_cmd(obj: dict, file: Path) -> None:
     try:
         url = _upload(obj["session"], file)
     except RehomeError as exc:
-        click.echo(str(exc), err=True)
+        _out.print(str(exc))
         sys.exit(1)
 
-    click.echo(url)
+    _out.print(url)
 
 
 @cli.command("list")
@@ -235,15 +240,15 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
     try:
         uploads = _list_uploads(obj["session"], sort, desc)
     except RehomeError as exc:
-        click.echo(str(exc), err=True)
+        _out.print(str(exc))
         sys.exit(1)
 
     if as_json:
-        click.echo(json.dumps(uploads, indent=2))
+        _out.print(json.dumps(uploads, indent=2), markup=False, highlight=False)
         return
 
     if not uploads:
-        click.echo("No files.")
+        _err.print("No files.")
         return
 
     table = Table(
@@ -271,24 +276,26 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
             ),
         )
 
-    Console().print(table)
+    _err.print(table)
 
 
 @cli.command("delete")
 @click.argument("slugs", nargs=-1, required=True)
 @click.pass_obj
 def delete_cmd(obj: dict, slugs: tuple[str, ...]) -> None:
-    if "*" in slugs:
-        click.confirm("Delete all files?", abort=True)
+    if "*" in slugs and not Confirm.ask(
+        "Delete all files?", console=_err, default=False
+    ):
+        raise click.Abort
 
     try:
         count = _delete_uploads(obj["session"], list(slugs))
     except RehomeError as exc:
-        click.echo(str(exc), err=True)
+        _out.print(str(exc))
         sys.exit(1)
 
     noun = "file" if count == 1 else "files"
-    click.echo(f"Deleted {count} {noun}.")
+    _err.print(f"Deleted {count} {noun}.")
 
 
 if __name__ == "__main__":

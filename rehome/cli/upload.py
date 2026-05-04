@@ -3,11 +3,14 @@ import humanize
 from flask.cli import AppGroup
 from rich import box
 from rich.console import Console
+from rich.prompt import Confirm
 from rich.table import Table
 from sqlalchemy import select
 
 from rehome import db
 from rehome.models.upload import SORT_COLUMNS, Upload
+
+_out = Console()
 
 upload_cli = AppGroup("upload", help="Manage uploaded files.")
 
@@ -27,7 +30,7 @@ def upload_list(sort: str, desc: bool):
 
     uploads = db.session.scalars(select(Upload).order_by(col)).all()
     if not uploads:
-        click.echo(click.style("No files.", fg="yellow"))
+        _out.print("[yellow]No files.[/yellow]")
         return
 
     table = Table(
@@ -50,12 +53,15 @@ def upload_list(sort: str, desc: bool):
             upload.mimetype,
             upload.created_at.isoformat(),
         )
-    Console().print(table)
+    _out.print(table)
 
 
 class _UploadNotFoundError(click.ClickException):
     def __init__(self, slug: str) -> None:
         super().__init__(f"File '{slug}' not found.")
+
+    def show(self, file=None) -> None:  # noqa: ARG002
+        _out.print(f"[red]Error:[/red] {self.format_message()}")
 
 
 @upload_cli.command("delete")
@@ -65,15 +71,17 @@ def upload_delete(slugs: tuple[str, ...]):
         uploads = db.session.scalars(select(Upload)).all()
 
         if not uploads:
-            click.echo(click.style("No files.", fg="yellow"))
+            _out.print("[yellow]No files.[/yellow]")
             return
 
         noun = "file" if len(uploads) == 1 else "files"
-        click.confirm(f"Delete all {len(uploads)} {noun}?", abort=True)
+        if not Confirm.ask(f"Delete all {len(uploads)} {noun}?", default=False):
+            raise click.Abort
+
         for upload in uploads:
             upload.delete()
 
-        click.echo(click.style(f"Deleted {len(uploads)} {noun}.", fg="green"))
+        _out.print(f"[green]Deleted {len(uploads)} {noun}.[/green]")
         return
 
     uploads = []
@@ -86,9 +94,10 @@ def upload_delete(slugs: tuple[str, ...]):
     noun = "file" if len(uploads) == 1 else "files"
     names_str = ", ".join(f"'{upload.slug}'" for upload in uploads)
 
-    click.confirm(f"Delete {noun} {names_str}?", abort=True)
+    if not Confirm.ask(f"Delete {noun} {names_str}?", default=False):
+        raise click.Abort
 
     for upload in uploads:
         upload.delete()
 
-    click.echo(click.style(f"Deleted {len(uploads)} {noun}.", fg="green"))
+    _out.print(f"[green]Deleted {len(uploads)} {noun}.[/green]")
