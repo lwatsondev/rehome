@@ -5,9 +5,7 @@ set -euo pipefail
 __notify_on_error=0
 
 _notify() {
-    if command -v notify-send &>/dev/null; then
-        notify-send --app-name share "$@" || true
-    fi
+    notify-send --app-name share.sh "$@" || true
 }
 
 _log() {
@@ -18,8 +16,8 @@ _log() {
 
     if [ -t 2 ]; then
         case "$level" in
-            INFO)  level_color=$(tput setaf 2) ;;
-            WARN)  level_color=$(tput setaf 3) ;;
+            INFO) level_color=$(tput setaf 2) ;;
+            WARN) level_color=$(tput setaf 3) ;;
             ERROR) level_color=$(tput setaf 1) ;;
             DEBUG) level_color=$(tput setaf 6) ;;
             *)
@@ -33,17 +31,23 @@ _log() {
     printf "[%s%s%s] %s\n" "$level_color" "$level" "$reset" "$message" >&2
 }
 
-log_info()  { _log INFO  "$@"; }
-log_warn()  { _log WARN  "$@"; }
-log_debug() { [[ -n "${WPSTE_DEBUG:-}" ]] && _log DEBUG "$@" || true; }
+log_info() { _log INFO "$@"; }
+log_warn() { _log WARN "$@"; }
+log_debug() { [[ -n "${SHARESH_DEBUG:-}" ]] && _log DEBUG "$@" || true; }
 
 log_error() {
     local exit_code=""
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -e|--exit) exit_code="$2"; shift 2 ;;
-            --) shift; break ;;
+            -e | --exit)
+                exit_code="$2"
+                shift 2
+                ;;
+            --)
+                shift
+                break
+                ;;
             *) break ;;
         esac
     done
@@ -51,7 +55,7 @@ log_error() {
     _log ERROR "$@"
 
     if [[ "$__notify_on_error" -eq 1 ]]; then
-        _notify -u critical "share.fish" "$*"
+        _notify -u critical "share.sh" "$*"
     fi
 
     if [[ -n "$exit_code" ]]; then
@@ -61,7 +65,7 @@ log_error() {
 
 _print_help() {
     log_info "A simple grimshot wrapper for rehome-cli with support for editing before upload."
-    log_info "Usage: share [-t|--target <active|screen|output|area|window>] [-c|--copy] [-n|--notify] [-e|--edit] [file]"
+    log_info "Usage: share.sh [-t|--target <active|screen|output|area|window>] [-c|--copy] [-n|--notify] [-e|--edit] [file]"
     exit 0
 }
 
@@ -76,11 +80,11 @@ _check_requirements() {
     local required_commands=(rehome-cli notify-send grimshot wl-copy)
 
     if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
-        log_error --exit 1 "WAYLAND_DISPLAY is not set. share expects a Wayland environment."
+        log_error --exit 1 "WAYLAND_DISPLAY is not set. share.sh expects a Wayland environment."
     fi
 
     for requirement in "${required_commands[@]}"; do
-        if ! command -v "$requirement" &>/dev/null; then
+        if ! command -v "$requirement" &> /dev/null; then
             log_error --exit 1 "Missing requirement: $requirement"
         else
             log_debug "Found requirement: $requirement"
@@ -91,7 +95,7 @@ _check_requirements() {
 _play_sound() {
     local sound_file="/usr/share/sounds/freedesktop/stereo/camera-shutter.oga"
 
-    if command -v mpv &>/dev/null && [[ -f "$sound_file" ]]; then
+    if command -v mpv &> /dev/null && [[ -f "$sound_file" ]]; then
         mpv --no-video --no-terminal "$sound_file" &
     fi
 }
@@ -99,7 +103,7 @@ _play_sound() {
 _take_screenshot() {
     local target="$1"
     local save_path
-    save_path=$(mktemp --tmpdir --suffix=.png share-XXXXX)
+    save_path=$(mktemp --tmpdir --suffix=.png share.sh-XXXXX)
 
     local grimshot_output
     grimshot_output=$(grimshot save "$target" "$save_path" 2>&1)
@@ -117,7 +121,7 @@ _take_screenshot() {
 
     _play_sound
 
-    if command -v oxipng &>/dev/null; then
+    if command -v oxipng &> /dev/null; then
         local oxipng_output
         oxipng_output=$(oxipng --strip safe "$save_path" 2>&1) && log_debug "oxipng: $oxipng_output"
     fi
@@ -130,7 +134,10 @@ _upload_file() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -f|--file) file="$2"; shift 2 ;;
+            -f | --file)
+                file="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -161,8 +168,14 @@ _copy_to_clipboard() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -f|--file) file="$2"; shift 2 ;;
-            -t|--text) text="$2"; shift 2 ;;
+            -f | --file)
+                file="$2"
+                shift 2
+                ;;
+            -t | --text)
+                text="$2"
+                shift 2
+                ;;
             *) shift ;;
         esac
     done
@@ -181,7 +194,7 @@ _copy_to_clipboard() {
             # Hardcoded to image/png for now otherwise certain apps don't support pasting non-png images.
             # https://github.com/bugaevc/wl-clipboard/issues/8
             # https://github.com/bugaevc/wl-clipboard/issues/71
-            wl-copy --primary --type image/png <"$file" || log_error --exit $? "Failed to copy $file to the clipboard."
+            wl-copy --primary --type image/png < "$file" || log_error --exit $? "Failed to copy $file to the clipboard."
         else
             log_debug "$file is not an image. Not copying to clipboard."
         fi
@@ -196,14 +209,35 @@ share_main() {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -h|--help)   flag_help=1;       shift ;;
-            -c|--copy)   flag_copy=1;       shift ;;
-            -n|--notify) flag_notify=1;     shift ;;
-            -e|--edit)   flag_edit=1;       shift ;;
-            -t|--target) flag_target="$2";  shift 2 ;;
-            --)          shift; break ;;
-            -*)          log_error --exit 2 "Unknown option: $1" ;;
-            *)           flag_file="$1";    shift ;;
+            -h | --help)
+                flag_help=1
+                shift
+                ;;
+            -c | --copy)
+                flag_copy=1
+                shift
+                ;;
+            -n | --notify)
+                flag_notify=1
+                shift
+                ;;
+            -e | --edit)
+                flag_edit=1
+                shift
+                ;;
+            -t | --target)
+                flag_target="$2"
+                shift 2
+                ;;
+            --)
+                shift
+                break
+                ;;
+            -*) log_error --exit 2 "Unknown option: $1" ;;
+            *)
+                flag_file="$1"
+                shift
+                ;;
         esac
     done
 
@@ -220,22 +254,29 @@ share_main() {
     if [[ -n "$flag_target" ]]; then
         local valid_targets=(active screen output area window)
         local valid=0
+
         for target in "${valid_targets[@]}"; do
             [[ "$flag_target" == "$target" ]] && valid=1 && break
         done
+
         if [[ "$valid" -eq 0 ]]; then
-            log_error --exit 2 "--target must be one of $(IFS=', '; echo "${valid_targets[*]}")."
+            log_error --exit 2 "--target must be one of $(
+                IFS=', '
+                echo "${valid_targets[*]}"
+            )."
         fi
     else
         flag_target="output"
     fi
 
+    local is_screenshot=0
     if [[ -z "$flag_file" ]]; then
         flag_file=$(_take_screenshot "$flag_target")
+        is_screenshot=1
     fi
 
     if [[ "$flag_edit" -eq 1 ]]; then
-        if ! command -v swappy &>/dev/null; then
+        if ! command -v swappy &> /dev/null; then
             log_warn "Ignoring --edit because swappy is not installed."
         elif ! _is_image "$flag_file"; then
             log_warn "Ignoring --edit because $flag_file is not an image."
@@ -263,6 +304,8 @@ share_main() {
             _notify "${notification_args[@]}" "$notification_title" "$notification_body"
         fi
     fi
+
+    [[ "$upload_status" -eq 0 && "$is_screenshot" -eq 1 ]] && rm -f "$flag_file"
 }
 
 share_main "$@"
