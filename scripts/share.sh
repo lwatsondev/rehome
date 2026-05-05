@@ -114,6 +114,7 @@ _take_screenshot() {
     if [[ $grimshot_status -ne 0 ]]; then
         if [[ "$grimshot_output" == *"selection cancelled"* ]]; then
             log_info "${grimshot_output/s/S}."
+            rm -f "$save_path"
             exit 0
         fi
         log_error --exit "$grimshot_status" "Grimshot error: $grimshot_output"
@@ -274,6 +275,8 @@ share_main() {
         flag_file=$(_take_screenshot "$flag_target")
         is_screenshot=1
     fi
+
+    [[ -z "$flag_file" ]] && exit 0
 
     if [[ "$flag_edit" -eq 1 ]]; then
         if ! command -v swappy &> /dev/null; then
