@@ -23,7 +23,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "prek>=0.3.10",
+    "prek>=0.3.13",
     "ruff>=0.14.0",
     "shellcheck-py>=0.10.0.1",
     "flask-debugtoolbar>=0.16.0",
