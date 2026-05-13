@@ -6,7 +6,10 @@ from flask import Flask, url_for
 from libgravatar import Gravatar
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import meta, paths
+from rehome import meta, paths, views
+from rehome.auth import ensure_auth_token
+from rehome.cli.token import token_cli
+from rehome.cli.upload import upload_cli
 from rehome.extensions import db, debugbar, dynaconf
 
 
@@ -40,22 +43,17 @@ def create_app(test_config: dict | None = None) -> Flask:
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
     if not app.testing:
-        _ensure_auth_token(app)
+        ensure_auth_token(app)
 
     return app
 
 
 def register_commands(app: Flask):
-    from rehome.cli.token import token_cli  # noqa: PLC0415
-    from rehome.cli.upload import upload_cli  # noqa: PLC0415
-
     app.cli.add_command(token_cli)
     app.cli.add_command(upload_cli)
 
 
 def register_blueprints(app: Flask):
-    from rehome import views  # noqa: PLC0415
-
     views.register_blueprints(app)
 
 
@@ -86,25 +84,6 @@ def init_extensions(app: Flask):
 
     if app.debug and debugbar is not None:
         debugbar.init_app(app)
-
-
-def _ensure_auth_token(app: Flask):
-    from sqlalchemy import func, select  # noqa: PLC0415
-    from sqlalchemy.exc import OperationalError  # noqa: PLC0415
-
-    from rehome.models.auth_token import AuthToken  # noqa: PLC0415
-
-    with app.app_context():
-        try:
-            count = db.session.scalar(select(func.count()).select_from(AuthToken))
-        except OperationalError:
-            db.session.rollback()
-            return
-        if count == 0:
-            token = AuthToken.generate("default")
-            db.session.add(token)
-            db.session.commit()
-            app.logger.warning("No auth tokens found. Generated token: %s", token.token)
 
 
 def register_context_processors(app: Flask):

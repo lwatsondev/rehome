@@ -13,5 +13,5 @@ UPLOADS = Path(_config.get("paths.uploads", DATA / "uploads"))
 
 
 def ensure_dirs():
-    for path in [INSTANCE, DATA, UPLOADS]:
+    for path in [INSTANCE, DATA]:
         path.mkdir(parents=True, exist_ok=True)

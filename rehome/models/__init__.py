@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import DeclarativeBase, registry
 from werkzeug.exceptions import NotFound
 
-from rehome import db
+from rehome.extensions import db
 from rehome.models._type_decorators import PathLike
 
 

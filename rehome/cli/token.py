@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from sqlalchemy import select
 
-from rehome import db
+from rehome.extensions import db
 from rehome.models.auth_token import AuthToken
 
 _out = Console()

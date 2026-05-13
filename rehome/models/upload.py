@@ -21,7 +21,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
-from rehome import db, paths
+from rehome import paths
+from rehome.extensions import db
 from rehome.models import BaseModel
 from rehome.util import random_string
 

@@ -3,13 +3,11 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from rehome import create_app
+from rehome import paths
+from rehome.config import dynaconf
 from rehome.models import BaseModel
 
-# There's no access to current_app here so we must create our own app.
-app = create_app()
-db_uri = app.config.get("SQLALCHEMY_ENGINES").get("default").get("url")
-db = app.extensions["sqlalchemy"]
+db_uri = dynaconf.get("SQLALCHEMY_DATABASE_URI", f"sqlite:////{paths.DATA}/app.db")
 
 # Provide access to the values within alembic.ini.
 config = context.config

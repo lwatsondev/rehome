@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy import DateTime, Text, func, select
 from sqlalchemy.orm import Mapped, mapped_column
 
-from rehome import db
+from rehome.extensions import db
 from rehome.models import BaseModel
 
 

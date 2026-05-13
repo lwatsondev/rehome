@@ -7,7 +7,7 @@ from rich.prompt import Confirm
 from rich.table import Table
 from sqlalchemy import select
 
-from rehome import db
+from rehome.extensions import db
 from rehome.models.upload import SORT_COLUMNS, Upload
 
 _out = Console()

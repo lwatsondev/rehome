@@ -14,8 +14,9 @@ from werkzeug.exceptions import (
     NotFound,
 )
 
-from rehome import db, paths
+from rehome import paths
 from rehome.auth import auth
+from rehome.extensions import db
 from rehome.forms.upload import UploadForm
 from rehome.models.upload import (
     ORDER_ASC,
