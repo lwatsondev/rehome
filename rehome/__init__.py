@@ -6,8 +6,7 @@ from flask import Flask, url_for
 from libgravatar import Gravatar
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import meta, paths, views
-from rehome.auth import ensure_auth_token
+from rehome import auth, meta, paths, views
 from rehome.cli.token import token_cli
 from rehome.cli.upload import upload_cli
 from rehome.extensions import db, debugbar, dynaconf
@@ -43,7 +42,7 @@ def create_app(test_config: dict | None = None) -> Flask:
         app.wsgi_app = ProxyFix(app.wsgi_app)
 
     if not app.testing:
-        ensure_auth_token(app)
+        auth.ensure_auth_token(app)
 
     return app
 
