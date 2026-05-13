@@ -1,7 +1,6 @@
 from flask import Flask, abort
 from flask_httpauth import HTTPTokenAuth
-from sqlalchemy import func, select
-from sqlalchemy.exc import OperationalError
+from sqlalchemy import exists, select
 
 from rehome.extensions import db
 from rehome.models.auth_token import AuthToken
@@ -21,13 +20,9 @@ def _auth_error_handler(status: int):
 
 def ensure_auth_token(app: Flask):
     with app.app_context():
-        try:
-            count = db.session.scalar(select(func.count()).select_from(AuthToken))
-        except OperationalError:
-            db.session.rollback()
-            return
+        has_tokens = db.session.scalar(select(exists(select(AuthToken.id))))
 
-        if count == 0:
+        if not has_tokens:
             token = AuthToken.generate("default")
             db.session.add(token)
             db.session.commit()
