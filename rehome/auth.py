@@ -20,7 +20,7 @@ def _auth_error_handler(status: int):
 
 def ensure_auth_token(app: Flask):
     with app.app_context():
-        has_tokens = db.session.scalar(select(exists(select(AuthToken.id))))
+        has_tokens = db.session.scalar(select(exists(select(AuthToken.name))))
 
         if not has_tokens:
             token = AuthToken.generate("default")
