@@ -7,7 +7,7 @@
     "private": true,
     "packageManager": "yarn@1.22.22",
     "devDependencies": {
-        "stylelint": "^17.11.0",
+        "stylelint": "^17.11.1",
         "stylelint-config-standard": "^40.0.0"
     },
     "scripts": {
