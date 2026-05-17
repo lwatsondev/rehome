@@ -1,9 +1,12 @@
 import logging
 import os
+import sqlite3
 
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import auth, meta, paths, views
@@ -102,3 +105,13 @@ def register_context_processors(app: Flask):
     @app.context_processor
     def inject_meta_info():
         return {"meta": meta}
+
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_wal_mode(dbapi_connection, _connection_record):
+    if not isinstance(dbapi_connection, sqlite3.Connection):
+        return
+
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.close()

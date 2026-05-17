@@ -20,8 +20,7 @@ test:
 
 clean:
 	docker compose -f docker/compose.yaml --profile test down --rmi local --volumes
-	rm -rf instance/uploads instance/app.db
-	find docker/data -mindepth 1 -maxdepth 1 -not -name .gitkeep -exec rm -rf {} +
+	rm -rf instance/* docker/data/* 2>/dev/null || true
 	find . -not -path './.venv/*' -name "*.pyc" -delete
 	find . -not -path './.venv/*' -type d -name __pycache__ -exec rm -rf {} +
 	rm -rf .pytest_cache .ruff_cache
