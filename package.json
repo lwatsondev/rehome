@@ -5,7 +5,6 @@
     "author": "Lee Watson <me@lwatson.dev>",
     "license": "",
     "private": true,
-    "packageManager": "yarn@1.22.22",
     "devDependencies": {
         "stylelint": "^17.11.0",
         "stylelint-config-standard": "^40.0.0"

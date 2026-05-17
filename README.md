@@ -2,7 +2,7 @@
 
 ## Setting up the dev environment
 
-First, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and [yarn](https://yarnpkg.com/getting-started/install).
+First, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and [Node.js](https://nodejs.org/).
 
 ```sh
 git clone git@github.com:lwatsondev/rehome

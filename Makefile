@@ -6,7 +6,7 @@ TTY_FLAG := $(shell [ -t 0 ] || echo "-T")
 
 setup:
 	uv sync
-	corepack yarn install --frozen-lockfile
+	npm install
 	uv run prek install
 
 lint:
