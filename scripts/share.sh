@@ -124,7 +124,7 @@ _take_screenshot() {
 
     if command -v oxipng &> /dev/null; then
         local oxipng_output
-        oxipng_output=$(oxipng --strip safe "$save_path" 2>&1) && log_debug "oxipng: $oxipng_output"
+        oxipng_output=$(oxipng -o 4 --strip safe --alpha "$save_path" 2>&1) && log_debug "oxipng: $oxipng_output"
     fi
 
     echo "$save_path"
