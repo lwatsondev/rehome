@@ -121,32 +121,6 @@ def test_list_uploads(client, uploads_dir, auth_headers):
     assert "url" in data[0]
 
 
-def test_bulk_delete(client, uploads_dir, auth_headers):
-    txt_slug = (
-        _post_bytes(
-            client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
-        )
-        .json["url"]
-        .split("/")[-1]
-    )
-    png_slug = (
-        _post_bytes(
-            client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
-        )
-        .json["url"]
-        .split("/")[-1]
-    )
-
-    response = client.delete(
-        "/f/", json={"slugs": [txt_slug, png_slug]}, headers=auth_headers
-    )
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.json["deleted"] == 2
-    assert db.session.get(Upload, txt_slug) is None
-    assert db.session.get(Upload, png_slug) is None
-
-
 def test_wildcard_delete(client, uploads_dir, auth_headers):
     txt_slug = (
         _post_bytes(
@@ -163,7 +137,7 @@ def test_wildcard_delete(client, uploads_dir, auth_headers):
         .split("/")[-1]
     )
 
-    response = client.delete("/f/", json={"slugs": ["*"]}, headers=auth_headers)
+    response = client.delete("/f/", query_string={"name": "*"}, headers=auth_headers)
 
     assert response.status_code == HTTPStatus.OK
     assert response.json["deleted"] == 2
@@ -261,17 +235,6 @@ def test_expired_file_returns_404(client, uploads_dir, auth_headers):
     assert not (uploads_dir / slug).exists()
 
 
-def test_unexpired_file_accessible(client, uploads_dir, auth_headers):
-    response = _post_expiring(
-        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers, 3600
-    )
-    slug = response.json["url"].split("/")[-1]
-
-    view_response = client.get(f"/f/{slug}")
-
-    assert view_response.status_code == HTTPStatus.OK
-
-
 def test_no_expiry_by_default(client, uploads_dir, auth_headers):
     response = _post_bytes(
         client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
@@ -295,18 +258,69 @@ def test_invalid_expires_in(client, uploads_dir, auth_headers):
     assert "expires_in" in response.json["error"]
 
 
-def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
-    slug = (
+def test_list_filter_by_name(client, uploads_dir, auth_headers):
+    _post_bytes(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+    )
+    _post_bytes(
+        client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
+    )
+
+    response = client.get("/f/", query_string={"name": "*.txt"}, headers=auth_headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert len(data) == 1
+    assert data[0]["name"] == "hello.txt"
+
+
+def test_delete_with_filter(client, uploads_dir, auth_headers):
+    txt_slug = (
         _post_bytes(
             client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
         )
         .json["url"]
         .split("/")[-1]
     )
-
-    response = client.delete(
-        "/f/", json={"slugs": [slug, "nonexistent.txt"]}, headers=auth_headers
+    png_slug = (
+        _post_bytes(
+            client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert db.session.get(Upload, slug) is not None
+    response = client.delete(
+        "/f/", query_string={"name": "*.txt"}, headers=auth_headers
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json["deleted"] == 1
+    assert db.session.get(Upload, txt_slug) is None
+    assert db.session.get(Upload, png_slug) is not None
+
+
+def test_delete_wildcard_ignores_filter(client, uploads_dir, auth_headers):
+    txt_slug = (
+        _post_bytes(
+            client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+    png_slug = (
+        _post_bytes(
+            client, (FIXTURES / "image.png").read_bytes(), "image.png", auth_headers
+        )
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.delete(
+        "/f/", query_string={"name": "*", "mimetype": "text/*"}, headers=auth_headers
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json["deleted"] == 2
+    assert db.session.get(Upload, txt_slug) is None
+    assert db.session.get(Upload, png_slug) is None

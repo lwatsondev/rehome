@@ -48,6 +48,20 @@ _DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
 _ORDER_ASC = "asc"
 _ORDER_DESC = "desc"
 _MIN_EXPIRY_SECONDS = 10 * 60
+_FILTER_OPTIONS = [
+    click.option(
+        "--name", "name_filter", default=None, help="Filter by name (fnmatch pattern)."
+    ),
+    click.option(
+        "--slug", "slug_filter", default=None, help="Filter by slug (fnmatch pattern)."
+    ),
+    click.option(
+        "--mimetype",
+        "mimetype_filter",
+        default=None,
+        help="Filter by mimetype (fnmatch pattern).",
+    ),
+]
 
 _out = Console()
 _err = Console(stderr=True)
@@ -184,19 +198,24 @@ def _upload(session: Session, file: Path, expires_in: int | None = None) -> str:
     return response.json()["url"]
 
 
-def _list_uploads(session: Session, sort: str, desc: bool) -> list[dict]:
-    response = _make_request(
-        session,
-        HTTPMethod.GET,
-        "/f/",
-        params={"sort": sort, "order": _ORDER_DESC if desc else _ORDER_ASC},
-    )
+def _list_uploads(
+    session: Session,
+    sort: str,
+    desc: bool,
+    filters: dict | None = None,
+) -> list[dict]:
+    params = {"sort": sort, "order": _ORDER_DESC if desc else _ORDER_ASC}
+
+    if filters:
+        params.update(filters)
+
+    response = _make_request(session, HTTPMethod.GET, "/f/", params=params)
     _check_response(response)
     return response.json()
 
 
-def _delete_uploads(session: Session, slugs: list[str]) -> int:
-    response = _make_request(session, HTTPMethod.DELETE, "/f/", json={"slugs": slugs})
+def _delete_uploads(session: Session, filters: dict | None = None) -> int:
+    response = _make_request(session, HTTPMethod.DELETE, "/f/", params=filters)
     _check_response(response)
     return response.json()["deleted"]
 
@@ -206,6 +225,61 @@ def _localtime(dt: datetime, format_str: str) -> str:
         dt = dt.replace(tzinfo=UTC)
 
     return dt.astimezone().strftime(format_str or _DEFAULT_DATETIME_FORMAT)
+
+
+def _add_filter_options(func):
+    for option in reversed(_FILTER_OPTIONS):
+        func = option(func)
+
+    return func
+
+
+def _build_filters(
+    name_filter: str | None,
+    slug_filter: str | None,
+    mimetype_filter: str | None,
+) -> dict | None:
+    filters = {
+        key: value
+        for key, value in {
+            "name": name_filter,
+            "slug": slug_filter,
+            "mimetype": mimetype_filter,
+        }.items()
+        if value is not None
+    }
+    return filters or None
+
+
+def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
+    table = Table(
+        show_edge=False,
+        pad_edge=False,
+        box=box.ASCII_DOUBLE_HEAD,
+        header_style="bold green",
+    )
+    table.add_column("Name", style="cyan")
+    table.add_column("Slug", style="bright_white")
+    table.add_column("Size", style="bright_white")
+    table.add_column("Type", style="bright_white")
+    table.add_column("URL", style="blue")
+    table.add_column("Created", style="dim")
+    table.add_column("Expires", style="dim")
+
+    for upload in uploads:
+        table.add_row(
+            upload["name"],
+            upload["slug"],
+            humanize.naturalsize(upload["size"]),
+            upload["mimetype"],
+            f"[link={upload['url']}]{upload['url']}[/link]",
+            _localtime(datetime.fromisoformat(upload["created_at"]), datetime_format),
+            _localtime(datetime.fromisoformat(upload["expires_at"]), datetime_format)
+            if upload.get("expires_at")
+            else "",
+        )
+
+    _err.print(table)
 
 
 @click.group()
@@ -266,10 +340,17 @@ def upload_cmd(obj: dict, file: Path, expires: str | None) -> None:
 )
 @click.option("--desc", is_flag=True, default=False, help="Sort descending.")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Output raw JSON.")
+@_add_filter_options
 @click.pass_obj
-def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
+def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool, **filter_kwargs) -> None:
+    filters = _build_filters(
+        filter_kwargs.get("name_filter"),
+        filter_kwargs.get("slug_filter"),
+        filter_kwargs.get("mimetype_filter"),
+    )
+
     try:
-        uploads = _list_uploads(obj["session"], sort, desc)
+        uploads = _list_uploads(obj["session"], sort, desc, filters=filters)
     except RehomeError as exc:
         _err.print(str(exc))
         sys.exit(1)
@@ -282,54 +363,69 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
         _err.print("No files.")
         return
 
-    table = Table(
-        show_edge=False,
-        pad_edge=False,
-        box=box.ASCII_DOUBLE_HEAD,
-        header_style="bold green",
-    )
-    table.add_column("Name", style="cyan")
-    table.add_column("Slug", style="bright_white")
-    table.add_column("Size", style="bright_white")
-    table.add_column("Type", style="bright_white")
-    table.add_column("URL", style="blue")
-    table.add_column("Created", style="dim")
-    table.add_column("Expires", style="dim")
-
-    for upload in uploads:
-        table.add_row(
-            upload["name"],
-            upload["slug"],
-            humanize.naturalsize(upload["size"]),
-            upload["mimetype"],
-            f"[link={upload['url']}]{upload['url']}[/link]",
-            _localtime(
-                datetime.fromisoformat(upload["created_at"]), obj["datetime_format"]
-            ),
-            _localtime(
-                datetime.fromisoformat(upload["expires_at"]), obj["datetime_format"]
-            )
-            if upload.get("expires_at")
-            else "",
-        )
-
-    _err.print(table)
+    _render_uploads_table(uploads, obj["datetime_format"])
 
 
-@cli.command("delete")
-@click.argument("slugs", nargs=-1, required=True)
-@click.pass_obj
-def delete_cmd(obj: dict, slugs: tuple[str, ...]) -> None:
-    if "*" in slugs and not Confirm.ask(
-        "Delete all files?", console=_err, default=False
-    ):
-        raise click.Abort
+class _NoTargetError(click.UsageError):
+    def __init__(self):
+        super().__init__("Provide --all or filter options.")
 
+
+def _delete_by_filter(
+    session: Session, filters: dict, datetime_format: str
+) -> int | None:
     try:
-        count = _delete_uploads(obj["session"], list(slugs))
+        uploads = _list_uploads(session, "created", False, filters=filters)
     except RehomeError as exc:
         _err.print(str(exc))
         sys.exit(1)
+
+    if not uploads:
+        _err.print("No files.")
+        return None
+
+    _render_uploads_table(uploads, datetime_format)
+
+    noun = "file" if len(uploads) == 1 else "files"
+    if not Confirm.ask(f"Delete {len(uploads)} {noun}?", console=_err, default=False):
+        raise click.Abort
+
+    try:
+        return _delete_uploads(session, filters=filters)
+    except RehomeError as exc:
+        _err.print(str(exc))
+        sys.exit(1)
+
+
+@cli.command("delete")
+@click.option(
+    "--all", "delete_all", is_flag=True, default=False, help="Delete all files."
+)
+@_add_filter_options
+@click.pass_obj
+def delete_cmd(obj: dict, delete_all: bool, **filter_kwargs) -> None:
+    filters = _build_filters(
+        filter_kwargs.get("name_filter"),
+        filter_kwargs.get("slug_filter"),
+        filter_kwargs.get("mimetype_filter"),
+    )
+
+    if not delete_all and not filters:
+        raise _NoTargetError
+
+    if delete_all:
+        if not Confirm.ask("Delete all files?", console=_err, default=False):
+            raise click.Abort
+
+        try:
+            count = _delete_uploads(obj["session"], filters={"name": "*"})
+        except RehomeError as exc:
+            _err.print(str(exc))
+            sys.exit(1)
+    else:
+        count = _delete_by_filter(obj["session"], filters, obj["datetime_format"])
+        if count is None:
+            return
 
     noun = "file" if count == 1 else "files"
     _err.print(f"Deleted {count} {noun}.")

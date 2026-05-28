@@ -12,6 +12,7 @@ from sqlalchemy import (
     BigInteger,
     DateTime,
     Text,
+    cast,
     event,
     exists,
     func,
@@ -151,6 +152,25 @@ SORT_COLUMNS = {
     "size": Upload.size,
     "mimetype": Upload.mimetype,
 }
+
+
+def build_filter_clauses(
+    name: str | None = None,
+    slug: str | None = None,
+    mimetype: str | None = None,
+) -> list:
+    clauses = []
+
+    if name is not None:
+        clauses.append(cast(Upload.name, Text).op("GLOB")(name))
+
+    if slug is not None:
+        clauses.append(cast(Upload.slug, Text).op("GLOB")(slug))
+
+    if mimetype is not None:
+        clauses.append(Upload.mimetype.op("GLOB")(mimetype))
+
+    return clauses
 
 
 def _generate_slug(file_name: Path) -> Path:

@@ -26,6 +26,7 @@ from rehome.models.upload import (
     SORT_COLUMNS,
     Upload,
     UploadSaveError,
+    build_filter_clauses,
 )
 from rehome.views.pages import _base_error_handler
 
@@ -105,7 +106,16 @@ def list_uploads():
     col = SORT_COLUMNS[sort]
     col = col.desc() if order == ORDER_DESC else col.asc()
 
-    uploads = db.session.scalars(select(Upload).order_by(col)).all()
+    filter_clauses = build_filter_clauses(
+        name=request.args.get("name"),
+        slug=request.args.get("slug"),
+        mimetype=request.args.get("mimetype"),
+    )
+
+    uploads = db.session.scalars(
+        select(Upload).where(*filter_clauses).order_by(col)
+    ).all()
+
     return [
         {
             "slug": str(upload.slug),
@@ -203,30 +213,24 @@ def view(slug: str):
 @blueprint.delete("/")
 @auth.login_required
 def delete_uploads():
-    slugs = (request.get_json() or {}).get("slugs", [])
+    filter_clauses = build_filter_clauses(
+        name=request.args.get("name"),
+        slug=request.args.get("slug"),
+        mimetype=request.args.get("mimetype"),
+    )
 
-    if "*" in slugs:
+    if "*" in request.args.values():
         uploads = db.session.scalars(select(Upload)).all()
         for upload in uploads:
             upload.delete()
 
         return {"deleted": len(uploads)}
 
-    uploads, not_found = [], []
-    for slug in slugs:
-        upload = db.session.get(Upload, slug)
-        if upload:
-            uploads.append(upload)
-        else:
-            not_found.append(slug)
+    if filter_clauses:
+        uploads = db.session.scalars(select(Upload).where(*filter_clauses)).all()
+        for upload in uploads:
+            upload.delete()
 
-    if not_found:
-        raise UploadError(
-            code=HTTPStatus.NOT_FOUND,
-            description=f"Not found: {', '.join(not_found)}",
-        )
+        return {"deleted": len(uploads)}
 
-    for upload in uploads:
-        upload.delete()
-
-    return {"deleted": len(uploads)}
+    return {"deleted": 0}
