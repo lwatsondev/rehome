@@ -266,7 +266,22 @@ def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
     table.add_column("Created", style="dim")
     table.add_column("Expires", style="dim")
 
+    now = datetime.now(UTC)
+
     for upload in uploads:
+        if upload.get("expires_at"):
+            expires_dt = datetime.fromisoformat(upload["expires_at"])
+
+            if expires_dt.tzinfo is None:
+                expires_dt = expires_dt.replace(tzinfo=UTC)
+
+            expires_str = _localtime(expires_dt, datetime_format)
+            expires_cell = (
+                f"[red]{expires_str}[/red]" if expires_dt <= now else expires_str
+            )
+        else:
+            expires_cell = ""
+
         table.add_row(
             upload["name"],
             upload["slug"],
@@ -274,9 +289,7 @@ def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
             upload["mimetype"],
             f"[link={upload['url']}]{upload['url']}[/link]",
             _localtime(datetime.fromisoformat(upload["created_at"]), datetime_format),
-            _localtime(datetime.fromisoformat(upload["expires_at"]), datetime_format)
-            if upload.get("expires_at")
-            else "",
+            expires_cell,
         )
 
     _err.print(table)

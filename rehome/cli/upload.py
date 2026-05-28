@@ -51,13 +51,21 @@ def _print_uploads_table(uploads):
     table.add_column("Expires", style="dim")
 
     for upload in uploads:
+        if upload.expires_at:
+            expires_str = upload.expires_at.isoformat()
+            expires_cell = (
+                f"[red]{expires_str}[/red]" if upload.is_expired else expires_str
+            )
+        else:
+            expires_cell = ""
+
         table.add_row(
             str(upload.name),
             str(upload.slug),
             humanize.naturalsize(upload.size),
             upload.mimetype,
             upload.created_at.isoformat(),
-            upload.expires_at.isoformat() if upload.expires_at else "",
+            expires_cell,
         )
     _out.print(table)
 
