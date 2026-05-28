@@ -116,7 +116,7 @@ _take_screenshot() {
         if [[ "$grimshot_output" == *"selection cancelled"* ]]; then
             rm -f "$save_path"
             if [[ -n "$fallback" ]]; then
-                log_info "Selection cancelled, falling back to $fallback."
+                log_debug "Selection cancelled, falling back to $fallback."
                 _take_screenshot "$fallback"
                 return
             fi
