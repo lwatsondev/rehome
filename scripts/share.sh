@@ -221,7 +221,7 @@ share_main() {
     _check_requirements
 
     local flag_help=0 flag_copy=0 flag_notify=0 flag_edit=0
-    local flag_target="" flag_file="" flag_expiry="" flag_no_expire=0
+    local flag_target="" flag_file="" flag_expiry="" flag_no_expire=""
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -246,7 +246,7 @@ share_main() {
                 shift 2
                 ;;
             --no-expire)
-                flag_no_expire=1
+                flag_no_expire="1"
                 shift
                 ;;
             -t | --target)
