@@ -320,6 +320,7 @@ def upload_cmd(obj: dict, file: Path, expires: str | None) -> None:
     expires_in = None
 
     if expires is not None:
+        now = datetime.now(UTC)
         parsed = dateparser.parse(
             expires,
             settings={"RETURN_AS_TIMEZONE_AWARE": True, "PREFER_DATES_FROM": "future"},
@@ -329,7 +330,7 @@ def upload_cmd(obj: dict, file: Path, expires: str | None) -> None:
             _err.print(f"[red]Could not parse expiry: {expires!r}[/red]")
             sys.exit(1)
 
-        expires_in = int((parsed - datetime.now(UTC)).total_seconds())
+        expires_in = int((parsed - now).total_seconds())
         if expires_in < _MIN_EXPIRY_SECONDS:
             _err.print(
                 f"[yellow]Expiry is less than the minimum of {humanize.naturaldelta(_MIN_EXPIRY_SECONDS)}, rounding up.[/yellow]"
