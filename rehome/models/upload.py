@@ -1,7 +1,7 @@
 import hashlib
 import shutil
 import typing
-from datetime import datetime  # noqa: TC003
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
@@ -42,14 +42,18 @@ class Upload(BaseModel):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         slug: Path,
         name: Path,
         size: int,
         mimetype: str,
         file_hash: str,
+        expires_at: datetime | None = None,
     ):
         super().__init__()
         self.slug = slug
@@ -57,6 +61,7 @@ class Upload(BaseModel):
         self.size = size
         self.mimetype = mimetype
         self.file_hash = file_hash
+        self.expires_at = expires_at
 
     @classmethod
     def from_file(cls, file: BinaryIO, name: str | Path) -> typing.Self:
@@ -73,6 +78,7 @@ class Upload(BaseModel):
                 header = chunk[:4096]
             hasher.update(chunk)
             file_size += len(chunk)
+
         file_mimetype = magic.from_buffer(header, mime=True)
         file_hash = hasher.hexdigest()
 
@@ -118,12 +124,30 @@ class Upload(BaseModel):
     def url(self) -> str:
         return url_for("uploads.view", slug=self.slug, _external=True)
 
+    @property
+    def expires_at_utc(self) -> datetime | None:
+        if self.expires_at is None:
+            return None
+
+        if self.expires_at.tzinfo is None:
+            return self.expires_at.replace(tzinfo=UTC)
+
+        return self.expires_at
+
+    @hybrid_property
+    def is_expired(self) -> bool:
+        if self.expires_at_utc is None:
+            return False
+
+        return datetime.now(UTC) > self.expires_at_utc
+
 
 ORDER_ASC = "asc"
 ORDER_DESC = "desc"
 
 SORT_COLUMNS = {
     "created": Upload.created_at,
+    "expires": Upload.expires_at,
     "size": Upload.size,
     "mimetype": Upload.mimetype,
 }
