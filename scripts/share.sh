@@ -65,7 +65,7 @@ log_error() {
 
 _print_help() {
     log_info "A simple grimshot wrapper for rehome-cli with support for editing before upload."
-    log_info "Usage: share.sh [-t|--target <active|screen|output|area|window>] [-c|--copy] [-n|--notify] [-e|--edit] [file]"
+    log_info "Usage: share.sh [-t|--target <active|screen|output|area|window>] [-c|--copy] [-n|--notify] [-e|--edit] [-x|--expiry <duration>] [--no-expire] [file]"
     exit 0
 }
 
@@ -131,13 +131,21 @@ _take_screenshot() {
 }
 
 _upload_file() {
-    local file=""
+    local file="" expiry="" no_expire=0
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -f | --file)
                 file="$2"
                 shift 2
+                ;;
+            -x | --expiry)
+                expiry="$2"
+                shift 2
+                ;;
+            --no-expire)
+                no_expire=1
+                shift
                 ;;
             *) shift ;;
         esac
@@ -153,8 +161,15 @@ _upload_file() {
 
     log_debug "Uploading $file"
 
+    local upload_args=("$file")
+    if [[ "$no_expire" -eq 1 ]]; then
+        upload_args+=(--no-expire)
+    elif [[ -n "$expiry" ]]; then
+        upload_args+=(--expire "$expiry")
+    fi
+
     local output
-    output=$(rehome-cli upload "$file")
+    output=$(rehome-cli upload "${upload_args[@]}")
     local upload_status=$?
 
     if [[ $upload_status -ne 0 ]]; then
@@ -206,7 +221,7 @@ share_main() {
     _check_requirements
 
     local flag_help=0 flag_copy=0 flag_notify=0 flag_edit=0
-    local flag_target="" flag_file=""
+    local flag_target="" flag_file="" flag_expiry="" flag_no_expire=0
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -224,6 +239,14 @@ share_main() {
                 ;;
             -e | --edit)
                 flag_edit=1
+                shift
+                ;;
+            -x | --expiry)
+                flag_expiry="$2"
+                shift 2
+                ;;
+            --no-expire)
+                flag_no_expire=1
                 shift
                 ;;
             -t | --target)
@@ -289,7 +312,7 @@ share_main() {
     fi
 
     local url
-    url=$(_upload_file --file "$flag_file")
+    url=$(_upload_file --file "$flag_file" ${flag_expiry:+--expiry "$flag_expiry"} ${flag_no_expire:+--no-expire})
     local upload_status=$?
     url="${url/http:/https:}"
 

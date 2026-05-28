@@ -293,6 +293,25 @@ def test_reupload_updates_expiry(client, uploads_dir, auth_headers):
     )
 
 
+def test_reupload_clears_expiry(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    first = _post_expiring(client, content, "hello.txt", auth_headers, 3600)
+    slug = first.json["url"].split("/")[-1]
+
+    db.session.rollback()
+    assert db.session.get(Upload, slug).expires_at is not None
+
+    client.post(
+        "/f/",
+        data={"file": (io.BytesIO(content), "hello.txt"), "expires_in": "0"},
+        content_type="multipart/form-data",
+        headers=auth_headers,
+    )
+
+    db.session.rollback()
+    assert db.session.get(Upload, slug).expires_at is None
+
+
 def test_list_filter_by_name(client, uploads_dir, auth_headers):
     _post_bytes(
         client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers

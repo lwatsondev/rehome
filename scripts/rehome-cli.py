@@ -109,14 +109,14 @@ def _load_config() -> Dynaconf:
 
 def _save_config(token: str, base_url: str) -> None:
     _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    dynaconf_write(str(_CONFIG_FILE), {"base_url": base_url, "auth": {"token": token}})
+    dynaconf_write(str(_CONFIG_FILE), {"base_url": base_url, "auth_token": token})
 
 
 def _ensure_config() -> Dynaconf:
     config = _load_config() if _CONFIG_FILE.exists() else None
 
     base_url = config.get("base_url") if config else None
-    token = config.get("auth.token") if config else None
+    token = config.get("auth_token") if config else None
 
     needs_save = False
 
@@ -316,30 +316,43 @@ def cli(ctx: click.Context) -> None:
 
     ctx.ensure_object(dict)
     base_url = config.get("base_url", _DEFAULT_BASE_URL).rstrip("/")
-    ctx.obj["session"] = _make_session(base_url, config.get("auth.token"))
+    ctx.obj["session"] = _make_session(base_url, config.get("auth_token"))
     ctx.obj["datetime_format"] = config.get("datetime_format", _DEFAULT_DATETIME_FORMAT)
+    ctx.obj["default_expiry"] = config.get("default_expiry", None)
 
 
 @cli.command("upload")
 @click.argument("file", type=click.Path(exists=True, readable=True, path_type=Path))
 @click.option(
-    "--expires",
+    "--expire",
     default=None,
     help=f"Expiry time relative to now (e.g. 'in 1 hour', '2 days', '30 minutes'). Minimum is {humanize.naturaldelta(_MIN_EXPIRY_SECONDS)}.",
 )
+@click.option(
+    "--no-expire",
+    is_flag=True,
+    default=False,
+    help="Upload with no expiry, overriding any configured default.",
+)
 @click.pass_obj
-def upload_cmd(obj: dict, file: Path, expires: str | None) -> None:
-    expires_in = None
+def upload_cmd(obj: dict, file: Path, expire: str | None, no_expire: bool) -> None:
+    if expire and no_expire:
+        raise _MutuallyExclusiveError("--expire", "--no-expire")
 
-    if expires is not None:
+    expires_in = 0 if no_expire else None
+
+    if not no_expire:
+        expire = expire or obj["default_expiry"]
+
+    if expire is not None:
         now = datetime.now(UTC)
         parsed = dateparser.parse(
-            expires,
+            expire,
             settings={"RETURN_AS_TIMEZONE_AWARE": True, "PREFER_DATES_FROM": "future"},
         )
 
         if parsed is None:
-            _err.print(f"[red]Could not parse expiry: {expires!r}[/red]")
+            _err.print(f"[red]Could not parse expiry: {expire!r}[/red]")
             sys.exit(1)
 
         expires_in = int((parsed - now).total_seconds())
@@ -393,6 +406,11 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool, **filter_kwargs) -
         return
 
     _render_uploads_table(uploads, obj["datetime_format"])
+
+
+class _MutuallyExclusiveError(click.UsageError):
+    def __init__(self, *flags: str):
+        super().__init__(f"{' and '.join(flags)} are mutually exclusive.")
 
 
 class _NoTargetError(click.UsageError):

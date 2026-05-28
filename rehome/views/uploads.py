@@ -150,9 +150,12 @@ def upload_file():
     upload = Upload.from_file(fd, fd.filename)
 
     if form.expires_in.data is not None:
-        upload.expires_at = datetime.now(UTC) + timedelta(
-            seconds=max(_MIN_EXPIRY_SECONDS, form.expires_in.data)
-        )
+        if form.expires_in.data == 0:
+            upload.expires_at = None
+        else:
+            upload.expires_at = datetime.now(UTC) + timedelta(
+                seconds=max(_MIN_EXPIRY_SECONDS, form.expires_in.data)
+            )
     elif sa_inspect(upload).transient:
         upload.expires_at = None
 
