@@ -5,12 +5,11 @@ import sqlite3
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
-from sqlalchemy import event, select
+from sqlalchemy import event
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from rehome import auth, meta, paths, views
+from rehome import auth, meta, paths, scheduler, views
 from rehome.cli.token import token_cli
 from rehome.cli.upload import upload_cli
 from rehome.extensions import db, debugbar, dynaconf
@@ -47,26 +46,9 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     if not app.testing:
         auth.ensure_auth_token(app)
-        _purge_expired_uploads(app)
+        scheduler.start(app)
 
     return app
-
-
-def _purge_expired_uploads(app: Flask):
-    from rehome.models.upload import Upload  # noqa: PLC0415
-
-    with app.app_context():
-        # Catch OperationalError here to avoid issues during initial setup when the database might not be ready yet.
-        try:
-            expired = db.session.scalars(select(Upload).where(Upload.is_expired)).all()
-        except OperationalError:
-            return
-
-        for upload in expired:
-            upload.delete()
-
-        if expired:
-            app.logger.info(f"Purged {len(expired)} expired upload(s).")
 
 
 def register_commands(app: Flask):

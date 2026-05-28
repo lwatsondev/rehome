@@ -15,6 +15,7 @@ anothersite = "https://anothersite.com"
 [uploads]
 slug_length = 5
 use_x_accel_redirect = false
+expired_cleanup_interval_hours = 24
 
 [gravatar]
 email = ""
