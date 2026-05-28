@@ -1,5 +1,6 @@
 import hashlib
 import io
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from pathlib import Path
 from unittest import mock
@@ -185,6 +186,113 @@ def test_upload_client_disconnect(client, uploads_dir, auth_headers):
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
     assert response.json["error"] == "Upload interrupted."
+
+
+def _post_expiring(
+    client, content: bytes, filename: str, auth_headers, expires_in: int
+):
+    return client.post(
+        "/f/",
+        data={"file": (io.BytesIO(content), filename), "expires_in": str(expires_in)},
+        content_type="multipart/form-data",
+        headers=auth_headers,
+    )
+
+
+def test_upload_with_expiry(client, uploads_dir, auth_headers):
+    before = datetime.now(UTC)
+    response = _post_expiring(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers, 3600
+    )
+    after = datetime.now(UTC)
+
+    assert response.status_code == HTTPStatus.CREATED
+
+    slug = response.json["url"].split("/")[-1]
+    db.session.rollback()
+    record = db.session.get(Upload, slug)
+
+    assert record.expires_at is not None
+    expires_at = record.expires_at.replace(tzinfo=UTC)
+    assert (
+        before + timedelta(seconds=3600)
+        <= expires_at
+        <= after + timedelta(seconds=3600)
+    )
+
+
+def test_expiry_minimum_clamp(client, uploads_dir, auth_headers):
+    before = datetime.now(UTC)
+    response = _post_expiring(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers, 10
+    )
+    after = datetime.now(UTC)
+
+    assert response.status_code == HTTPStatus.CREATED
+
+    slug = response.json["url"].split("/")[-1]
+    db.session.rollback()
+    record = db.session.get(Upload, slug)
+
+    assert record.expires_at is not None
+    expires_at = record.expires_at.replace(tzinfo=UTC)
+    assert (
+        before + timedelta(seconds=10 * 60)
+        <= expires_at
+        <= after + timedelta(seconds=10 * 60)
+    )
+
+
+def test_expired_file_returns_404(client, uploads_dir, auth_headers):
+    response = _post_expiring(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers, 3600
+    )
+    slug = response.json["url"].split("/")[-1]
+
+    record = db.session.get(Upload, slug)
+    record.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+    db.session.commit()
+
+    view_response = client.get(f"/f/{slug}")
+
+    assert view_response.status_code == HTTPStatus.NOT_FOUND
+    db.session.rollback()
+    assert db.session.get(Upload, slug) is None
+    assert not (uploads_dir / slug).exists()
+
+
+def test_unexpired_file_accessible(client, uploads_dir, auth_headers):
+    response = _post_expiring(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers, 3600
+    )
+    slug = response.json["url"].split("/")[-1]
+
+    view_response = client.get(f"/f/{slug}")
+
+    assert view_response.status_code == HTTPStatus.OK
+
+
+def test_no_expiry_by_default(client, uploads_dir, auth_headers):
+    response = _post_bytes(
+        client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers
+    )
+    slug = response.json["url"].split("/")[-1]
+
+    db.session.rollback()
+    record = db.session.get(Upload, slug)
+    assert record.expires_at is None
+
+
+def test_invalid_expires_in(client, uploads_dir, auth_headers):
+    response = client.post(
+        "/f/",
+        data={"file": (io.BytesIO(b"data"), "hello.txt"), "expires_in": "not-a-number"},
+        content_type="multipart/form-data",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert "expires_in" in response.json["error"]
 
 
 def test_bulk_delete_not_found(client, uploads_dir, auth_headers):
