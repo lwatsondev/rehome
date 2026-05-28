@@ -102,6 +102,7 @@ _play_sound() {
 
 _take_screenshot() {
     local target="$1"
+    local fallback="${2:-}"
     local save_path
     save_path=$(mktemp --tmpdir --suffix=.png sharesh-XXXXX)
 
@@ -113,8 +114,13 @@ _take_screenshot() {
 
     if [[ $grimshot_status -ne 0 ]]; then
         if [[ "$grimshot_output" == *"selection cancelled"* ]]; then
-            log_info "${grimshot_output/s/S}."
             rm -f "$save_path"
+            if [[ -n "$fallback" ]]; then
+                log_info "Selection cancelled, falling back to $fallback."
+                _take_screenshot "$fallback"
+                return
+            fi
+            log_info "${grimshot_output/s/S}."
             exit 0
         fi
         log_error --exit "$grimshot_status" "Grimshot error: $grimshot_output"
@@ -295,7 +301,9 @@ share_main() {
 
     local is_screenshot=0
     if [[ -z "$flag_file" ]]; then
-        flag_file=$(_take_screenshot "$flag_target")
+        local fallback_target=""
+        [[ "$flag_target" == "area" ]] && fallback_target="output"
+        flag_file=$(_take_screenshot "$flag_target" "$fallback_target")
         is_screenshot=1
     fi
 
@@ -315,6 +323,8 @@ share_main() {
     url=$(_upload_file --file "$flag_file" ${flag_expiry:+--expiry "$flag_expiry"} ${flag_no_expire:+--no-expire})
     local upload_status=$?
     url="${url/http:/https:}"
+
+    [[ "$upload_status" -eq 0 ]] && echo "$url"
 
     if [[ "$upload_status" -eq 0 && "$flag_copy" -eq 1 ]]; then
         _copy_to_clipboard --text "$url" --file "$flag_file"
