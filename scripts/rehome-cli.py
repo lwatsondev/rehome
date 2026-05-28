@@ -98,6 +98,16 @@ class _ServerError(RehomeError):
         super().__init__(f"Server error: {error}")
 
 
+class _MutuallyExclusiveError(click.UsageError):
+    def __init__(self, *flags: str):
+        super().__init__(f"{' and '.join(flags)} are mutually exclusive.")
+
+
+class _NoTargetError(click.UsageError):
+    def __init__(self):
+        super().__init__("Provide --all or filter options.")
+
+
 def _load_config() -> Dynaconf:
     return Dynaconf(
         settings_files=[str(_CONFIG_FILE)],
@@ -406,16 +416,6 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool, **filter_kwargs) -
         return
 
     _render_uploads_table(uploads, obj["datetime_format"])
-
-
-class _MutuallyExclusiveError(click.UsageError):
-    def __init__(self, *flags: str):
-        super().__init__(f"{' and '.join(flags)} are mutually exclusive.")
-
-
-class _NoTargetError(click.UsageError):
-    def __init__(self):
-        super().__init__("Provide --all or filter options.")
 
 
 def _delete_by_filter(
