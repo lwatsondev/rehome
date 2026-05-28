@@ -8,6 +8,7 @@ from flask import Flask, url_for
 from libgravatar import Gravatar
 from sqlalchemy import event, select
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from rehome import auth, meta, paths, views
@@ -57,9 +58,15 @@ def _purge_expired_uploads(app: Flask):
 
     with app.app_context():
         now = datetime.now(UTC)
-        expired = db.session.scalars(
-            select(Upload).where(Upload.expires_at.isnot(None), Upload.expires_at < now)
-        ).all()
+        # Catch OperationalError here to avoid issues during initial setup when the database might not be ready yet.
+        try:
+            expired = db.session.scalars(
+                select(Upload).where(
+                    Upload.expires_at.isnot(None), Upload.expires_at < now
+                )
+            ).all()
+        except OperationalError:
+            return
 
         for upload in expired:
             upload.delete()
