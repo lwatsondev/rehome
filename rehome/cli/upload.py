@@ -95,9 +95,11 @@ def upload_list(
     filter_clauses = build_filter_clauses(
         name=name_filter, slug=slug_filter, mimetype=mimetype_filter
     )
+
     uploads = db.session.scalars(
         select(Upload).where(*filter_clauses).order_by(col)
     ).all()
+
     if not uploads:
         _out.print("[yellow]No files.[/yellow]")
         return
@@ -133,13 +135,14 @@ def _filter_delete(
     filter_clauses = build_filter_clauses(
         name=name_filter, slug=slug_filter, mimetype=mimetype_filter
     )
-    uploads = db.session.scalars(select(Upload).where(*filter_clauses)).all()
 
+    uploads = db.session.scalars(select(Upload).where(*filter_clauses)).all()
     if not uploads:
         _out.print("[yellow]No files.[/yellow]")
         return
 
     _print_uploads_table(uploads)
+
     noun = "file" if len(uploads) == 1 else "files"
     if not Confirm.ask(f"Delete {len(uploads)} {noun}?", default=False):
         raise click.Abort

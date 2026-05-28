@@ -335,6 +335,56 @@ def test_delete_with_filter(client, uploads_dir, auth_headers):
     assert db.session.get(Upload, png_slug) is not None
 
 
+def test_list_filter_expired(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    _post_bytes(client, content, "hello.txt", auth_headers)
+
+    png_content = (FIXTURES / "image.png").read_bytes()
+    expired_slug = (
+        _post_expiring(client, png_content, "image.png", auth_headers, 3600)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    record = db.session.get(Upload, expired_slug)
+    record.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+    db.session.commit()
+
+    response = client.get("/f/", query_string={"expired": ""}, headers=auth_headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert len(data) == 1
+    assert data[0]["slug"] == expired_slug
+
+
+def test_delete_expired(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    live_slug = (
+        _post_bytes(client, content, "hello.txt", auth_headers)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    png_content = (FIXTURES / "image.png").read_bytes()
+    expired_slug = (
+        _post_expiring(client, png_content, "image.png", auth_headers, 3600)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    record = db.session.get(Upload, expired_slug)
+    record.expires_at = datetime.now(UTC) - timedelta(seconds=1)
+    db.session.commit()
+
+    response = client.delete("/f/", query_string={"expired": ""}, headers=auth_headers)
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json["deleted"] == 1
+    assert db.session.get(Upload, expired_slug) is None
+    assert db.session.get(Upload, live_slug) is not None
+
+
 def test_delete_wildcard_ignores_filter(client, uploads_dir, auth_headers):
     txt_slug = (
         _post_bytes(

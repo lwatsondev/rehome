@@ -12,6 +12,7 @@ from sqlalchemy import (
     BigInteger,
     DateTime,
     Text,
+    and_,
     cast,
     event,
     exists,
@@ -142,6 +143,12 @@ class Upload(BaseModel):
 
         return datetime.now(UTC) > self.expires_at_utc
 
+    @is_expired.expression
+    @classmethod
+    def is_expired(cls):
+        now = datetime.now(UTC)
+        return and_(cls.expires_at.isnot(None), cls.expires_at < now)
+
 
 ORDER_ASC = "asc"
 ORDER_DESC = "desc"
@@ -158,6 +165,7 @@ def build_filter_clauses(
     name: str | None = None,
     slug: str | None = None,
     mimetype: str | None = None,
+    expired: bool | None = None,
 ) -> list:
     clauses = []
 
@@ -169,6 +177,9 @@ def build_filter_clauses(
 
     if mimetype is not None:
         clauses.append(Upload.mimetype.op("GLOB")(mimetype))
+
+    if expired is True:
+        clauses.append(Upload.is_expired)
 
     return clauses
 

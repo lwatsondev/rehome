@@ -1,7 +1,6 @@
 import logging
 import os
 import sqlite3
-from datetime import UTC, datetime
 
 import sentry_sdk
 from flask import Flask, url_for
@@ -57,14 +56,9 @@ def _purge_expired_uploads(app: Flask):
     from rehome.models.upload import Upload  # noqa: PLC0415
 
     with app.app_context():
-        now = datetime.now(UTC)
         # Catch OperationalError here to avoid issues during initial setup when the database might not be ready yet.
         try:
-            expired = db.session.scalars(
-                select(Upload).where(
-                    Upload.expires_at.isnot(None), Upload.expires_at < now
-                )
-            ).all()
+            expired = db.session.scalars(select(Upload).where(Upload.is_expired)).all()
         except OperationalError:
             return
 

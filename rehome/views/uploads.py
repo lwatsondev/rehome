@@ -111,6 +111,7 @@ def list_uploads():
         name=request.args.get("name"),
         slug=request.args.get("slug"),
         mimetype=request.args.get("mimetype"),
+        expired="expired" in request.args,
     )
 
     uploads = db.session.scalars(
@@ -218,6 +219,7 @@ def delete_uploads():
         name=request.args.get("name"),
         slug=request.args.get("slug"),
         mimetype=request.args.get("mimetype"),
+        expired="expired" in request.args,
     )
 
     if "*" in request.args.values():

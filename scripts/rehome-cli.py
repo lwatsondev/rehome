@@ -61,6 +61,13 @@ _FILTER_OPTIONS = [
         default=None,
         help="Filter by mimetype (fnmatch pattern).",
     ),
+    click.option(
+        "--expired",
+        "expired_filter",
+        is_flag=True,
+        default=False,
+        help="Filter to expired files only.",
+    ),
 ]
 
 _out = Console()
@@ -238,6 +245,7 @@ def _build_filters(
     name_filter: str | None,
     slug_filter: str | None,
     mimetype_filter: str | None,
+    expired_filter: bool = False,
 ) -> dict | None:
     filters = {
         key: value
@@ -248,6 +256,10 @@ def _build_filters(
         }.items()
         if value is not None
     }
+
+    if expired_filter:
+        filters["expired"] = ""
+
     return filters or None
 
 
@@ -363,6 +375,7 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool, **filter_kwargs) -
         filter_kwargs.get("name_filter"),
         filter_kwargs.get("slug_filter"),
         filter_kwargs.get("mimetype_filter"),
+        expired_filter=filter_kwargs.get("expired_filter", False),
     )
 
     try:
@@ -424,6 +437,7 @@ def delete_cmd(obj: dict, delete_all: bool, **filter_kwargs) -> None:
         filter_kwargs.get("name_filter"),
         filter_kwargs.get("slug_filter"),
         filter_kwargs.get("mimetype_filter"),
+        expired_filter=filter_kwargs.get("expired_filter", False),
     )
 
     if not delete_all and not filters:
