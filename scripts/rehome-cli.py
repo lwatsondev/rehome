@@ -3,6 +3,7 @@
 # requires-python = ">=3.14"
 # dependencies = [
 #     "click>=8.0",
+#     "dateparser>=1.0",
 #     "dynaconf>=3.0",
 #     "humanize>=4.0",
 #     "niquests[speedups]",
@@ -19,6 +20,7 @@ from http import HTTPMethod
 from pathlib import Path
 
 import click
+import dateparser
 import humanize
 from dynaconf import Dynaconf
 from dynaconf.loaders import write as dynaconf_write
@@ -45,6 +47,7 @@ _DEFAULT_BASE_URL = "https://lwatson.dev"
 _DEFAULT_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"
 _ORDER_ASC = "asc"
 _ORDER_DESC = "desc"
+_MIN_EXPIRY_SECONDS = 10 * 60
 
 _out = Console()
 _err = Console(stderr=True)
@@ -102,9 +105,9 @@ def _ensure_config() -> Dynaconf:
 
     if not token:
         if config:
-            _out.print("[yellow]No auth token found in config.[/yellow]")
+            _err.print("[yellow]No auth token found in config.[/yellow]")
         else:
-            _out.print("[yellow]No configuration found.[/yellow]")
+            _err.print("[yellow]No configuration found.[/yellow]")
         token = Prompt.ask("Auth token", password=True, console=_err)
         needs_save = True
 
@@ -146,10 +149,14 @@ def _check_response(response: Response) -> None:
         raise _ServerError(error)
 
 
-def _upload(session: Session, file: Path) -> str:
+def _upload(session: Session, file: Path, expires_in: int | None = None) -> str:
     with file.open("rb") as fd:
-        encoder = MultipartEncoder(fields={"file": (file.name, fd)})
+        fields = {"file": (file.name, fd)}
 
+        if expires_in is not None:
+            fields["expires_in"] = str(expires_in)
+
+        encoder = MultipartEncoder(fields=fields)
         with Progress(
             TextColumn("[cyan]{task.description}"),
             BarColumn(),
@@ -214,12 +221,36 @@ def cli(ctx: click.Context) -> None:
 
 @cli.command("upload")
 @click.argument("file", type=click.Path(exists=True, readable=True, path_type=Path))
+@click.option(
+    "--expires",
+    default=None,
+    help=f"Expiry time relative to now (e.g. 'in 1 hour', '2 days', '30 minutes'). Minimum is {humanize.naturaldelta(_MIN_EXPIRY_SECONDS)}.",
+)
 @click.pass_obj
-def upload_cmd(obj: dict, file: Path) -> None:
+def upload_cmd(obj: dict, file: Path, expires: str | None) -> None:
+    expires_in = None
+
+    if expires is not None:
+        parsed = dateparser.parse(
+            expires,
+            settings={"RETURN_AS_TIMEZONE_AWARE": True, "PREFER_DATES_FROM": "future"},
+        )
+
+        if parsed is None:
+            _err.print(f"[red]Could not parse expiry: {expires!r}[/red]")
+            sys.exit(1)
+
+        expires_in = int((parsed - datetime.now(UTC)).total_seconds())
+        if expires_in < _MIN_EXPIRY_SECONDS:
+            _err.print(
+                f"[yellow]Expiry is less than the minimum of {humanize.naturaldelta(_MIN_EXPIRY_SECONDS)}, rounding up.[/yellow]"
+            )
+            expires_in = _MIN_EXPIRY_SECONDS
+
     try:
-        url = _upload(obj["session"], file)
+        url = _upload(obj["session"], file, expires_in=expires_in)
     except RehomeError as exc:
-        _out.print(str(exc))
+        _err.print(str(exc))
         sys.exit(1)
 
     _out.print(url)
@@ -228,7 +259,7 @@ def upload_cmd(obj: dict, file: Path) -> None:
 @cli.command("list")
 @click.option(
     "--sort",
-    type=click.Choice(["created", "size", "mimetype"]),
+    type=click.Choice(["created", "expires", "size", "mimetype"]),
     default="created",
     show_default=True,
     help="Sort by field.",
@@ -240,7 +271,7 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
     try:
         uploads = _list_uploads(obj["session"], sort, desc)
     except RehomeError as exc:
-        _out.print(str(exc))
+        _err.print(str(exc))
         sys.exit(1)
 
     if as_json:
@@ -263,6 +294,7 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
     table.add_column("Type", style="bright_white")
     table.add_column("URL", style="blue")
     table.add_column("Created", style="dim")
+    table.add_column("Expires", style="dim")
 
     for upload in uploads:
         table.add_row(
@@ -274,6 +306,11 @@ def list_cmd(obj: dict, sort: str, desc: bool, as_json: bool) -> None:
             _localtime(
                 datetime.fromisoformat(upload["created_at"]), obj["datetime_format"]
             ),
+            _localtime(
+                datetime.fromisoformat(upload["expires_at"]), obj["datetime_format"]
+            )
+            if upload.get("expires_at")
+            else "",
         )
 
     _err.print(table)
@@ -291,7 +328,7 @@ def delete_cmd(obj: dict, slugs: tuple[str, ...]) -> None:
     try:
         count = _delete_uploads(obj["session"], list(slugs))
     except RehomeError as exc:
-        _out.print(str(exc))
+        _err.print(str(exc))
         sys.exit(1)
 
     noun = "file" if count == 1 else "files"
