@@ -277,7 +277,9 @@ def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
 
             expires_str = _localtime(expires_dt, datetime_format)
             expires_cell = (
-                f"[red]{expires_str}[/red]" if expires_dt <= now else expires_str
+                f"[red not dim]{expires_str}[/red not dim]"
+                if expires_dt <= now
+                else expires_str
             )
         else:
             expires_cell = ""

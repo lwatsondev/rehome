@@ -54,7 +54,9 @@ def _print_uploads_table(uploads):
         if upload.expires_at:
             expires_str = upload.expires_at.isoformat()
             expires_cell = (
-                f"[red]{expires_str}[/red]" if upload.is_expired else expires_str
+                f"[red not dim]{expires_str}[/red not dim]"
+                if upload.is_expired
+                else expires_str
             )
         else:
             expires_cell = ""
