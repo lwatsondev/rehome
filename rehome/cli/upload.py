@@ -38,8 +38,6 @@ def _add_filter_options(func):
 
 def _print_uploads_table(uploads):
     table = Table(
-        show_edge=False,
-        pad_edge=False,
         box=box.ASCII_DOUBLE_HEAD,
         header_style="bold green",
     )

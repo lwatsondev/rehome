@@ -275,8 +275,6 @@ def _build_filters(
 
 def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
     table = Table(
-        show_edge=False,
-        pad_edge=False,
         box=box.ASCII_DOUBLE_HEAD,
         header_style="bold green",
     )
