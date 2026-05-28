@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 
 from flask import (
@@ -9,6 +10,7 @@ from flask import (
 )
 from flask import current_app as app
 from sqlalchemy import select
+from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.exceptions import (
     HTTPException,
     NotFound,
@@ -28,6 +30,8 @@ from rehome.models.upload import (
 from rehome.views.pages import _base_error_handler
 
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
+
+_MIN_EXPIRY_SECONDS = 10 * 60
 
 
 class UploadError(Exception):
@@ -109,6 +113,7 @@ def list_uploads():
             "size": upload.size,
             "mimetype": upload.mimetype,
             "created_at": upload.created_at.isoformat(),
+            "expires_at": upload.expires_at.isoformat() if upload.expires_at else None,
             "url": upload.url,
         }
         for upload in uploads
@@ -119,7 +124,7 @@ def list_uploads():
 @auth.login_required
 def upload_file():
     try:
-        form = UploadForm(request.files)
+        form = UploadForm(CombinedMultiDict([request.form, request.files]))
     except OSError as exc:
         raise UploadError(
             code=HTTPStatus.BAD_REQUEST,
@@ -129,8 +134,15 @@ def upload_file():
     if not form.validate_on_submit():
         raise ValidationError(description=form.errors)
 
+    expires_at = None
+    if form.expires_in.data is not None:
+        expires_at = datetime.now(UTC) + timedelta(
+            seconds=max(_MIN_EXPIRY_SECONDS, form.expires_in.data)
+        )
+
     fd = form.file.data
     upload = Upload.from_file(fd, fd.filename)
+    upload.expires_at = expires_at
 
     try:
         upload.save(fd)
@@ -139,12 +151,20 @@ def upload_file():
         app.logger.exception(msg)
         raise UploadError(description=f"{msg} Check the application logs.") from error
 
+    if db.session.is_modified(upload):
+        db.session.commit()
+
     return __make_upload_file_response(upload)
 
 
 @blueprint.get("<string:slug>")
 def view(slug: str):
     upload = Upload.one_or_404(slug=slug)
+
+    if upload.is_expired:
+        app.logger.debug(f"{upload.slug} has expired and will be deleted.")
+        upload.delete()
+        raise NotFound
 
     # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
     mimetype = (
@@ -165,13 +185,19 @@ def view(slug: str):
         response.headers["Content-Type"] = mimetype
         response.headers["Content-Disposition"] = f'inline; filename="{upload.name}"'
         response.headers["X-Accel-Redirect"] = f"/{relative_path}"
-        return response
+    else:
+        response = send_file(
+            upload.path,
+            mimetype=mimetype,
+            download_name=str(upload.name),
+        )
 
-    return send_file(
-        upload.path,
-        mimetype=mimetype,
-        download_name=str(upload.name),
-    )
+    if upload.expires_at_utc is not None:
+        response.cache_control.max_age = int(
+            (upload.expires_at_utc - datetime.now(UTC)).total_seconds()
+        )
+
+    return response
 
 
 @blueprint.delete("/")
@@ -183,6 +209,7 @@ def delete_uploads():
         uploads = db.session.scalars(select(Upload)).all()
         for upload in uploads:
             upload.delete()
+
         return {"deleted": len(uploads)}
 
     uploads, not_found = [], []

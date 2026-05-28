@@ -44,6 +44,7 @@ def upload_list(sort: str, desc: bool):
     table.add_column("Size", style="bright_white")
     table.add_column("Type", style="bright_white")
     table.add_column("Created", style="dim")
+    table.add_column("Expires", style="dim")
 
     for upload in uploads:
         table.add_row(
@@ -52,6 +53,7 @@ def upload_list(sort: str, desc: bool):
             humanize.naturalsize(upload.size),
             upload.mimetype,
             upload.created_at.isoformat(),
+            upload.expires_at.isoformat() if upload.expires_at else "",
         )
     _out.print(table)
 

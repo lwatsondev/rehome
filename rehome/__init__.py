@@ -1,11 +1,12 @@
 import logging
 import os
 import sqlite3
+from datetime import UTC, datetime
 
 import sentry_sdk
 from flask import Flask, url_for
 from libgravatar import Gravatar
-from sqlalchemy import event
+from sqlalchemy import event, select
 from sqlalchemy.engine import Engine
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -46,8 +47,25 @@ def create_app(test_config: dict | None = None) -> Flask:
 
     if not app.testing:
         auth.ensure_auth_token(app)
+        _purge_expired_uploads(app)
 
     return app
+
+
+def _purge_expired_uploads(app: Flask):
+    from rehome.models.upload import Upload  # noqa: PLC0415
+
+    with app.app_context():
+        now = datetime.now(UTC)
+        expired = db.session.scalars(
+            select(Upload).where(Upload.expires_at.isnot(None), Upload.expires_at < now)
+        ).all()
+
+        for upload in expired:
+            upload.delete()
+
+        if expired:
+            app.logger.info(f"Purged {len(expired)} expired upload(s).")
 
 
 def register_commands(app: Flask):
