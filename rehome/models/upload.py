@@ -86,7 +86,7 @@ class Upload(BaseModel):
         existing_upload_query = select(cls).filter_by(file_hash=file_hash)
         existing_upload = db.session.scalar(existing_upload_query)
         if existing_upload:
-            existing_upload.update(name=file_name)
+            existing_upload.update(name=file_name, commit=False)
             return existing_upload
 
         return cls(

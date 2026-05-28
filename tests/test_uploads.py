@@ -258,6 +258,41 @@ def test_invalid_expires_in(client, uploads_dir, auth_headers):
     assert "expires_in" in response.json["error"]
 
 
+def test_reupload_preserves_expiry(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    first = _post_expiring(client, content, "hello.txt", auth_headers, 3600)
+    slug = first.json["url"].split("/")[-1]
+
+    db.session.rollback()
+    original_expires_at = db.session.get(Upload, slug).expires_at
+
+    _post_bytes(client, content, "hello.txt", auth_headers)
+
+    db.session.rollback()
+    record = db.session.get(Upload, slug)
+    assert record.expires_at == original_expires_at
+
+
+def test_reupload_updates_expiry(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    first = _post_expiring(client, content, "hello.txt", auth_headers, 3600)
+    slug = first.json["url"].split("/")[-1]
+
+    before = datetime.now(UTC)
+    _post_expiring(client, content, "hello.txt", auth_headers, 7200)
+    after = datetime.now(UTC)
+
+    db.session.rollback()
+    record = db.session.get(Upload, slug)
+    assert record.expires_at is not None
+    expires_at = record.expires_at.replace(tzinfo=UTC)
+    assert (
+        before + timedelta(seconds=7200)
+        <= expires_at
+        <= after + timedelta(seconds=7200)
+    )
+
+
 def test_list_filter_by_name(client, uploads_dir, auth_headers):
     _post_bytes(
         client, (FIXTURES / "hello.txt").read_bytes(), "hello.txt", auth_headers

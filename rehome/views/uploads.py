@@ -9,6 +9,7 @@ from flask import (
     send_file,
 )
 from flask import current_app as app
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy import select
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.exceptions import (
@@ -144,15 +145,15 @@ def upload_file():
     if not form.validate_on_submit():
         raise ValidationError(description=form.errors)
 
-    expires_at = None
-    if form.expires_in.data is not None:
-        expires_at = datetime.now(UTC) + timedelta(
-            seconds=max(_MIN_EXPIRY_SECONDS, form.expires_in.data)
-        )
-
     fd = form.file.data
     upload = Upload.from_file(fd, fd.filename)
-    upload.expires_at = expires_at
+
+    if form.expires_in.data is not None:
+        upload.expires_at = datetime.now(UTC) + timedelta(
+            seconds=max(_MIN_EXPIRY_SECONDS, form.expires_in.data)
+        )
+    elif sa_inspect(upload).transient:
+        upload.expires_at = None
 
     try:
         upload.save(fd)
