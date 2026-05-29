@@ -285,9 +285,7 @@ def view(slug: str):
     content = _try_read_viewer_content(upload)
     if content is not None and "text/html" in request.headers.get("Accept", ""):
         size = humanize.naturalsize(upload.size, gnu=True)
-
         language = str(upload.name.suffix).lstrip(".") or "plaintext"
-
         kwargs = {"upload": upload, "size": size, "language": language}
 
         if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
@@ -295,6 +293,7 @@ def view(slug: str):
                 _markdown(content),
                 tags=_MARKDOWN_ALLOWED_TAGS,
                 attributes=_MARKDOWN_ALLOWED_ATTRS,
+                set_tag_attribute_values={"a": {"target": "_blank"}},
             )
         else:
             kwargs["content"] = content
