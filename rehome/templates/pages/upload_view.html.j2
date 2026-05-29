@@ -16,7 +16,7 @@
 <meta property="og:type" content="{{ 'video.other' if media_type == 'video' else 'website' }}">
 <meta property="og:{{ media_type }}" content="{{ og_url }}">
 <meta property="og:{{ media_type }}:type" content="{{ upload.mimetype }}">
-<meta name="twitter:card" content="summary_large_image">
+{% if media_type == "image" %}<meta name="twitter:card" content="summary_large_image">{% endif %}
 {% elif content is defined %}
 <meta property="og:description" content="{{ content | truncate(200) }}">
 {% endif %}
