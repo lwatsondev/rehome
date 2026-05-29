@@ -278,6 +278,36 @@ img.avatar-img:hover {
 	padding: 0;
 }
 
+.viewer-pre-lined {
+	padding: 0;
+}
+
+.hljs-ln {
+	width: 100%;
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+.hljs-ln td.hljs-ln-numbers {
+	user-select: none;
+	position: sticky;
+	left: 0;
+	background: var(--viewer-bg-color);
+	padding: 0 1.25em;
+	border-right: 1px solid var(--border-color);
+	text-align: right;
+	vertical-align: top;
+	white-space: nowrap;
+	width: 1%;
+	color: var(--secondary-text-color);
+}
+
+.hljs-ln td.hljs-ln-code {
+	padding: 0 1.5em 0 1.25em;
+	vertical-align: top;
+	white-space: pre;
+}
+
 @media (prefers-color-scheme: light) {
 	.viewer-markdown .hljs-comment { color: #888; }
 }
@@ -366,4 +396,12 @@ img.avatar-img:hover {
 
 .viewer-markdown th {
 	background: var(--code-bg-color);
+}
+
+.hljs-ln tr:first-child td {
+	padding-top: 1em;
+}
+
+.hljs-ln tr:last-child td {
+	padding-bottom: 1em;
 }
