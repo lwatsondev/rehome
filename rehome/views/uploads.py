@@ -282,8 +282,19 @@ def view(slug: str):
     content = _read_text_content(upload)
     if content is not None:
         highlight_languages = app.config.get("uploads.mimetype_to_highlight_language")
-        language = upload.name.suffix.lstrip(".") or highlight_languages.get(
-            upload.mimetype, "plaintext"
+        ext_languages = {
+            ext: lang
+            for lang, exts in app.config.get(
+                "uploads.highlight_language_extensions"
+            ).items()
+            for ext in exts
+        }
+
+        suffix = upload.name.suffix.lower()
+        language = (
+            ext_languages.get(suffix)
+            or suffix.lstrip(".")
+            or highlight_languages.get(upload.mimetype, "plaintext")
         )
 
         template_ctx = {

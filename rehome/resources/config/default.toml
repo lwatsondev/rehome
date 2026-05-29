@@ -38,6 +38,25 @@ force_plain_text_mimetypes = [
 ".ts" = "text/typescript"
 ".tsx" = "text/typescript"
 
+# Mapping of highlight.js language names to file extensions that should use them.
+[uploads.highlight_language_extensions]
+ini = [
+    ".service",
+    ".socket",
+    ".timer",
+    ".target",
+    ".path",
+    ".mount",
+    ".automount",
+    ".swap",
+    ".device",
+    ".scope",
+    ".slice",
+    ".link",
+    ".network",
+    ".netdev",
+]
+
 # Mapping of MIME types to highlight.js languages for when a file has no extension for hl.js to detect.
 [uploads.mimetype_to_highlight_language]
 "text/x-shellscript" = "bash"
