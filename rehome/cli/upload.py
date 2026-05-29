@@ -60,8 +60,8 @@ def _print_uploads_table(uploads):
             expires_cell = ""
 
         table.add_row(
-            str(upload.name),
-            str(upload.slug),
+            upload.name,
+            upload.slug,
             humanize.naturalsize(upload.size, gnu=True),
             upload.mimetype,
             upload.created_at.isoformat(),

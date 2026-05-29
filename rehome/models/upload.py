@@ -82,6 +82,9 @@ class Upload(BaseModel):
             file_size += len(chunk)
 
         file_mimetype = magic.from_buffer(header, mime=True)
+        if file_name.suffix.lower() in {".md", ".markdown"}:
+            file_mimetype = "text/markdown"
+
         file_hash = hasher.hexdigest()
 
         existing_upload_query = select(cls).filter_by(file_hash=file_hash)

@@ -277,11 +277,12 @@ def _apply_expiry_cache(response: Response, upload: Upload) -> Response:
 
 
 def _serve_raw(upload: Upload) -> Response:
-    mimetype = (
-        "text/plain"
-        if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES
-        else upload.mimetype
-    )
+    if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES:
+        mimetype = "text/plain"
+    elif upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
+        mimetype = "text/markdown"
+    else:
+        mimetype = upload.mimetype
 
     if app.config.get("uploads.use_x_accel_redirect"):
         relative_path = upload.path.relative_to(paths.UPLOADS)
@@ -306,14 +307,17 @@ def view(slug: str):
     if "text/html" not in request.headers.get("Accept", ""):
         return _serve_raw(upload)
 
-    size = humanize.naturalsize(upload.size, gnu=True)
-
     content = _read_text_content(upload)
     if content is not None:
-        language = str(upload.name.suffix).lstrip(".") or _MIMETYPE_LANGUAGES.get(
+        language = upload.name.suffix.lstrip(".") or _MIMETYPE_LANGUAGES.get(
             upload.mimetype, "plaintext"
         )
-        template_ctx = {"upload": upload, "size": size, "language": language}
+
+        template_ctx = {
+            "upload": upload,
+            "size": humanize.naturalsize(upload.size, gnu=True),
+            "language": language,
+        }
         template_ctx["content"] = content
 
         if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
