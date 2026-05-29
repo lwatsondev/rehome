@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from fnmatch import fnmatch
 from http import HTTPMethod, HTTPStatus
 
 import humanize
@@ -282,18 +283,20 @@ def view(slug: str):
     content = _read_text_content(upload)
     if content is not None:
         highlight_languages = app.config.get("uploads.mimetype_to_highlight_language")
-        ext_languages = {
-            ext: lang
-            for lang, exts in app.config.get(
-                "uploads.highlight_language_extensions"
-            ).items()
-            for ext in exts
-        }
-
-        suffix = upload.name.suffix.lower()
+        filename = upload.name.name
+        lang_patterns = app.config.get("uploads.highlight_language_extensions")
+        language = next(
+            (
+                lang
+                for lang, patterns in lang_patterns.items()
+                for pattern in sorted(patterns, key=lambda p: "*" in p or "?" in p)
+                if fnmatch(filename, pattern)
+            ),
+            None,
+        )
         language = (
-            ext_languages.get(suffix)
-            or suffix.lstrip(".")
+            language
+            or upload.name.suffix.lower().lstrip(".")
             or highlight_languages.get(upload.mimetype, "plaintext")
         )
 
