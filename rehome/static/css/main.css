@@ -116,7 +116,11 @@ img.avatar-img:hover {
 	margin: 0 auto;
 	padding: 0 2em;
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
 }
+
 
 @media screen and (min-width: 48em) { /* pure md */
 	.viewer-page { max-width: 95%; }
@@ -147,6 +151,10 @@ img.avatar-img:hover {
 .viewer-content {
 	border: 1px solid var(--border-color);
 	margin: 1.5em 0;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 }
 
 .viewer-file-header {
@@ -213,7 +221,9 @@ img.avatar-img:hover {
 }
 
 .viewer-code {
-	overflow-x: auto;
+	flex: 1;
+	overflow: auto;
+	min-height: 0;
 }
 
 .viewer-pre {
