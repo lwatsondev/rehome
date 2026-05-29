@@ -8,11 +8,15 @@ function addLineNumbers(codeEl) {
     codeEl.closest("pre")?.classList.add("viewer-pre-lined");
 }
 
-document.querySelectorAll("pre.viewer-pre code").forEach((block) => {
-    if (!block.textContent.trim()) return;
+function highlightWithLineNumbers(block) {
     hljs.highlightElement(block);
     block.innerHTML = hljs.lineNumbersValue(block.innerHTML);
     addLineNumbers(block);
+}
+
+document.querySelectorAll("pre.viewer-pre code").forEach((block) => {
+    if (!block.textContent.trim()) return;
+    highlightWithLineNumbers(block);
 });
 
 hljs.highlightAll();

@@ -13,9 +13,7 @@ toggle.addEventListener("click", async (e) => {
             .then((text) => {
                 codeEl.textContent = text;
                 delete codeEl.dataset.highlighted;
-                hljs.highlightElement(codeEl);
-                codeEl.innerHTML = hljs.lineNumbersValue(codeEl.innerHTML);
-                addLineNumbers(codeEl);
+                highlightWithLineNumbers(codeEl);
             });
         await loadPromise;
     }

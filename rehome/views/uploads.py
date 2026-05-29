@@ -238,16 +238,33 @@ def _get_upload(slug: str) -> Upload:
     return upload
 
 
-def _try_read_viewer_content(upload: Upload) -> str | None:
-    if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith(
-        ("image/", "video/", "audio/")
-    ):
+def _viewer_media_type(mimetype: str) -> str | None:
+    if mimetype.startswith("image/"):
+        return "image"
+
+    if mimetype.startswith("video/"):
+        return "video"
+
+    return None
+
+
+def _read_text_content(upload: Upload) -> str | None:
+    if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith("audio/"):
         return None
 
     try:
         return upload.path.read_text(encoding="utf-8")
     except UnicodeDecodeError, OSError:
         return None
+
+
+def _apply_expiry_cache(response: Response, upload: Upload) -> Response:
+    if upload.expires_at_utc is not None:
+        response.cache_control.max_age = int(
+            (upload.expires_at_utc - datetime.now(UTC)).total_seconds()
+        )
+
+    return response
 
 
 def _serve_raw(upload: Upload) -> Response:
@@ -270,23 +287,37 @@ def _serve_raw(upload: Upload) -> Response:
             download_name=str(upload.name),
         )
 
-    if upload.expires_at_utc is not None:
-        response.cache_control.max_age = int(
-            (upload.expires_at_utc - datetime.now(UTC)).total_seconds()
-        )
-
-    return response
+    return _apply_expiry_cache(response, upload)
 
 
 @blueprint.get("<string:slug>")
 def view(slug: str):
     upload = _get_upload(slug)
 
-    content = _try_read_viewer_content(upload)
-    if content is not None and "text/html" in request.headers.get("Accept", ""):
-        size = humanize.naturalsize(upload.size, gnu=True)
+    if "text/html" not in request.headers.get("Accept", ""):
+        return _serve_raw(upload)
+
+    size = humanize.naturalsize(upload.size, gnu=True)
+
+    media_type = _viewer_media_type(upload.mimetype)
+    if media_type is not None:
+        return _apply_expiry_cache(
+            make_response(
+                render_template(
+                    "pages/upload_view.html.j2",
+                    upload=upload,
+                    size=size,
+                    media_type=media_type,
+                )
+            ),
+            upload,
+        )
+
+    content = _read_text_content(upload)
+    if content is not None:
         language = str(upload.name.suffix).lstrip(".") or "plaintext"
         kwargs = {"upload": upload, "size": size, "language": language}
+        kwargs["content"] = content
 
         if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
             kwargs["rendered"] = nh3.clean(
@@ -295,10 +326,11 @@ def view(slug: str):
                 attributes=_MARKDOWN_ALLOWED_ATTRS,
                 set_tag_attribute_values={"a": {"target": "_blank"}},
             )
-        else:
-            kwargs["content"] = content
 
-        return render_template("pages/upload_view.html.j2", **kwargs)
+        return _apply_expiry_cache(
+            make_response(render_template("pages/upload_view.html.j2", **kwargs)),
+            upload,
+        )
 
     return _serve_raw(upload)
 
@@ -307,7 +339,10 @@ def view(slug: str):
 def raw(slug: str):
     upload = _get_upload(slug)
 
-    if _try_read_viewer_content(upload) is None:
+    if (
+        _viewer_media_type(upload.mimetype) is None
+        and _read_text_content(upload) is None
+    ):
         return redirect(url_for("uploads.view", slug=slug))
 
     return _serve_raw(upload)

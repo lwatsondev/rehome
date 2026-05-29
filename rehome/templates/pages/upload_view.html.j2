@@ -1,45 +1,76 @@
 {% extends "layouts/viewer.html.j2" %}
 
-{% block title %}{{ upload.name }}{% endblock %}
+{% set raw_url = url_for('uploads.raw', slug=upload.slug) %}
+
+{% block title %}{{ upload.name | e }}{% endblock %}
+
+{% block extra_head %}
+{% if media_type is not defined %}
+{{ super() }}
+{% endif %}
+
+<meta property="og:title" content="{{ upload.name | e }}">
+
+{% if media_type is defined %}
+{% set og_url = url_for('uploads.raw', slug=upload.slug, _external=True) %}
+<meta property="og:type" content="{{ 'video.other' if media_type == 'video' else 'website' }}">
+<meta property="og:{{ media_type }}" content="{{ og_url }}">
+<meta property="og:{{ media_type }}:type" content="{{ upload.mimetype | e }}">
+{% elif content is defined %}
+<meta property="og:description" content="{{ content | truncate(200) | e }}">
+{% endif %}
+{% endblock %}
 
 {% block content %}
-{% set raw_url = url_for('uploads.raw', slug=upload.slug) %}
 <div class="viewer-content">
     <div class="viewer-file-header">
         <div class="viewer-file-meta">
-            <span class="viewer-filename">{{ upload.name }}</span>
+            <span class="viewer-filename">{{ upload.name | e }}</span>
             <span class="viewer-sep">|</span>
             <span class="viewer-size">{{ size }}</span>
         </div>
+
         <div class="viewer-file-actions">
             {% if rendered is defined %}
             <a href="{{ raw_url }}" class="viewer-toggle-btn" id="viewer-toggle"
-                data-language="{{ language }}">source</a>
+                data-language="{{ language | e }}">source</a>
             <span class="viewer-sep">|</span>
             {% endif %}
             <a href="{{ raw_url }}" class="viewer-raw-btn">raw</a>
             <span class="viewer-sep">|</span>
-            <a href="{{ raw_url }}" download="{{ upload.name }}" class="viewer-download-btn">download</a>
+            <a href="{{ raw_url }}" download="{{ upload.name | e }}" class="viewer-download-btn">download</a>
         </div>
     </div>
-    {% if rendered is defined %}
+    {% if media_type is defined %}
+    <div class="viewer-media">
+        {% if media_type == "image" %}
+        <a href="{{ raw_url }}"><img src="{{ raw_url }}" alt="{{ upload.name | e }}" class="viewer-media-content"></a>
+        {% elif media_type == "video" %}
+        <video controls class="viewer-media-content">
+            <source src="{{ raw_url }}" type="{{ upload.mimetype | e }}">
+        </video>
+        {% endif %}
+    </div>
+    {% elif rendered is defined %}
     <div class="viewer-markdown" id="viewer-rendered">
         {{ rendered | safe }}
     </div>
     <div class="viewer-code" id="viewer-source" hidden>
-        <pre class="viewer-pre"><code class="language-{{ language }}"></code></pre>
+        <pre class="viewer-pre"><code class="language-{{ language | e }}"></code></pre>
     </div>
     {% else %}
     <div class="viewer-code">
-        <pre class="viewer-pre"><code class="language-{{ language }}">{{ content }}</code></pre>
+        <pre class="viewer-pre"><code class="language-{{ language | e }}">{{ content | e }}</code></pre>
     </div>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
+{% if media_type is not defined %}
 {{ super() }}
 {% if rendered is defined %}
 <script src="{{ url_for('static', filename='js/viewer-toggle.js', version=meta.COMMIT) }}"></script>
+{% endif %}
 {% endif %}
 {% endblock %}
