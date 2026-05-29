@@ -313,19 +313,20 @@ def view(slug: str):
         language = str(upload.name.suffix).lstrip(".") or _MIMETYPE_LANGUAGES.get(
             upload.mimetype, "plaintext"
         )
-        kwargs = {"upload": upload, "size": size, "language": language}
-        kwargs["content"] = content
+        template_ctx = {"upload": upload, "size": size, "language": language}
+        template_ctx["content"] = content
 
         if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
-            kwargs["rendered"] = nh3.clean(
+            template_ctx["rendered"] = nh3.clean(
                 _markdown(content),
                 tags=_MARKDOWN_ALLOWED_TAGS,
                 attributes=_MARKDOWN_ALLOWED_ATTRS,
                 set_tag_attribute_values={"a": {"target": "_blank"}},
+                url_schemes={"http", "https", "mailto"},
             )
 
         return _apply_expiry_cache(
-            make_response(render_template("pages/upload_view.html.j2", **kwargs)),
+            make_response(render_template("pages/upload_view.html.j2", **template_ctx)),
             upload,
         )
 
