@@ -276,7 +276,7 @@ def _apply_expiry_cache(response: Response, upload: Upload) -> Response:
     return response
 
 
-def _serve_raw(upload: Upload) -> Response:
+def _serve_raw(upload: Upload, as_attachment: bool = False) -> Response:
     if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES:
         mimetype = "text/plain"
     elif upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
@@ -284,16 +284,21 @@ def _serve_raw(upload: Upload) -> Response:
     else:
         mimetype = upload.mimetype
 
+    disposition = "attachment" if as_attachment else "inline"
+
     if app.config.get("uploads.use_x_accel_redirect"):
         relative_path = upload.path.relative_to(paths.UPLOADS)
         response = make_response()
         response.headers["Content-Type"] = mimetype
-        response.headers["Content-Disposition"] = f'inline; filename="{upload.name}"'
+        response.headers["Content-Disposition"] = (
+            f'{disposition}; filename="{upload.name}"'
+        )
         response.headers["X-Accel-Redirect"] = f"/{relative_path}"
     else:
         response = send_file(
             upload.path,
             mimetype=mimetype,
+            as_attachment=as_attachment,
             download_name=str(upload.name),
         )
 
@@ -344,7 +349,7 @@ def raw(slug: str):
     if _read_text_content(upload) is None:
         return redirect(url_for("uploads.view", slug=slug))
 
-    return _serve_raw(upload)
+    return _serve_raw(upload, as_attachment="attachment" in request.args)
 
 
 @blueprint.delete("/")

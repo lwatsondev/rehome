@@ -30,7 +30,7 @@
             {% endif %}
             <a href="{{ raw_url }}" class="viewer-raw-btn">raw</a>
             <span class="viewer-sep">|</span>
-            <a href="{{ raw_url }}" download="{{ upload.name }}" class="viewer-download-btn">download</a>
+            <a href="{{ raw_url }}?attachment" download="{{ upload.name }}" class="viewer-download-btn">download</a>
         </div>
     </div>
     {% if rendered is defined %}
