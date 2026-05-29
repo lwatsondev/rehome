@@ -278,6 +278,10 @@ img.avatar-img:hover {
 	padding: 0;
 }
 
+@media (prefers-color-scheme: light) {
+	.viewer-markdown .hljs-comment { color: #888; }
+}
+
 .viewer-markdown h1,
 .viewer-markdown h2,
 .viewer-markdown h3,
