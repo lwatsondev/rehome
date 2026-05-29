@@ -44,6 +44,25 @@ _MAX_VIEWER_SIZE = 1024 * 1024 * 2  # 2 MB
 
 _MARKDOWN_SUFFIXES = frozenset({".md", ".markdown"})
 
+_MIMETYPE_LANGUAGES = {
+    "text/x-shellscript": "bash",
+    "text/x-python": "python",
+    "text/x-ruby": "ruby",
+    "text/x-perl": "perl",
+    "text/x-php": "php",
+    "text/x-java-source": "java",
+    "text/x-csrc": "c",
+    "text/x-c++src": "cpp",
+    "text/x-makefile": "makefile",
+    "text/x-yaml": "yaml",
+    "text/css": "css",
+    "text/html": "html",
+    "text/javascript": "javascript",
+    "application/json": "json",
+    "application/xml": "xml",
+    "application/javascript": "javascript",
+}
+
 _markdown = mistune.create_markdown(plugins=["strikethrough", "table", "url"])
 
 _MARKDOWN_ALLOWED_TAGS = {
@@ -315,7 +334,9 @@ def view(slug: str):
 
     content = _read_text_content(upload)
     if content is not None:
-        language = str(upload.name.suffix).lstrip(".") or "plaintext"
+        language = str(upload.name.suffix).lstrip(".") or _MIMETYPE_LANGUAGES.get(
+            upload.mimetype, "plaintext"
+        )
         kwargs = {"upload": upload, "size": size, "language": language}
         kwargs["content"] = content
 
