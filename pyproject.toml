@@ -2,7 +2,7 @@
 name = "rehome"
 description = ""
 authors = [{ name = "Lee Watson", email = "me@lwatson.dev" }]
-version = "1.16.0"
+version = "1.16.1"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 dependencies = [
