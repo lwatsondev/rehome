@@ -25,7 +25,7 @@ import humanize
 from dynaconf import Dynaconf
 from dynaconf.loaders import write as dynaconf_write
 from niquests import Response, Session
-from niquests import exceptions as niquests_exceptions
+from niquests.exceptions import ConnectionError, RequestException, Timeout  # noqa: A004
 from requests_toolbelt import MultipartEncoder
 from rich import box
 from rich.console import Console
@@ -159,11 +159,11 @@ def _make_session(base_url: str, token: str) -> Session:
 def _make_request(session: Session, method: str, path: str, **kwargs) -> Response:
     try:
         return session.request(method, path, **kwargs)
-    except niquests_exceptions.ConnectionError:
+    except ConnectionError:
         raise _ConnectionError(session.base_url) from None
-    except niquests_exceptions.Timeout:
+    except Timeout:
         raise _TimeoutError(session.base_url) from None
-    except niquests_exceptions.RequestException as exc:
+    except RequestException as exc:
         raise _RequestError(exc) from exc
 
 
