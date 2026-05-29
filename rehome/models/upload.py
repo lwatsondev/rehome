@@ -77,7 +77,7 @@ class Upload(BaseModel):
         # Collects hash, size, and mime header together.
         while chunk := file.read(1024 * 128):
             if not header:
-                header = chunk[:4096]
+                header = chunk[:2048]
             hasher.update(chunk)
             file_size += len(chunk)
 
