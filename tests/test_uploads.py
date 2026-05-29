@@ -412,11 +412,28 @@ def test_view_text_file_renders_viewer(client, uploads_dir, auth_headers):
         .split("/")[-1]
     )
 
-    response = client.get(f"/f/{slug}")
+    response = client.get(f"/f/{slug}", headers={"Accept": "text/html"})
 
     assert response.status_code == HTTPStatus.OK
     assert response.content_type.startswith("text/html")
     assert b"hello.txt" in response.data
+
+
+def test_view_text_file_serves_raw_without_html_accept(
+    client, uploads_dir, auth_headers
+):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    slug = (
+        _post_bytes(client, content, "hello.txt", auth_headers)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.get(f"/f/{slug}", headers={"Accept": "*/*"})
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.content_type.startswith("text/plain")
+    assert response.data == content
 
 
 def test_view_binary_serves_raw(client, uploads_dir, auth_headers):

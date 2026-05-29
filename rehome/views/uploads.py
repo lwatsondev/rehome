@@ -243,7 +243,7 @@ def view(slug: str):
     upload = _get_upload(slug)
 
     content = _try_read_viewer_content(upload)
-    if content is not None:
+    if content is not None and "text/html" in request.headers.get("Accept", ""):
         language = str(upload.name.suffix).lstrip(".") or "plaintext"
         size = humanize.naturalsize(upload.size, gnu=True)
         return render_template(
