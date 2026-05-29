@@ -162,6 +162,10 @@ img.avatar-img:hover {
 	border-bottom: 1px solid var(--border-color);
 }
 
+.viewer-site-nav .pure-menu-link {
+	color: var(--primary-color);
+}
+
 .viewer-site-nav .pure-menu-link:hover,
 .viewer-site-nav .pure-menu-link:focus {
 	background: transparent;
