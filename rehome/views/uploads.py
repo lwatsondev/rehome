@@ -288,27 +288,18 @@ def view(slug: str):
 
         language = str(upload.name.suffix).lstrip(".") or "plaintext"
 
+        kwargs = {"upload": upload, "size": size, "language": language}
+
         if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
-            rendered = nh3.clean(
+            kwargs["rendered"] = nh3.clean(
                 _markdown(content),
                 tags=_MARKDOWN_ALLOWED_TAGS,
                 attributes=_MARKDOWN_ALLOWED_ATTRS,
             )
-            return render_template(
-                "pages/upload_view_markdown.html.j2",
-                upload=upload,
-                content=rendered,
-                size=size,
-                language=language,
-            )
+        else:
+            kwargs["content"] = content
 
-        return render_template(
-            "pages/upload_view.html.j2",
-            upload=upload,
-            content=content,
-            language=language,
-            size=size,
-        )
+        return render_template("pages/upload_view.html.j2", **kwargs)
 
     return _serve_raw(upload)
 
