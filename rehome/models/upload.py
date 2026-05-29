@@ -81,9 +81,9 @@ class Upload(BaseModel):
             hasher.update(chunk)
             file_size += len(chunk)
 
-        file_mimetype = magic.from_buffer(header, mime=True)
-        if file_name.suffix.lower() in {".md", ".markdown"}:
-            file_mimetype = "text/markdown"
+        magic_mimetype = magic.from_buffer(header, mime=True)
+        ext_to_mime = app.config.get("uploads.extension_to_mimetype")
+        file_mimetype = ext_to_mime.get(file_name.suffix.lower(), magic_mimetype)
 
         file_hash = hasher.hexdigest()
 

@@ -8,17 +8,41 @@
 # https://flask.palletsprojects.com/en/stable/config/#SECRET_KEY
 secret_key = ""
 
-[nav_links]
-somesite = "https://somesite.com"
-anothersite = "https://anothersite.com"
-
-[uploads]
-slug_length = 5
-use_x_accel_redirect = false
-expired_cleanup_interval_hours = 24
+# [nav_links]
+# somesite = "https://somesite.com"
+# anothersite = "https://anothersite.com"
 
 [gravatar]
 email = ""
 
 [sentry]
 dsn = ""
+
+[uploads]
+slug_length = 5
+use_x_accel_redirect = false
+expired_cleanup_interval_hours = 24
+force_plain_text_mimetypes = [
+    "text/html",
+    "multipart/related",
+    "application/xhtml+xml",
+    "application/xml",
+]
+
+# Mapping of file extensions to MIME types to override magic's detection.
+[uploads.extension_to_mimetype]
+".md" = "text/markdown"
+".markdown" = "text/markdown"
+".rs" = "text/rust"
+".go" = "text/x-go"
+".ts" = "text/typescript"
+".tsx" = "text/typescript"
+
+# Mapping of MIME types to highlight.js languages for when a file has no extension for hl.js to detect.
+[uploads.mimetype_to_highlight_language]
+"text/x-shellscript" = "bash"
+"text/x-python" = "python"
+"text/x-ruby" = "ruby"
+"text/x-perl" = "perl"
+"text/x-php" = "php"
+"text/x-makefile" = "makefile"

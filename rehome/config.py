@@ -11,4 +11,5 @@ dynaconf = Dynaconf(
     envvar_prefix="REHOME",
     root_path=_CONFIG_DIR,
     settings_files=[str(_BASE_DIR / "resources" / "config" / "default.toml"), "*.toml"],
+    merge_enabled=True,
 )

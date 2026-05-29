@@ -44,25 +44,6 @@ _MAX_VIEWER_SIZE = 1024 * 1024 * 2  # 2 MB
 
 _MARKDOWN_SUFFIXES = frozenset({".md", ".markdown"})
 
-_MIMETYPE_LANGUAGES = {
-    "text/x-shellscript": "bash",
-    "text/x-python": "python",
-    "text/x-ruby": "ruby",
-    "text/x-perl": "perl",
-    "text/x-php": "php",
-    "text/x-java-source": "java",
-    "text/x-csrc": "c",
-    "text/x-c++src": "cpp",
-    "text/x-makefile": "makefile",
-    "text/x-yaml": "yaml",
-    "text/css": "css",
-    "text/html": "html",
-    "text/javascript": "javascript",
-    "application/json": "json",
-    "application/xml": "xml",
-    "application/javascript": "javascript",
-}
-
 _markdown = mistune.create_markdown(plugins=["strikethrough", "table", "url"])
 
 _MARKDOWN_ALLOWED_TAGS = {
@@ -98,16 +79,6 @@ _MARKDOWN_ALLOWED_ATTRS = {
     "th": {"align"},
     "td": {"align"},
 }
-
-# Mimetypes served as text/plain when sending raw to prevent browser rendering
-_FORCE_PLAIN_TEXT_MIMETYPES = frozenset(
-    {
-        "text/html",
-        "multipart/related",
-        "application/xhtml+xml",
-        "application/xml",
-    }
-)
 
 
 class UploadError(Exception):
@@ -277,11 +248,8 @@ def _apply_expiry_cache(response: Response, upload: Upload) -> Response:
 
 
 def _serve_raw(upload: Upload, as_attachment: bool = False) -> Response:
-    mimetype = (
-        "text/plain"
-        if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES
-        else upload.mimetype
-    )
+    force_plain_text = app.config.get("uploads.force_plain_text_mimetypes")
+    mimetype = "text/plain" if upload.mimetype in force_plain_text else upload.mimetype
 
     if app.config.get("uploads.use_x_accel_redirect"):
         relative_path = upload.path.relative_to(paths.UPLOADS)
@@ -313,7 +281,8 @@ def view(slug: str):
 
     content = _read_text_content(upload)
     if content is not None:
-        language = upload.name.suffix.lstrip(".") or _MIMETYPE_LANGUAGES.get(
+        highlight_languages = app.config.get("uploads.mimetype_to_highlight_language")
+        language = upload.name.suffix.lstrip(".") or highlight_languages.get(
             upload.mimetype, "plaintext"
         )
 
