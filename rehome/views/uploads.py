@@ -238,6 +238,16 @@ def _get_upload(slug: str) -> Upload:
     return upload
 
 
+def _viewer_media_type(mimetype: str) -> str | None:
+    if mimetype.startswith("image/"):
+        return "image"
+
+    if mimetype.startswith("video/"):
+        return "video"
+
+    return None
+
+
 def _read_text_content(upload: Upload) -> str | None:
     if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith("audio/"):
         return None
@@ -289,6 +299,20 @@ def view(slug: str):
 
     size = humanize.naturalsize(upload.size, gnu=True)
 
+    media_type = _viewer_media_type(upload.mimetype)
+    if media_type is not None:
+        return _apply_expiry_cache(
+            make_response(
+                render_template(
+                    "pages/upload_view.html.j2",
+                    upload=upload,
+                    size=size,
+                    media_type=media_type,
+                )
+            ),
+            upload,
+        )
+
     content = _read_text_content(upload)
     if content is not None:
         language = str(upload.name.suffix).lstrip(".") or "plaintext"
@@ -315,7 +339,10 @@ def view(slug: str):
 def raw(slug: str):
     upload = _get_upload(slug)
 
-    if _read_text_content(upload) is None:
+    if (
+        _viewer_media_type(upload.mimetype) is None
+        and _read_text_content(upload) is None
+    ):
         return redirect(url_for("uploads.view", slug=slug))
 
     return _serve_raw(upload)
