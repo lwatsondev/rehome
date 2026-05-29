@@ -4,6 +4,7 @@ import sqlite3
 
 import sentry_sdk
 from flask import Flask, url_for
+from jinja2 import select_autoescape
 from libgravatar import Gravatar
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
@@ -21,6 +22,9 @@ def create_app(test_config: dict | None = None) -> Flask:
         static_folder=paths.STATIC,
         template_folder=paths.TEMPLATES,
         instance_path=paths.INSTANCE,
+    )
+    app.jinja_env.autoescape = select_autoescape(
+        ["html", "htm", "xml", "xhtml", "html.j2"]
     )
     dynaconf.init_app(app)
 
