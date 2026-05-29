@@ -85,10 +85,12 @@ a:hover {
 
 .social-links-item {
 	padding: 0.2em;
+	color: var(--primary-color);
 }
 
 .social-links-item:hover {
 	background: none;
+	color: var(--accent-color);
 }
 
 img.avatar-img {
