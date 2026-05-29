@@ -307,7 +307,7 @@ def _render_uploads_table(uploads: list[dict], datetime_format: str) -> None:
         table.add_row(
             upload["name"],
             upload["slug"],
-            humanize.naturalsize(upload["size"]),
+            humanize.naturalsize(upload["size"], gnu=True),
             upload["mimetype"],
             f"[link={upload['url']}]{upload['url']}[/link]",
             _localtime(datetime.fromisoformat(upload["created_at"]), datetime_format),

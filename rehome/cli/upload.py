@@ -62,7 +62,7 @@ def _print_uploads_table(uploads):
         table.add_row(
             str(upload.name),
             str(upload.slug),
-            humanize.naturalsize(upload.size),
+            humanize.naturalsize(upload.size, gnu=True),
             upload.mimetype,
             upload.created_at.isoformat(),
             expires_cell,
