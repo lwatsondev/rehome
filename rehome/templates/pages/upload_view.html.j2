@@ -5,15 +5,17 @@
 {% block content %}
 <div class="viewer-content">
     <div class="viewer-file-header">
-        <span class="viewer-filename">{{ upload.name }}</span>
-        <span class="viewer-file-info">
-            <span class="viewer-size">{{ size }}</span>
+        <div class="viewer-file-meta">
+            <span class="viewer-filename">{{ upload.name }}</span>
             <span class="viewer-sep">|</span>
+            <span class="viewer-size">{{ size }}</span>
+        </div>
+        <div class="viewer-file-actions">
             <a href="{{ url_for('uploads.raw', slug=upload.slug) }}" class="viewer-raw-btn">raw</a>
             <span class="viewer-sep">|</span>
             <a href="{{ url_for('uploads.raw', slug=upload.slug) }}" download="{{ upload.name }}"
                 class="viewer-download-btn">download</a>
-        </span>
+        </div>
     </div>
     <div class="viewer-code">
         <pre class="viewer-pre"><code class="language-{{ language }}">{{ content }}</code></pre>

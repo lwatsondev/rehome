@@ -2,6 +2,8 @@ from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 
 import humanize
+import mistune
+import nh3
 from flask import (
     Blueprint,
     Response,
@@ -39,6 +41,44 @@ blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
 _MIN_EXPIRY_SECONDS = 10 * 60
 _MAX_VIEWER_SIZE = 1024 * 1024 * 2  # 2 MB
+
+_MARKDOWN_SUFFIXES = frozenset({".md", ".markdown"})
+
+_markdown = mistune.create_markdown(plugins=["strikethrough", "table", "url"])
+
+_MARKDOWN_ALLOWED_TAGS = {
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "p",
+    "br",
+    "hr",
+    "ul",
+    "ol",
+    "li",
+    "strong",
+    "em",
+    "del",
+    "code",
+    "pre",
+    "a",
+    "blockquote",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
+}
+
+_MARKDOWN_ALLOWED_ATTRS = {
+    "a": {"href", "title"},
+    "th": {"align"},
+    "td": {"align"},
+}
 
 # Mimetypes served as text/plain when sending raw to prevent browser rendering
 _FORCE_PLAIN_TEXT_MIMETYPES = frozenset(
@@ -244,8 +284,24 @@ def view(slug: str):
 
     content = _try_read_viewer_content(upload)
     if content is not None and "text/html" in request.headers.get("Accept", ""):
-        language = str(upload.name.suffix).lstrip(".") or "plaintext"
         size = humanize.naturalsize(upload.size, gnu=True)
+
+        language = str(upload.name.suffix).lstrip(".") or "plaintext"
+
+        if upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
+            rendered = nh3.clean(
+                _markdown(content),
+                tags=_MARKDOWN_ALLOWED_TAGS,
+                attributes=_MARKDOWN_ALLOWED_ATTRS,
+            )
+            return render_template(
+                "pages/upload_view_markdown.html.j2",
+                upload=upload,
+                content=rendered,
+                size=size,
+                language=language,
+            )
+
         return render_template(
             "pages/upload_view.html.j2",
             upload=upload,

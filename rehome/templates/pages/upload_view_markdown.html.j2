@@ -1,0 +1,65 @@
+{% extends "layouts/viewer.html.j2" %}
+
+{% block title %}{{ upload.name }}{% endblock %}
+
+{% block content %}
+{% set raw_url = url_for('uploads.raw', slug=upload.slug) %}
+<div class="viewer-content">
+    <div class="viewer-file-header">
+        <div class="viewer-file-meta">
+            <span class="viewer-filename">{{ upload.name }}</span>
+            <span class="viewer-sep">|</span>
+            <span class="viewer-size">{{ size }}</span>
+        </div>
+        <div class="viewer-file-actions">
+            <a href="{{ raw_url }}"
+                class="viewer-toggle-btn"
+                id="viewer-toggle"
+                data-language="{{ language }}">source</a>
+            <span class="viewer-sep">|</span>
+            <a href="{{ raw_url }}" class="viewer-raw-btn">raw</a>
+            <span class="viewer-sep">|</span>
+            <a href="{{ raw_url }}" download="{{ upload.name }}"
+                class="viewer-download-btn">download</a>
+        </div>
+    </div>
+    <div class="viewer-markdown" id="viewer-rendered">
+        {{ content | safe }}
+    </div>
+    <div class="viewer-code" id="viewer-source" hidden>
+        <pre class="viewer-pre"><code class="language-{{ language }}"></code></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="module">
+const toggle = document.getElementById('viewer-toggle');
+const rendered = document.getElementById('viewer-rendered');
+const source = document.getElementById('viewer-source');
+const codeEl = source.querySelector('code');
+
+let loadPromise = null;
+
+toggle.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    if (source.hidden) {
+        loadPromise ??= fetch(toggle.href)
+            .then(r => r.text())
+            .then(text => {
+                codeEl.textContent = text;
+                delete codeEl.dataset.highlighted;
+                hljs.highlightElement(codeEl);
+            });
+        await loadPromise;
+    }
+
+    const showSource = source.hidden;
+    rendered.hidden = showSource;
+    source.hidden = !showSource;
+    toggle.textContent = showSource ? 'rendered' : 'source';
+});
+</script>
+{% endblock %}
