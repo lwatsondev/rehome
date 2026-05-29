@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 
 import humanize
+import imagesize
 import mistune
 import nh3
 from flask import (
@@ -301,15 +302,16 @@ def view(slug: str):
 
     media_type = _viewer_media_type(upload.mimetype)
     if media_type is not None:
+        kwargs = {"upload": upload, "size": size, "media_type": media_type}
+
+        if media_type == "image":
+            img_width, img_height = imagesize.get(upload.path)
+            if img_width != -1:
+                kwargs["img_width"] = img_width
+                kwargs["img_height"] = img_height
+
         return _apply_expiry_cache(
-            make_response(
-                render_template(
-                    "pages/upload_view.html.j2",
-                    upload=upload,
-                    size=size,
-                    media_type=media_type,
-                )
-            ),
+            make_response(render_template("pages/upload_view.html.j2", **kwargs)),
             upload,
         )
 
