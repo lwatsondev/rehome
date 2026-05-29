@@ -277,17 +277,16 @@ def _apply_expiry_cache(response: Response, upload: Upload) -> Response:
 
 
 def _serve_raw(upload: Upload, as_attachment: bool = False) -> Response:
-    if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES:
-        mimetype = "text/plain"
-    elif upload.name.suffix.lower() in _MARKDOWN_SUFFIXES:
-        mimetype = "text/markdown"
-    else:
-        mimetype = upload.mimetype
-
-    disposition = "attachment" if as_attachment else "inline"
+    mimetype = (
+        "text/plain"
+        if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES
+        else upload.mimetype
+    )
 
     if app.config.get("uploads.use_x_accel_redirect"):
         relative_path = upload.path.relative_to(paths.UPLOADS)
+        disposition = "attachment" if as_attachment else "inline"
+
         response = make_response()
         response.headers["Content-Type"] = mimetype
         response.headers["Content-Disposition"] = (
