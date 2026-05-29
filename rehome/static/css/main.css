@@ -119,6 +119,7 @@ img.avatar-img:hover {
 	display: flex;
 	flex-direction: column;
 	height: 100vh;
+	overflow: hidden;
 }
 
 
@@ -151,7 +152,7 @@ img.avatar-img:hover {
 .viewer-content {
 	border: 1px solid var(--border-color);
 	margin: 1.5em 0;
-	flex: 1;
+	flex: 0 1 auto;
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
@@ -221,9 +222,10 @@ img.avatar-img:hover {
 }
 
 .viewer-code {
-	flex: 1;
+	flex: 0 1 auto;
 	overflow: auto;
 	min-height: 0;
+	background: #f0f0f0;
 }
 
 .viewer-pre {
@@ -243,6 +245,10 @@ img.avatar-img:hover {
 }
 
 @media (prefers-color-scheme: dark) {
+	.viewer-code {
+		background: #191919;
+	}
+
 	.viewer-pre > code.hljs {
 		background: #191919;
 	}
