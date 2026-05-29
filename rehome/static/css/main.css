@@ -232,11 +232,24 @@ img.avatar-img:hover {
 	color: var(--accent-color);
 }
 
-.viewer-code {
+.viewer-code,
+.viewer-markdown {
 	flex: 0 1 auto;
 	overflow: auto;
 	min-height: 0;
 	background: #f0f0f0;
+}
+
+@media (prefers-color-scheme: dark) {
+	.viewer-code,
+	.viewer-markdown {
+		background: #191919;
+	}
+}
+
+.viewer-markdown {
+	padding: 1em 1.5em;
+	line-height: 1.6;
 }
 
 .viewer-pre {
@@ -256,26 +269,7 @@ img.avatar-img:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-	.viewer-code {
-		background: #191919;
-	}
-
 	.viewer-pre > code.hljs {
-		background: #191919;
-	}
-}
-
-.viewer-markdown {
-	flex: 0 1 auto;
-	overflow: auto;
-	min-height: 0;
-	padding: 1em 1.5em;
-	line-height: 1.6;
-	background: #f0f0f0;
-}
-
-@media (prefers-color-scheme: dark) {
-	.viewer-markdown {
 		background: #191919;
 	}
 }
