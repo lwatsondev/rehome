@@ -404,6 +404,50 @@ def test_delete_expired(client, uploads_dir, auth_headers):
     assert db.session.get(Upload, live_slug) is not None
 
 
+def test_view_text_file_renders_viewer(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    slug = (
+        _post_bytes(client, content, "hello.txt", auth_headers)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.get(f"/f/{slug}")
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.content_type.startswith("text/html")
+    assert b"hello.txt" in response.data
+
+
+def test_view_binary_serves_raw(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "archive.tar.gz").read_bytes()
+    slug = (
+        _post_bytes(client, content, "archive.tar.gz", auth_headers)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.get(f"/f/{slug}")
+
+    assert response.status_code == HTTPStatus.OK
+    assert not response.content_type.startswith("text/html")
+
+
+def test_raw_endpoint_serves_content_directly(client, uploads_dir, auth_headers):
+    content = (FIXTURES / "hello.txt").read_bytes()
+    slug = (
+        _post_bytes(client, content, "hello.txt", auth_headers)
+        .json["url"]
+        .split("/")[-1]
+    )
+
+    response = client.get(f"/f/{slug}/raw")
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.content_type.startswith("text/plain")
+    assert response.data == content
+
+
 def test_delete_wildcard_ignores_filter(client, uploads_dir, auth_headers):
     txt_slug = (
         _post_bytes(

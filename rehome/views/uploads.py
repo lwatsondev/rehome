@@ -1,12 +1,16 @@
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 
+import humanize
 from flask import (
     Blueprint,
     Response,
     make_response,
+    redirect,
+    render_template,
     request,
     send_file,
+    url_for,
 )
 from flask import current_app as app
 from sqlalchemy import inspect as sa_inspect
@@ -34,6 +38,17 @@ from rehome.views.pages import _base_error_handler
 blueprint = Blueprint("uploads", __name__, url_prefix="/f")
 
 _MIN_EXPIRY_SECONDS = 10 * 60
+_MAX_VIEWER_SIZE = 1024 * 1024 * 2  # 2 MB
+
+# Mimetypes served as text/plain when sending raw to prevent browser rendering
+_FORCE_PLAIN_TEXT_MIMETYPES = frozenset(
+    {
+        "text/html",
+        "multipart/related",
+        "application/xhtml+xml",
+        "application/xml",
+    }
+)
 
 
 class UploadError(Exception):
@@ -172,8 +187,7 @@ def upload_file():
     return __make_upload_file_response(upload)
 
 
-@blueprint.get("<string:slug>")
-def view(slug: str):
+def _get_upload(slug: str) -> Upload:
     upload = Upload.one_or_404(slug=slug)
 
     if upload.is_expired:
@@ -181,16 +195,25 @@ def view(slug: str):
         upload.delete()
         raise NotFound
 
-    # Treat html/xml types as plaintext for display purposes so they're not rendered by browsers.
+    return upload
+
+
+def _try_read_viewer_content(upload: Upload) -> str | None:
+    if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith(
+        ("image/", "video/", "audio/")
+    ):
+        return None
+
+    try:
+        return upload.path.read_text(encoding="utf-8")
+    except UnicodeDecodeError, OSError:
+        return None
+
+
+def _serve_raw(upload: Upload) -> Response:
     mimetype = (
         "text/plain"
-        if upload.mimetype
-        in [
-            "text/html",
-            "multipart/related",
-            "application/xhtml+xml",
-            "application/xml",
-        ]
+        if upload.mimetype in _FORCE_PLAIN_TEXT_MIMETYPES
         else upload.mimetype
     )
 
@@ -213,6 +236,35 @@ def view(slug: str):
         )
 
     return response
+
+
+@blueprint.get("<string:slug>")
+def view(slug: str):
+    upload = _get_upload(slug)
+
+    content = _try_read_viewer_content(upload)
+    if content is not None:
+        language = str(upload.name.suffix).lstrip(".") or "plaintext"
+        size = humanize.naturalsize(upload.size, gnu=True)
+        return render_template(
+            "pages/upload_view.html.j2",
+            upload=upload,
+            content=content,
+            language=language,
+            size=size,
+        )
+
+    return _serve_raw(upload)
+
+
+@blueprint.get("<string:slug>/raw")
+def raw(slug: str):
+    upload = _get_upload(slug)
+
+    if _try_read_viewer_content(upload) is None:
+        return redirect(url_for("uploads.view", slug=slug))
+
+    return _serve_raw(upload)
 
 
 @blueprint.delete("/")

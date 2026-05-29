@@ -1,0 +1,26 @@
+{% extends "layouts/base.html.j2" %}
+
+{% block extra_head %}
+<link rel="stylesheet" media="(prefers-color-scheme: light)"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/atom-one-light.min.css">
+<link rel="stylesheet" media="(prefers-color-scheme: dark)"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark-dimmed.min.css">
+{% endblock %}
+
+{% block outer %}
+<div class="viewer-page">
+    <nav class="pure-menu pure-menu-horizontal viewer-site-nav">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a href="{{ url_for('pages.index') }}" class="pure-menu-link">~/</a>
+            </li>
+        </ul>
+    </nav>
+    {% block content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+{% endblock %}
