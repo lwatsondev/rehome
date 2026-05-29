@@ -124,16 +124,16 @@ img.avatar-img:hover {
 }
 
 @media screen and (max-width: 48em) { /* pure md */
-	.viewer-page { font-size: 0.95em; }
+	.viewer-page { font-size: 0.90em; }
 }
 
 @media screen and (max-width: 40em) {
-	.viewer-page { font-size: 0.875em; }
+	.viewer-page { font-size: 0.87em; }
 }
 
 @media screen and (max-width: 35.5em), /* pure sm */
        screen and (max-height: 28em) and (orientation: landscape) {
-	.viewer-page { font-size: 0.825em; }
+	.viewer-page { font-size: 0.82em; }
 }
 
 
