@@ -52,8 +52,6 @@ def token_list():
         return
 
     table = Table(
-        show_edge=False,
-        pad_edge=False,
         box=box.ASCII_DOUBLE_HEAD,
         header_style="bold green",
     )
