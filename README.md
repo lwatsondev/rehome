@@ -16,7 +16,7 @@ make setup
 ## Env var usage for configuration is documented here: https://www.dynaconf.com/envvars/
 ## Env var prefix is set to 'REHOME_', not 'DYNACONF_'.
 ## Add env vars to 'docker/.env'.
-## You can also copy rehome/resources/config/default.toml to instance/config
+## You can also copy rehome/resources/config/default.toml to docker/config/
 ## Config shouldn't be necessary for dev as everything that needs to be is already configured in the Dockerfile.
 make run
 ```
