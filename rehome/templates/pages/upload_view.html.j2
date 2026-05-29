@@ -9,8 +9,6 @@
         <span class="viewer-file-info">
             <span class="viewer-size">{{ size }}</span>
             <span class="viewer-sep">|</span>
-            <span class="viewer-mimetype">{{ upload.mimetype }}</span>
-            <span class="viewer-sep">|</span>
             <a href="{{ url_for('uploads.raw', slug=upload.slug) }}" class="viewer-raw-btn">raw</a>
             <span class="viewer-sep">|</span>
             <a href="{{ url_for('uploads.raw', slug=upload.slug) }}" download="{{ upload.name }}"

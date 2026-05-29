@@ -166,7 +166,7 @@ img.avatar-img:hover {
 	border-bottom: 1px solid var(--border-color);
 }
 
-@media screen and (max-width: 64em) { /* pure lg */
+@media screen and (max-width: 35.5em) { /* pure sm */
 	.viewer-file-header {
 		display: block;
 	}
@@ -177,12 +177,6 @@ img.avatar-img:hover {
 	}
 }
 
-@media screen and (max-width: 35.5em) { /* pure sm */
-	.viewer-mimetype,
-	.viewer-size + .viewer-sep {
-		display: none;
-	}
-}
 
 .viewer-filename {
 	font-family: 'Roboto Mono', monospace;
