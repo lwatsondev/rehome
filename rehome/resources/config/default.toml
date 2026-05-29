@@ -58,6 +58,7 @@ ini = [
     "*.env",
     ".env",
     "*.cfg",
+    "*.conf",
 ]
 
 # Mapping of MIME types to highlight.js languages for when a file has no extension for hl.js to detect.
