@@ -21,7 +21,7 @@ def start(app: Flask):
         IntervalTrigger(hours=interval),
         next_run_time=datetime.now(UTC),  # Run immediately on startup.
     )
-    app.logger.info("Starting expired upload cleanup task.")
+    app.logger.debug("Starting expired upload cleanup task.")
     scheduler.start()
 
 
