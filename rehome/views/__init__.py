@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 from typing import TYPE_CHECKING
 
 from rehome.views import pages, uploads

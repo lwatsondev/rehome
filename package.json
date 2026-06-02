@@ -3,7 +3,7 @@
     "version": "1.20.0",
     "repository": "https://github.com/lwatsondev/rehome",
     "author": "Lee Watson <me@lwatson.dev>",
-    "license": "",
+    "license": "MIT",
     "private": true,
     "devDependencies": {
         "stylelint": "^17.12.0",

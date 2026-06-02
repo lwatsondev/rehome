@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 import click
 import humanize
 from flask.cli import AppGroup

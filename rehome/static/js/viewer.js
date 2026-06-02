@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2021 Lee Watson
+
 function addLineNumbers(codeEl) {
     codeEl.querySelectorAll("tr").forEach((row, i) => {
         row.id = `L${i + 1}`;

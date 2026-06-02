@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 from importlib.util import find_spec
 
 from dynaconf import FlaskDynaconf

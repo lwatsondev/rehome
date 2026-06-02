@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 """Add auth_tokens table for database-backed bearer token authentication.
 
 Revision ID: 7c221e1bf861

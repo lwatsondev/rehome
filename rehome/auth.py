@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 from flask import Flask, abort
 from flask_httpauth import HTTPTokenAuth
 from sqlalchemy import exists, inspect, select

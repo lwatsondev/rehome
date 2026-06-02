@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2021 Lee Watson
+
 const toggle = document.getElementById("viewer-toggle");
 const rendered = document.getElementById("viewer-rendered");
 const source = document.getElementById("viewer-source");

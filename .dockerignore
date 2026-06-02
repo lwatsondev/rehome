@@ -8,6 +8,7 @@
 !uv.lock
 !.python-version
 !README.md
+!LICENSE
 
 **/__pycache__
 **/*.py[cod]

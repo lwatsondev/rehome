@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 """Add expires_at to uploads
 
 Revision ID: f8a3c2e1b7d5

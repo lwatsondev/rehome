@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 from pathlib import Path
 
 # Needs to be loaded outside the flask extension as these are needed before we have an app context.

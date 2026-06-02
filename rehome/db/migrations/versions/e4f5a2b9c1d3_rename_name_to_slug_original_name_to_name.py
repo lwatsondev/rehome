@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 """Rename uploads.name to slug, uploads.original_name to name
 
 Revision ID: e4f5a2b9c1d3

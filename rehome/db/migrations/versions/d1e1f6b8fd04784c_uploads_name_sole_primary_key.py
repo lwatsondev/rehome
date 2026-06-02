@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 """Make name the sole primary key of uploads. file_hash becomes a unique constraint.
 
 Revision ID: d1e1f6b8fd04784c

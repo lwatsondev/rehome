@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 """use Text instead of varchar thanks bean
 
 Revision ID: 4b921713d879

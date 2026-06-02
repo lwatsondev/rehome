@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 from alembic import command
 from sqlalchemy import create_engine, inspect
 

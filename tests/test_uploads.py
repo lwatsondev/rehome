@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2021 Lee Watson
+
 import hashlib
 import io
 from datetime import UTC, datetime, timedelta
