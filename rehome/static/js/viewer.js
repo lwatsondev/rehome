@@ -22,4 +22,6 @@ document.querySelectorAll("pre.viewer-pre code").forEach((block) => {
     highlightWithLineNumbers(block);
 });
 
-hljs.highlightAll();
+document.querySelectorAll(".viewer-markdown pre code[class]").forEach((block) => {
+    hljs.highlightElement(block);
+});

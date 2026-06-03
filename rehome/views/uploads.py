@@ -80,6 +80,7 @@ _MARKDOWN_ALLOWED_TAGS = {
 
 _MARKDOWN_ALLOWED_ATTRS = {
     "a": {"href", "title"},
+    "code": {"class"},
     "th": {"align"},
     "td": {"align"},
 }

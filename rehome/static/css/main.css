@@ -7,7 +7,7 @@
 :root {
 	--primary-bg-color: #e4e4e4;
 	--viewer-bg-color: #f2f2f2;
-	--code-bg-color: #e9ebed;
+	--code-bg-color: #d8dce0;
 	--heading-border-color: #c3cad1;
 	--primary-text-color: #1f1f1f;
 	--secondary-text-color: #595959;
@@ -20,7 +20,7 @@
 	:root {
 		--primary-bg-color: #111;
 		--viewer-bg-color: #191919;
-		--code-bg-color: #202020;
+		--code-bg-color: #2a2a2a;
 		--heading-border-color: #3c4044;
 		--primary-text-color: #eee;
 		--secondary-text-color: #8f8f8f;
