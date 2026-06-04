@@ -48,6 +48,12 @@ _MAX_VIEWER_SIZE = 1024 * 1024 * 2  # 2 MB
 
 _MARKDOWN_SUFFIXES = frozenset({".md", ".markdown"})
 
+_NON_TEXT_MIMETYPES = (
+    "audio/",
+    "video/",
+    "image/",
+)
+
 _markdown = mistune.create_markdown(plugins=["strikethrough", "table", "url"])
 
 _MARKDOWN_ALLOWED_TAGS = {
@@ -235,7 +241,7 @@ def _get_upload(slug: str) -> Upload:
 
 def _read_text_content(upload: Upload) -> str | None:
     if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith(
-        ("audio/", "video/", "image/")
+        _NON_TEXT_MIMETYPES
     ):
         return None
 
