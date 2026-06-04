@@ -234,7 +234,9 @@ def _get_upload(slug: str) -> Upload:
 
 
 def _read_text_content(upload: Upload) -> str | None:
-    if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith("audio/"):
+    if upload.size > _MAX_VIEWER_SIZE or upload.mimetype.startswith(
+        ("audio/", "video/")
+    ):
         return None
 
     try:
