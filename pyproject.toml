@@ -7,32 +7,32 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.14,<3.15"
 dependencies = [
-    "flask (>=3.0.0,<4.0.0)",
+    "flask (>=3.1.3,<4.0.0)",
     "gunicorn[gthread]>=26.0.0",
     "flask-db>=0.4.1",
-    "flask-httpauth>=4.8.0",
-    "flask-wtf>=1.2.2",
+    "flask-httpauth>=4.8.1",
+    "flask-wtf>=1.3.0",
     "libgravatar>=1.0.4",
-    "python-dotenv>=1.1.0",
+    "python-dotenv>=1.2.2",
     "python-magic>=0.4.27",
-    "sentry-sdk[flask,sqlalchemy]>=2.60.0",
-    "dynaconf>=3.2.10",
-    "flask-sqlalchemy-lite>=0.1.0",
+    "sentry-sdk[flask,sqlalchemy]>=2.63.0",
+    "dynaconf>=3.2.13",
+    "flask-sqlalchemy-lite>=0.2.1",
     "humanize>=4.15.0",
     "rich>=15.0.0",
-    "apscheduler>=3.10.0,<4.0.0",
+    "apscheduler>=3.11.2,<4.0.0",
     "mistune>=3.2.1",
     "nh3>=0.3.5",
 ]
 
 [dependency-groups]
 dev = [
-    "prek>=0.3.13",
-    "ruff>=0.14.0",
-    "shellcheck-py>=0.10.0.1",
+    "prek>=0.4.5",
+    "ruff>=0.15.18",
+    "shellcheck-py>=0.11.0.1",
     "flask-debugtoolbar>=0.16.0",
-    "yamllint>=1.37.1",
-    "pytest>=9.0.3",
+    "yamllint>=1.38.0",
+    "pytest>=9.1.0",
     "hadolint-py>=2.14.0.1",
 ]
 
