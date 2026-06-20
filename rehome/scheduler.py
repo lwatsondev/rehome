@@ -37,7 +37,8 @@ def _purge_expired_uploads(app: Flask):
             return
 
         for upload in expired:
-            upload.delete()
+            upload.delete(commit=False)
 
         if expired:
+            db.session.commit()
             app.logger.info(f"Purged {len(expired)} expired upload(s).")
