@@ -200,6 +200,10 @@ img.avatar-img:hover {
 		align-items: flex-start;
 		gap: 0.4em;
 	}
+
+	.viewer-file-meta {
+		width: 100%;
+	}
 }
 
 .viewer-file-meta {
