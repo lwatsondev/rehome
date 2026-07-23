@@ -31,7 +31,10 @@ Sentry. npm/stylelint is used for CSS only. This is not a JS app.
 
 - `from module import Name`, not `import module` + `module.Name` at call
   sites, including type annotations. Import needed submodules directly with
-  an alias rather than keeping the top-level package import.
+  an alias rather than keeping the top-level package import. Exception: keep
+  the `import module` + `module.Name` form when the bare name would shadow a
+  builtin or read ambiguously out of context (e.g. `sys.exit`,
+  `subprocess.run`, `os.environ`).
 - No single-character variable names anywhere, including loop and
   comprehension variables. Name caught exceptions `exc`, never `e`.
 - f-strings for all interpolation, including logging calls, never %-style.
