@@ -51,7 +51,7 @@ class Upload(BaseModel):
         DateTime(timezone=True), nullable=True
     )
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         slug: Path,
         name: Path,
